@@ -273,5 +273,5 @@ WKL w-|> SRT22 "WKL holds in an omega model consisting entirely of low sets, and
 WKL w-|> ASRT22 "Dzhafarov (2011) [Proposition 5.6]"
 WKL w-|> OPT "Hirschfeldt, Shore, and Slaman (2009) [Theorem 5.6~(2)]"
 AMT w-|> SADS "Hirschfeldt, Shore, and Slaman (2009) [Corollary 3.12]"
-WWKL w-|> WKL "Simpson and Yu (1990) [Section 2]"
+WWKL w-|> WKL "Yu and Simpson (1990) [Section 2]"
 

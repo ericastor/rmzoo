@@ -79,11 +79,12 @@ Mileti (2004) - "Partition Theorems and Computability Theory" (Ph.D. thesis, Uni
     http://www.math.grin.edu/~miletijo/research/thesis.pdf
 Simpson (2009) - Subsystems of second order arithmetic
     http://www.personal.psu.edu/t20/sosoa/
-Simpson and Yu (1990) - "Measure theory and weak König's lemma"
-    http://link.springer.com/article/10.1007/BF01621469
-    Arch. Math. Logic 30(3), doi:10.1007/BF01621469
 
 Slaman CiE11
     Slides: http://cie2011.fmi.uni-sofia.bg/files/slides/Slaman.pdf
     
 Wang-TA (almost certainly multiple papers)
+
+Yu and Simpson (1990) - "Measure theory and weak König's lemma"
+    http://link.springer.com/article/10.1007/BF01621469
+    Arch. Math. Logic 30(3), doi:10.1007/BF01621469
