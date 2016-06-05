@@ -1,0 +1,89 @@
+Referenced papers:
+
+Ambos-Spies, Kjos-Hanssen, Lempp, and Slaman (2004) - "Comparing DNR and WWKL"
+    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9066747&fulltextType=RA&fileId=S0022481200007404
+    J. Symbolic Logic 69(4), doi:10.2178/jsl/1102022212
+Avigad, Dean, and Rute (2012) - "Algorithmic randomness, reverse mathematics, and the dominated convergence theorem"
+    http://www.sciencedirect.com/science/article/pii/S0168007212000863
+    Ann. Pure Appl. Logic 163(12), doi:10.1016/j.apal.2012.05.010
+Bienvenu, Patey, and Shafer (to appear)
+    http://arxiv.org/abs/1411.5874
+Bovykin and Weiermann (2005) - "The strength of infinitary ramseyan principles can be accessed by their densities."
+    https://www.researchgate.net/publication/228457756_The_strength_of_infinitary_ramseyan_principles_can_be_accessed_by_their_densities
+    Ann. Pure Appl. Logic (to appear?)
+Brian Rice (2015) - "The Thin Set Theorem for Pairs Implies DNR"
+    http://projecteuclid.org/euclid.ndjfl/1443620509
+    Notre Dame J. Formal Logic 56(4), doi:10.1215/00294527-3153606
+Cholak, Giusto, Hirst, and Jockusch (2005) - "Free sets and reverse mathematics" (in Reverse Mathematics 2001)
+    http://www.math.uiuc.edu/~jockusch/free7.pdf
+    Published version: http://www.aslonline.org/books-lnl_21.html
+Cholak, Jockusch, and Slaman (2001) - "On the strength of Ramsey's theorem for pairs"
+    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9069578&fileId=S0022481200011208
+    J. Symbolic Logic 66(1), doi:10.2307/2694910
+Chong, Lempp, and Yang (2010) - "On the role of the collection principle for $\Sigma^0_2$-formulas in second-order reverse mathematics"
+    http://www.ams.org/journals/proc/2010-138-03/S0002-9939-09-10115-6/
+    Proc. Amer. Math. Soc. 138(3), doi:10.1090/S0002-9939-09-10115-6
+
+Conidis (2008) (need to resolve which paper)
+
+Conidis and Slaman (2013) - "Random reals, the rainbow Ramsey theorem, and arithmetic conservation"
+    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9058478&fileId=S0022481200000359
+    J. Symbolic Logic 78(1), doi:10.2178/jsl.7801130
+Csima and Mileti (2009) - "The strength of the rainbow Ramsey theorem"
+    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9061548&fileId=S0022481200003170
+    J. Symbolic Logic 74(4), doi:10.2178/jsl/1254748693
+
+DDGT-TA
+
+Dzhafarov (2011) - "Stable Ramsey's Theorem and Measure"
+    http://projecteuclid.org/euclid.ndjfl/1292249613
+    Notre Dame J. Formal Logic 52(1), doi:10.1215/00294527-2010-039
+Dzhafarov and Hirst (2009) - "The polarized Ramsey's theorem"
+    http://link.springer.com/article/10.1007/s00153-008-0108-0
+    Arch. Math. Logic 48(2), doi:10.1007/s00153-008-0108-0
+Dzhafarov and Mummert (2013) - "On the strength of the finite intersection principle"
+    http://link.springer.com/article/10.1007/s11856-012-0150-9
+    Israel J. Math. 196(1), doi:10.1007/s11856-012-0150-9
+
+FDM-2010
+
+Flood (2012) - "Reverse mathematics and a Ramsey-type König's Lemma"
+    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9059924&fileId=S0022481200001225
+    J. Symbolic Logic 77(4), doi:10.2178/jsl.7704120
+Friedman (FOM 53-54) - "FOM: 53:Free Sets/Reverse Math" and "FOM: 54:Recursion Theory/Dynamics"
+    http://www.cs.nyu.edu/pipermail/fom/1999-July/003257.html
+    http://www.cs.nyu.edu/pipermail/fom/1999-July/003263.html
+Hirschfeldt and Shore (2007) - "Combinatorial principles weaker than Ramsey's theorem for pairs"
+    http://www.jstor.org/stable/27588536
+    J. Symbolic Logic 72(1), doi:10.2178/jsl/1174668391
+Hirschfeldt, Jockusch, Kjos-Hanssen, Lempp, and Slaman (2006) - "The strength of some combinatorial principles related to Ramsey's theorem for pairs"
+    http://math.uchicago.edu/~drh/Papers/Papers/comb.pdf
+    Published in Computational Prospects of Infinity, Part II: Presented Talks (http://dx.doi.org/10.1142/6786)
+Hirschfeldt, Shore, and Slaman (2009) - "The atomic model theorem and type omitting"
+    http://www.ams.org/journals/tran/2009-361-11/S0002-9947-09-04847-8/
+    Trans. Amer. Math. Soc. 361(11), doi:10.1090/S0002-9947-09-04847-8
+Hirst (1987) - "Combinatorics in Subsystems of Second Order Arithmetic" (Ph.D. thesis, Pennsylvania State University)
+    http://search.proquest.com/docview/303611646?accountid=14518
+Kreuzer (2012) - "Primitive Recursion and the Chain Antichain Principle"
+    http://projecteuclid.org/euclid.ndjfl/1336588253
+    Notre Dame J. Formal Logic 53(2), doi:10.1215/00294527-1715716
+    (possibly also a citation to Kreuzer's thesis:
+        "Proof mining and combinatorics: Program extraction for Ramsey's theorem for pairs", http://tuprints.ulb.tu-darmstadt.de/2972/)
+Lerman, Solomon, and Towsner (2013) - "Separating principles below Ramsey's theorem for pairs"
+    http://www.worldscientific.com/doi/abs/10.1142/S0219061313500074
+    J. Math. Logic 13(2), doi:10.1142/S0219061313500074
+
+Liu (multiple papers)
+
+Mileti (2004) - "Partition Theorems and Computability Theory" (Ph.D. thesis, University of Illinois at Urbana-Champaign)
+    http://www.math.grin.edu/~miletijo/research/thesis.pdf
+Simpson (2009) - Subsystems of second order arithmetic
+    http://www.personal.psu.edu/t20/sosoa/
+Simpson and Yu (1990) - "Measure theory and weak König's lemma"
+    http://link.springer.com/article/10.1007/BF01621469
+    Arch. Math. Logic 30(3), doi:10.1007/BF01621469
+
+Slaman CiE11
+    Slides: http://cie2011.fmi.uni-sofia.bg/files/slides/Slaman.pdf
+    
+Wang-TA (almost certainly multiple papers)
