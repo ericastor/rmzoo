@@ -1,24 +1,30 @@
 ######################################
 #                                    #
-# RM Zoo (v2.0)                      #
+# RM Zoo (v4.0)                      #
 #                                    #
-# File compiled 2013-08-05 17:20     #
+# File compiled 2016-06-05           #
 #                                    #
 ######################################
 
 # Primary principles
 
 ACA is primary
-WKL is primary
-RCA is primary
-SRT22 is primary
-RT22 is primary
 ADS is primary
-BSig2 is primary
-COH is primary
-StCOH is primary
 AMT is primary
+BSig2 is primary
+CAC is primary
+COH is primary
+DNR is primary
+DNR0 is primary
+EM is primary
 FIP is primary
+RAN2 is primary
+RCA is primary
+RT22 is primary
+SRT22 is primary
+StCOH is primary
+WKL is primary
+WWKL is primary
 
 # Syntactic forms
 
