@@ -39,11 +39,11 @@ def error(s):    # Just quit
 from rmBitmasks import *
 
 _FORM_COLOR = {Form.none: "white",
-               Form.Pi11: "pink",
-              Form.rPi12: "cyan"}
+  Form.weaker(Form.Pi11): "pink",
+ Form.weaker(Form.rPi12): "cyan"}
 _CONS_COLOR = {Form.none: "white",
-               Form.Pi11: "pink",
-  Form.rPi12 | Form.Pi11: "cyan"}
+  Form.weaker(Form.Pi11): "pink",
+ Form.weaker(Form.rPi12): "cyan"}
     
 ##################################################################################
 #
@@ -378,6 +378,14 @@ if Implications or NonImplications or Weak or Strong:
                     printStrongOpen[(a,b)] = False
                 if simpleImplies[(a,c)] and not simpleImplies[(b,a)] and not simpleNotImplies[(b,a)]: # a -> c, b ? a
                     printStrongOpen[(b,c)] = False
+    
+    # Find all equivalent principles
+    
+    equivSet = defaultdict(set)
+    for a in primary:
+        for b in principles:
+            if equivalent[(a,b)]:
+                equivSet[a].add(b)
  
 ##################################################################################
 #
@@ -415,10 +423,15 @@ node [shape=none,color=white];
         for a in primary:
             for b in primary:
                 if printImplies[(a,b)]:
-                    style = ''
+                    style = []
                     if printNotImplies[(b,a)] and not NonImplications:
-                        style = ' [color = "black:white:black"]'
-                    print('" {0} " -> " {1} "{2}'.format(a,b,style))
+                        style.append('color = "black:white:black"')
+                    if len(equivSet[a]) > 0:
+                        style.append('minlen = 2')
+                    s = ''
+                    if len(style) > 0:
+                        s = ' [{0}]'.format(', '.join(style))
+                    print('" {0} " -> " {1} "{2}'.format(a,b,s))
                         
     if NonImplications:
         
@@ -429,9 +442,8 @@ node [shape=none,color=white];
     
     if not OnlyPrimary:
         for a in primary:
-            for b in principles:
-                if equivalent[(a,b)]:
-                    print('" {0} " -> " {1} "  [dir = both]'.format(a,b))
+            for b in equivSet[a]:
+                print('" {0} " -> " {1} "  [dir = both]'.format(a,b))
                     
     if Weak:
         for a in primary:
