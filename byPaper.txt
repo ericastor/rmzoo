@@ -1,9 +1,20 @@
+RT2 -> RT22 "by definition"
 SRT2 -> SRT22 "by definition"
 D2 -> D22 "by definition"
 
+RT2 -> SRT2 "by definition"
 RT22 -> SRT22 "by definition"
 
 KL -> WKL "by definition"
+
+ISig3 -> ISig2 "by definition"
+BSig3 -> BSig2 "by definition"
+
+RCA w-> ISig3 "Full induction holds in any omega-model."
+
+#Simpson (2009) - Subsystems of Second-Order Arithmetic
+
+WKL Pi11c RCA "due to Harrington, see Simpson's 'Subsystems of Second Order Arithmetic' (2009) [Corollary IX.2.6]"
 
 #Friedman (1975) - "Some Systems of Second Order Arithmetic and Their Use"
 #    http://www.mathunion.org/ICM/ICM1974.1/Main/icm1974.1.0235.0242.ocr.pdf
@@ -32,19 +43,27 @@ BSig2 -|> ISig2 "Paris and Kirby (1978) [Proposition 8]"
 #    ISign -|> BSig(n+1) "Paris and Kirby (1978) [Proposition 7]"
 #    BSign -|> ISign "Paris and Kirby (1978) [Proposition 8]"
 
+Paris (1980) - "A hierarchy of cuts in models of arithmetic"
+    http://link.springer.com/chapter/10.1007/BFb0090171
+    in: Model Theory of Algebra and Arithmetic (ed: Pacholski, Wierzejewski, & Wilkie)
+        ISBN: 978-3-540-10269-4
+
+BSig2 nPi03c RCA "Paris (1980) - A hierarchy of cuts in models of arithmetic, p. 331"
+
 #Simpson (1985) - "Reverse Mathematics"
 #    in: Recursion Theory (ed. Anil Nerode and Richard A. Shore), pp. 461-471, ISBN-10: 0-8218-1447-8
 
-Uncited:
-    KL <-> ACA
+#Cited:
+    RT32 <-> ACA "follows from Jockusch (1972) [Theorem 5.7]"
 
-Cited:
-    WKL Pi11c RCA "Harrington, see Simpson - SOSOA"
-
-References:
-    Reverse mathematics examples:
-        Friedman (1976) - "Systems of second order arithmetic with restricted induction"
-        Simpson (1984) - "Which set existence axioms are needed to prove the Cauchy/Peano theorem for ordinary differential equations?" (in JSL 49, 783-802)
+#References:
+#    Reverse mathematics examples:
+#        Friedman (1976) - "Systems of second order arithmetic with restricted induction"
+#        Steel (1977) - "Determinateness and subsystems of analysis" (Ph.D. thesis, Berkeley)
+#        Simpson (1978) - "Sets which do not have subsets of every higher degree" (in JSL 43, 135-138)
+#        Friedman, McAloon, and Simpson (1982) - "A finite combinatorial principle which is equivalent to the 1-consistency of predicative analysis"
+#        Simpson (1984) - "Which set existence axioms are needed to prove the Cauchy/Peano theorem for ordinary differential equations?" (in JSL 49, 783-802)
+#        Friedman, Simpson, and Smith (1985) - "Countable algebra and set existence axioms" (in APAL 25, 141-181)
 
 #Hirst (1987) - "Combinatorics in Subsystems of Second Order Arithmetic" (Ph.D. thesis, Pennsylvania State University)
 #    http://search.proquest.com/docview/303611646
@@ -63,10 +82,8 @@ RT2 -> BPi2 "Hirst (1987) [Theorem 6.11]"
 #    WKL has low solutions "Hirst (1987) [Theorem 1.4]"
 #    RT22 does not have low solutions "Jockusch (1972) [Theorem 3.1]"
 
-Cited:
+#Cited:
 #    ACA -> WKL "Friedman (1975)"
-    ACA <-> KL "Simpson - SOSOA"
-    ACA <-> RT32 "Simpson - SOSOA"
 
 #Yu and Simpson (1990) - "Measure theory and weak König's lemma"
 #    http://link.springer.com/article/10.1007/BF01621469
@@ -77,12 +94,29 @@ WKL -> WWKL "by definition"
 RCA w-|> WWKL "Yu and Simpson (1990) [Section 2, paragraph 2]"
 WWKL w-|> WKL "Yu and Simpson (1990) [Section 2, theorems]"
 
+#Hájek and Pudlák (1998) - Metamathematics of first-order arithmetic
+#    http://projecteuclid.org/euclid.pl/1235421926
+#    ISBN-10: 3-540-63648-X
+
+RCA -|> BSig2 "Hájek and Pudlák (1998) [Theorem IV.1.29]"
+
+#Seetapun and Slaman (1995) - "On the Strength of Ramsey's Theorem"
+#    http://projecteuclid.org/euclid.ndjfl/1040136917
+#    Notre Dame J. Formal Logic 36(4), doi:10.1305/ndjfl/1040136917
+
+RT22+WKL w-|> ACA "Seetapun and Slaman (1995) [Theorem 3.1]"
+RT22 nPi04c RCA "Seetapun and Slaman (1995) [Theorem 3.6]"
+
+#Unclear:
+#    RT22 -> C(Gamma?) "Seetapun and Slaman (1995) [Remark 3.8]"
+
 #Friedman (FOM 53-54) - "FOM: 53:Free Sets/Reverse Math" and "FOM: 54:Recursion Theory/Dynamics"
 #    http://www.cs.nyu.edu/pipermail/fom/1999-July/003257.html
 #    http://www.cs.nyu.edu/pipermail/fom/1999-July/003263.html
 
 ACA -> FS3 "Friedman (FOM 53) [Theorem 2]"
 WKL w-|> FS2 "Friedman (FOM 53) [Theorem 4]"
+WKL w-|> TS2 "Friedman (FOM 53), proven in private communication"
 
 #Giusto and Simpson (2000) - "Located sets and reverse mathematics"
 #    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9069915&fileId=S0022481200011993
@@ -104,7 +138,7 @@ RT22 -|> RT2 "Cholak, Jockusch, and Slaman (2001) [corollary to Theorem 11.1 and
 SRT22 -> RT1 "Cholak, Jockusch, and Slaman (2001) [Lemma 10.6]"
 SRT22 -> D22 "Cholak, Jockusch, and Slaman (2001) [Lemma 7.10]"
 BSig2+D22 -> SRT22 "Cholak, Jockusch, and Slaman (2001) [Lemma 7.10]"
-RT22 <-> COH+SRT22 "Cholak, Jockusch, and Slaman (2001) [Lemma 7.11]"
+COH+SRT22 -> RT22 "Cholak, Jockusch, and Slaman (2001) [Lemma 7.11]"
 SRT2 <-> D2 "Cholak, Jockusch, and Slaman (2001) [Lemma 7.12]"
 RT2 <-> COH+SRT2 "Cholak, Jockusch, and Slaman (2001) [Lemma 7.13]"
 COH Pi11c RCA "Cholak, Jockusch, and Slaman (2001) [Theorem 9.1]"
@@ -114,22 +148,17 @@ WKL w-|> COH "Cholak, Jockusch, and Slaman (2001) [Lemma 9.14]"
 COH w-|> WKL "Cholak, Jockusch, and Slaman (2001) [Lemma 9.15]"
 ISig2+RT22+WKL Pi11c ISig2 "Cholak, Jockusch, and Slaman (2001) [Theorem 10.2 and remark]"
 SRT2 -> BSig3 "Cholak, Jockusch, and Slaman (2001) [Theorem 11.4]"
+RT22 -|> RT2 "Cholak, Jockusch, and Slaman (2001) [remark following Corollary 11.5]"
+SRT22 -|> SRT2 "Cholak, Jockusch, and Slaman (2001) [remark following Corollary 11.5]"
 
 RCA w-|> RT22 "corollary to Specker (1971)"
 
-Uncited:
-    ISig3 -|> PA
+#Uncited:
+#    ISig3 -|> PA
 
-Cited:
-    RT22 nPi04c RCA "Seetapun and Slaman (1995) [Theorem 3.6]"
+#Cited:
 #    RT22 nSig03c RCA "Hirst (1987)"
-    ACA -> WKL "Simpson (?)"
-    WKL -|> ACA "Simpson (1999) - SOSOA"
-    WKL Pi11c RCA "Harrington, see Simpson (1999) - SOSOA"
-    RCA -|> ISig2 "Hájek and Pudlák (1993) - Metamathematics of first-order arithmetic"
-    RT32 <-> ACA "Simpson (1999) - SOSOA"
-    RT22 w-|> ACA "Seetapun's theorem"
-    BSig2 nPi03c RCA "Paris (1980) - A hierarchy of cuts in models of arithmetic, p. 331"
+#    RT22 w-|> ACA "Seetapun's theorem"
 
 #Downey, Hirschfeldt, Lempp, and Solomon (2001) - "A $\Delta^0_2$ set with no infinite low subset in either it or its complement"
 #    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9069546&fileId=S0022481200010690
@@ -143,6 +172,13 @@ Cited:
 #    J. Symbolic Logic 69(4), doi:10.2178/jsl/1102022212
 
 DNR w-|> WWKL "Ambos-Spies, Kjos-Hanssen, Lempp, and Slaman (2004) [Theorem 1.7]"
+
+#Mileti (2004) - "Partition theorems and computability theory" (Ph.D. thesis, UIUC)
+#    Personal archive: http://www.math.grinnell.edu/~miletijo/research/thesis.pdf
+#    ProQuest: http://search.proquest.com/docview/305200043
+
+RT22 -> COH "Mileti (2004) [Claim A.1.3], and independently Jockusch and Lempp"
+#RT22 <-> COH+SRT22 "Mileti (2004) [Corollary A.1.4]"
 
 #Slaman (2004) - "$\Sigma_n$-bounding and $\Delta_n$-induction"
 #    http://www.ams.org/journals/proc/2004-132-08/S0002-9939-04-07294-6/
@@ -174,8 +210,7 @@ RT32 -> FS3 "Cholak, Giusto, Hirst, and Jockusch (2005) [Theorem 5.5 and remark]
 #    TS(k+1) -> TSk [Theorem 3.4]
 #    RTk2 -> FSk [Theorem 5.5 and remark]
 
-Cited:
-    WKL w-|> TS2 "Friedman (FOM 53), proven in private communication"
+#Cited:
 #    ACA -> FSk "Friedman (FOM 53)"
 
 #Hirschfeldt, Jockusch, Kjos-Hanssen, Lempp, and Slaman (2006) - "The strength of some combinatorial principles related to Ramsey's theorem for pairs"
@@ -186,10 +221,9 @@ SRT22 -> DNR "Hirschfeldt, Jockusch, Kjos-Hanssen, Lempp, and Slaman (2006) [The
 COH w-|> DNR "Hirschfeldt, Jockusch, Kjos-Hanssen, Lempp, and Slaman (2006) [Theorem 3.7]"
 
 WKL -|> RT22 "follows from Jockusch (1972) [Theorem 3.1]"
-RT32 <-> ACA "follows from Jockusch (1972) [Theorem 5.7]"
 
-Cited:
-    RT22 -|> ACA "Seetapun's theorem"
+#Cited:
+#    RT22 -|> ACA "Seetapun's theorem"
 #    COH -|> DNR "independently and simultaneously obtained by Hirschfeldt and Shore (2007)"
 
 #Hirschfeldt and Shore (2007) - "Combinatorial principles weaker than Ramsey's theorem for pairs"
@@ -235,6 +269,8 @@ RCA -|> PART "Hirschfeldt and Shore (2007) [Corollary 4.7]"
 StCRT22 <-> BSig2+CRT22 "Hirschfeldt and Shore (2007) [Proposition 4.8]"
 BSig2+CRT22 <-> StCOH "Hirschfeldt and Shore (2007) [Proposition 4.8]"
 
+RT22 -> CAC "remarked in Cholak, Jockusch, and Slaman (2001) [Question 13.8], explained in Hirschfeldt and Shore (2007) [comment following definition of CAC]"
+
 RT22 form rPi12
 SRT22 form rPi12
 WKL form rPi12
@@ -248,20 +284,10 @@ PART form Pi11
 #   SADS has low solutions
 #   SCAC has low solutions
 
-Uncited:
-    ACA -> RT32
-    RT22 -> ADS
-
-Cited:
-    RT22+WKL -|> ACA "Seetapun and Slaman (1995)"
-    WKL Pi11c RCA "Harrington, see Simpson (1999) - SOSOA, IX.2"
+#Cited:
 #    RT22 -> BSig2 "Hirst (1987)"
 #    COH -> CRT22 "Cholak, Jockusch, and Slaman (2001)"
 #    CRT22+SRT22 -> RT22 "Cholak, Jockusch, and Slaman (2001)"
-    RT22 -> COH "Mileti (2004), and independently, Jockusch and Lempp"
-    SRT22 -> BSig2 "Cholak, Jockusch, and Slaman (2001)"
-    RCA -|> BSig2 "Paris and Kirby (1978), see also Hájek and Pudlák (1993), Chapter IV"
-    RT22 -> CAC "Cholak, Jockusch, and Slaman (2001)"
 
 #Csima and Mileti (2009) - "The strength of the rainbow Ramsey theorem"
 #    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9061548&fileId=S0022481200003170
@@ -279,10 +305,6 @@ RRT22 w-|> RRT32 "Csima and Mileti (2009) [Corollary 5.12]"
 COH -|> RRT22 "Csima and Mileti (2009) [Proposition 5.14]"
 
 RRT22 form rPi12
-
-Uncited:
-    ACA -> RT22
-    ACA <-> RT32
 
 #Dzhafarov and Hirst (2009) - "The polarized Ramsey's theorem"
 #    http://link.springer.com/article/10.1007/s00153-008-0108-0
@@ -320,18 +342,16 @@ RT -> PT "Dzhafarov and Hirst (2009) [Remark 1.4]"
 PT -> IPT "Dzhafarov and Hirst (2009) [Remark 1.4]"
 IPT -> RT "Dzhafarov and Hirst (2009) [Remark 1.4]"
 
-Uncited:
-    RCA w-> BSig2
-    RCA w-|> DNR
+BSig2+WKL w-|> SRT22 "Dzhafarov and Hirst (2009) [proof of Proposition 3.4]"
+D22 -> DNR "inspection of Hirschfeldt, Jockusch, Kjos-Hanssen, Lempp, and Slaman (2006) [Theorem 2.4]"
 
-Cited:
+#Uncited:
+#    RCA w-|> DNR
+
+#Cited:
 #    CAC w-|> SRT22 "Hirschfeldt and Shore (2007)"
-    WKL+BSig2 w-|> SRT22 "Downey, Hirschfeldt, Lempp, and Solomon (2001)"
 #    WKL -> DNR "Giusto and Simpson (2000) [Lemma 6.18]"
-    D22 -> DNR "inspection of Hirschfeldt, Jockusch, Kjos-Hanssen, Lempp, and Slaman (2006) [Theorem 2.4]"
 #    ADS -> BSig2+COH "Hirschfeldt and Shore (2007) [Propositions 4.4 and 4.5]"
-    SRT22 -|> SRT2 "Cholak, Jockusch, and Slaman (2001) [remark following Corollary 11.5]"
-    RT2 -|> SRT2 "Cholak, Jockusch, and Slaman (2001) [remark following Corollary 11.5]"
 #    SCAC -> BSig2 "Hirschfeldt and Shore (2007) [Proposition 4.1]"
 
 #Hirschfeldt, Shore, and Slaman (2009) - "The atomic model theorem and type omitting"
@@ -397,7 +417,7 @@ SRT22 <-> SPT22 "Chong, Lempp, and Yang (2010) [Theorem 1.7]"
 SRT22 <-> SIPT22 "Chong, Lempp, and Yang (2010) [Theorem 1.7]"
 IPT22 -> SPT22 "Chong, Lempp, and Yang (2010) [Theorem 1.7]"
 
-Cited:
+#Cited:
 #    PT22 -> BSig2 "Dzhafarov and Hirst (2009)"
 #    SIPT22 -> D22 "Dzhafarov and Hirst (2009)"
 #    BSig2+IPT22 -> SPT22 "Dzhafarov and Hirst (2009)"
@@ -420,8 +440,8 @@ ASRT22 w-|> SRT22 "Dzhafarov (2011) [Corollary 5.8]"
 ASRT22 w-|> ASRAM "Dzhafarov (2011) [Corollary 5.8]"
 ASRT22 w-|> COH "Dzhafarov (2011) [Corollary 5.8]"
 
-Cited:
-    WKL -|> SRT22 "Cholak, Jockusch, and Slaman (2001)"
+#Cited:
+#    WKL -|> SRT22 "Cholak, Jockusch, and Slaman (2001)"
 #    SRT22 -> BSig2 "Cholak, Jockusch, and Slaman (2001)"
 
 #Slaman CiE11
@@ -438,10 +458,9 @@ PHPM form Pi11
 #    PHPM form Pi0k
 
 Uncited:
-    WKL -> RAN1
     TS2 -> CSig2
 
-Cited:
+#Cited:
 #    GEN1 Pi11c RCA "Brown and Simpson (1993)"
 
 #Avigad, Dean, and Rute (2012) - "Algorithmic randomness, reverse mathematics, and the dominated convergence theorem"
@@ -465,13 +484,13 @@ WWKL -|> POS2 "Avigad, Dean, and Rute (2012) [Corollary 4.6]"
 POS2 -|> WKL "Avigad, Dean, and Rute (2012) [Corollary 4.6]"
 WKL -|> POS2 "Avigad, Dean, and Rute (2012) [Corollary 4.6]"
 
+POS1 <-> WWKL "follows from Yu and Simpson (1990) [Theorem 1]"
+
+POS -|> WWKL "follows from Cholak, Greenberg, and Miller (2006) [Theorem 1.4]"
+POS+WWKL -|> WKL "follows from Cholak, Greenberg, and Miller (2006) [Theorem 1.6]"
+
 #Generic:
 #    WWKLn <-> POSn <-> BSign+RANn
-
-Cited:
-    POS -|> WWKL "Cholak, Greenberg, and Miller (2006) - Uniform almost everywhere domination"
-    POS+WWKL -|> WKL "Cholak, Greenberg, and Miller (2006) - Uniform almost everywhere domination"
-    POS1 <-> WWKL "Yu and Simpson (1990)"
 
 #Chong, Slaman, and Yang (2012) - "$\Pi^1_1-conservation of combinatorial principles weaker than Ramsey's theorem for pairs"
 #    http://www.sciencedirect.com/science/article/pii/S0001870812000965
@@ -485,22 +504,18 @@ CAC Pi11c BSig2 "Chong, Slaman, and Yang (2012) [Corollary 5.2]"
 
 ISig2 form Pi11
 
-Uncited:
-    RCA -|> SRT22
-
-Cited:
+#Cited:
 #    SRT22 -> BSig2 "Cholak, Jockusch, and Slaman (2001)"
-    RT22 -> CAC "Hirschfeldt and Shore (2007)"
 #    CAC -|> RT22 "Hirschfeldt and Shore (2007)"
 #    SCAC -|> CAC "Hirschfeldt and Shore (2007)"
 #    SADS -|> ADS "Hirschfeldt and Shore (2007)"
-    SADS -> BSig2 "Chong, Lempp, and Yang (2010)"
 
 #Flood (2012) - "Reverse mathematics and a Ramsey-type König's Lemma"
 #    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9059924&fileId=S0022481200001225
 #    J. Symbolic Logic 77(4), doi:10.2178/jsl.7704120
 
 RWKL2 -> RWKL "by definition"
+P22 -> D22 "by definition"
 
 WKL -> RWKL "Flood (2012) [Theorem 3]"
 SRT22 -> RWKL "Flood (2012) [Theorem 5]"
@@ -516,13 +531,9 @@ RT22 w-|> RWKLw "Flood (2012) [Proposition 29]"
 RWKLw -> Dw2 "Flood (2012) [Proposition 32]"
 Dw2 w-> RWKLw "Flood (2012) [Remark 33]"
 
-Uncited:
-    P22 -> D22
-
 Cited:
     RT22 -|> WKL "Liu (2012)"
-    WKL -|> SRT22 "Seetapun and Slaman (1995) [Theorem 3.3] and Cholak, Jockusch, and Slaman (2001) [Theorem 10.5]"
-    D22 <-> SRT22 "Cholak, Jockusch, and Slaman (2001) and Chong, Lempp, and Yang (2010)"
+#    D22 <-> SRT22 "Cholak, Jockusch, and Slaman (2001) and Chong, Lempp, and Yang (2010)"
 
 #Kreuzer (2012) - "Primitive Recursion and the Chain Antichain Principle"
 #    http://projecteuclid.org/euclid.ndjfl/1336588253
@@ -533,7 +544,7 @@ SEM -> BSig2 "Kreuzer (2012) [Proposition A.1]"
 
 ISig2 form Pi11
 
-Cited:
+#Cited:
 #    CAC -|> ISig2 "Chong, Slaman, and Yang (2012)"
 
 #Conidis and Slaman (2013) - "Random reals, the rainbow Ramsey theorem, and arithmetic conservation"
@@ -568,14 +579,12 @@ CAC -|> EM "Lerman, Solomon, and Towsner (2013) [Corollary 1.12]"
 SADS+SEM -> SRT22 "Lerman, Solomon, and Towsner (2013) [Corollary 1.14]"
 EM w-|> SRT22 "Lerman, Solomon, and Towsner (2013) [Theorem 1.15]"
 
-Cited:
+#Cited:
 #    SRT22 -|> RT22 "Chong, Slaman, and Yang (2014)"
-    RT22 -> CAC "Hirschfeldt and Shore (2007)"
 #    CAC -|> SRT22 "Hirschfeldt and Shore (2007)"
 #    SCAC -|> CAC "Hirschfeldt and Shore (2007)"
 #    SADS -|> ADS "Hirschfeldt and Shore (2007)"
 #    EM -> BSig2 "Kreuzer (2012)"
-    COH -> CRT22 "Hirschfeldt and Shore (2007)"
 
 #Chong, Slaman, and Yang (2014) - "The metamathematics of Stable Ramsey’s Theorem for Pairs"
 #    http://www.ams.org/journals/jams/2014-27-03/S0894-0347-2014-00789-X/
@@ -585,14 +594,8 @@ D22 -|> ISig2 "Chong, Slaman, and Yang (2014) [Theorem 2.2]"
 D22 -|> RT22 "Chong, Slaman, and Yang (2014) [Corollary 2.5]"
 BSig2+D22+WKL -|> RT22 "Chong, Slaman, and Yang (2014) [Theorem 2.7]"
 
-Uncited:
-    SRT22 <-> D22
-
 Cited:
-    WKL -|> ACA "Jockusch and Soare (1972)"
-    WKL Pi11c ACA "Harrington (see Simpson (2009) - SOSOA)"
 #    SRT22 -> BSig2 "Cholak, Jockusch, and Slaman (2001)"
-    RT22 -|> ACA "Seetapun's theorem"
     WKL -|> RT22 "Liu (2012)"
     RT22 -|> WKL "Liu (2012)"
 
@@ -604,6 +607,15 @@ TS2 -> STS2 "by definition"
 
 STS2 -> DNR "Rice (2015) [Main Theorem]"
 
+#Diamondstone, Downey, Greenberg, and Turetsky (2016) - "The finite intersection principle and genericity"
+#    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=10180819&fileId=S0305004115000651
+#    Math. Proc. Cambridge Philos. Soc. 160(2), doi:10.1017/S0305004115000651
+
+#Cited:
+#    FIP -|> ACA "Dzhafarov and Mummert (2013)"
+#    WKL -|> FIP "Dzhafarov and Mummert (2013)"
+#    FIP -|> WKL "Dzhafarov and Mummert (2013)"
+
 #Bienvenu, Patey, and Shafer (to appear) - "On the logical strengths of partial solutions to mathematical problems"
 #    http://arxiv.org/abs/1411.5874
 
@@ -613,6 +625,9 @@ WWKL -> RWWKL "by definition"
 RWKL -> RWWKL "by definition"
 RWKL2 -> RWWKL2 "by definition"
 RCOLOR3 -> RCOLOR2 "by definition"
+
+RT22 -> EM "easy to see, remarked in Bienvenu, Patey, and Shafer (to appear)"
+SRT22 -> SEM "easy to see, remarked in Bienvenu, Patey, and Shafer (to appear)"
 
 RCOLOR2 form rPi12
 
@@ -636,23 +651,16 @@ WWKL w-|> RCOLOR2 "Bienvenu, Patey, and Shafer (to appear) [Theorem 6.11]"
 #    RWKL <-> RCOLORk for k >= 3 [Corollary 5.14]
 
 Cited:
-    RT32 <-> ACA "Simpson (2009)"
 #    SRT22 -|> RT22 "Chong, Slaman, and Yang (2014)"
     RT22 -|> WKL "Liu (2012)"
-    WKL -|> SRT22 "Hirst (1987), and possibly Liu (2012)"
 #    SCAC -|> CAC "Hirschfeldt and Shore (2007)"
-    RT22 -> CAC "Hirschfeldt and Shore (2007)"
 #    CAC -|> RT22 "Hirschfeldt and Shore (2007)"
-    RT22 -> EM "easy to see"
-    SRT22 -> SEM "easy to see"
-    EM -> DNR0 "Mileti (2004)"
     SRT22 -|> DNR0 "Chong, Slaman, and Yang (2014), explained in Patey (preprint) - Somewhere over the rainbow Ramsey theorem for pairs"
-    EM -|> RT22 "Bovykin and Weiermann (2005)"
-    EM -|> SCAC "Lerman, Solomon, and Towsner (2013)"
+#    EM -|> RT22 "Bovykin and Weiermann (2005)"
+#    EM -|> SCAC "Lerman, Solomon, and Towsner (2013)"
 #    CAC -|> SEM "Lerman, Solomon, and Towsner (2013)"
     RAN1 -> DNR "Kučera (1985), readily relativizes and easily formalized"
-    RAN2 -|> BSig2 "Slaman CiE11"
-    SAT <-> WKL "Simpson (2009)"
+#    RAN2 -|> BSig2 "Slaman CiE11"
 #    WKL <-> COLORk "Hirst (1990) - Marriage theorems and reverse mathematics"
 #    COH rPi12c RCA "Hirschfeldt, Shore, and Slaman (2009)"
 
@@ -740,18 +748,9 @@ DDGT-TA
 
 FDM-2010
 
-Hájek and Pudlák (1993) - Metamathematics of first-order arithmetic
-    ISBN-10: 0387506322
-
 Kreuzer (2012) - "Proof mining and combinatorics: Program extraction for Ramsey's theorem for pairs" (Ph.D. thesis, Technische Universität, Darmstadt)
     http://tuprints.ulb.tu-darmstadt.de/2972/
 
 Liu (multiple papers)
-
-Mileti (2004) - "Partition Theorems and Computability Theory" (Ph.D. thesis, University of Illinois at Urbana-Champaign)
-    http://www.math.grin.edu/~miletijo/research/thesis.pdf   
-
-Simpson (2009) - Subsystems of second order arithmetic
-    http://www.personal.psu.edu/t20/sosoa/
     
 Wang-TA (almost certainly multiple papers)
