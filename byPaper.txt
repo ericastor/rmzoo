@@ -289,6 +289,15 @@ PART form Pi11
 #    COH -> CRT22 "Cholak, Jockusch, and Slaman (2001)"
 #    CRT22+SRT22 -> RT22 "Cholak, Jockusch, and Slaman (2001)"
 
+#Conidis (2008) - "Classifying model-theoretic properties"
+#    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9062648&fileId=S0022481200004230
+#    J. Symbolic Logic 73(3), doi:10.2178/jsl/1230396753
+
+AMT w-> Pi01G "Conidis (2008) [Corollary 3.11]"
+
+#Cited:
+#    AMT+BSig2 -|> ISig2 "Hirschfeldt, Soare, and Slaman (2009)"
+
 #Csima and Mileti (2009) - "The strength of the rainbow Ramsey theorem"
 #    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9061548&fileId=S0022481200003170
 #    J. Symbolic Logic 74(4), doi:10.2178/jsl/1254748693
@@ -402,10 +411,9 @@ ISig2 form Pi11
 #   OPT has solutions in all non-zero c.e. degrees
 #   AST has solutions in all non-recursive degrees
 
-Cited:
+#Cited:
 #    CAC -|> WKL "Hirschfeldt and Shore (2007)"
-    AMT w-> Pi01G "Conidis (2008)"
-    AMT+ISig2 -> Pi01G "straightforward verification of Conidis (2008)"
+    AMT+ISig2 -> Pi01G "straightforward verification of Conidis (2008) [Corollary 3.11]"
 
 #Chong, Lempp, and Yang (2010) - "On the role of the collection principle for $\Sigma^0_2$-formulas in second-order reverse mathematics"
 #    http://www.ams.org/journals/proc/2010-138-03/S0002-9939-09-10115-6/
@@ -432,13 +440,14 @@ SRT22 -> ASRT22 "Dzhafarov (2011) [Proposition 5.5]"
 SRAM -> ASRAM "Dzhafarov (2011) [Proposition 5.5]"
 ASRAM -> ASRT22 "Dzhafarov (2011) [Proposition 5.5]"
 SRAM w-|> ACA "Dzhafarov (2011) [Proposition 5.5]"
-SRT22 w-|> SRAM "Dzhafarov (2011) [Proposition 5.5]"
 ASRT22 -> DNR "Dzhafarov (2011) [Proposition 5.6]"
 WKL w-|> ASRT22 "Dzhafarov (2011) [Proposition 5.6]"
 ASRT22 w-|> WKL "Dzhafarov (2011) [Proposition 5.7]"
 ASRT22 w-|> SRT22 "Dzhafarov (2011) [Corollary 5.8]"
 ASRT22 w-|> ASRAM "Dzhafarov (2011) [Corollary 5.8]"
 ASRT22 w-|> COH "Dzhafarov (2011) [Corollary 5.8]"
+
+RT22 w-|> SRAM "follows from Mileti (2004) [Corollary 5.4.6]"
 
 #Cited:
 #    WKL -|> SRT22 "Cholak, Jockusch, and Slaman (2001)"
@@ -531,8 +540,7 @@ RT22 w-|> RWKLw "Flood (2012) [Proposition 29]"
 RWKLw -> Dw2 "Flood (2012) [Proposition 32]"
 Dw2 w-> RWKLw "Flood (2012) [Remark 33]"
 
-Cited:
-    RT22 -|> WKL "Liu (2012)"
+#Cited:
 #    D22 <-> SRT22 "Cholak, Jockusch, and Slaman (2001) and Chong, Lempp, and Yang (2010)"
 
 #Kreuzer (2012) - "Primitive Recursion and the Chain Antichain Principle"
@@ -546,6 +554,12 @@ ISig2 form Pi11
 
 #Cited:
 #    CAC -|> ISig2 "Chong, Slaman, and Yang (2012)"
+
+#Liu (2012) - "$\mathsf{RT}^2_2$ does not imply \mathsf{WKL}_0$"
+#    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9058600&fileId=S0022481200000761
+#    J. Symbolic Logic 77(2), doi:10.2178/jsl/1333566640
+
+RT22 w-|> WKL "Liu (2012) [Corollary 1.6]"
 
 #Conidis and Slaman (2013) - "Random reals, the rainbow Ramsey theorem, and arithmetic conservation"
 #    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9058478&fileId=S0022481200000359
@@ -586,6 +600,13 @@ EM w-|> SRT22 "Lerman, Solomon, and Towsner (2013) [Theorem 1.15]"
 #    SADS -|> ADS "Hirschfeldt and Shore (2007)"
 #    EM -> BSig2 "Kreuzer (2012)"
 
+#Wang (2013) - "Rainbow Ramsey Theorem for Triples is Strictly Weaker than the Arithmetical Comprehension Axiom"
+#    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9189589&fileId=S0022481200126623
+#    J. Symbolic Logic 78(3), doi:10.2178/jsl/1067620187
+
+RRT32 w-|> ACA "Wang (2013) [Theorem 3.1]"
+RRT32+RT22+WKL w-|> ACA "Wang (2013) [Corollary 3.4]"
+
 #Chong, Slaman, and Yang (2014) - "The metamathematics of Stable Ramsey’s Theorem for Pairs"
 #    http://www.ams.org/journals/jams/2014-27-03/S0894-0347-2014-00789-X/
 #    J. Amer. Math. Soc. 27(3), doi:10.1090/S0894-0347-2014-00789-X
@@ -594,10 +615,44 @@ D22 -|> ISig2 "Chong, Slaman, and Yang (2014) [Theorem 2.2]"
 D22 -|> RT22 "Chong, Slaman, and Yang (2014) [Corollary 2.5]"
 BSig2+D22+WKL -|> RT22 "Chong, Slaman, and Yang (2014) [Theorem 2.7]"
 
-Cited:
+#Cited:
 #    SRT22 -> BSig2 "Cholak, Jockusch, and Slaman (2001)"
-    WKL -|> RT22 "Liu (2012)"
-    RT22 -|> WKL "Liu (2012)"
+
+#Wang (2014, APAL) - "Cohesive sets and rainbows"
+#    http://www.sciencedirect.com/science/article/pii/S0168007213000651
+#    Ann. Pure Appl. Logic 165(2), doi:10.1016/j.apal.2013.06.002
+
+RRT42 -> RRT32 "by definition"
+
+RT22 -|> RRT32 "follows from Csima and Mileti (2009) and Cholak, Jockusch, and Slaman (2001)"
+ACA -> RRT42 "follows from Jockusch (1972)"
+
+RRT32 w-|> WKL "Wang (2014, APAL) [Theorem 5.2]"
+RRT32 w-|> RRT42 "Wang (2014, APAL) [Theorem 5.4]"
+
+Cited:
+    RRT22 -|> COH "Csima and Mileti (2009)"
+    RT2 -|> ACA "Mytilinaios and Slaman (1996)"
+
+#Wang (2014, AIM) - "Some logically weak Ramseyan theorems"
+#    http://www.sciencedirect.com/science/article/pii/S0001870814001674
+#    Adv. Math. 261, doi:10.1016/j.aim.2014.05.003
+
+FS -|> ACA "Wang (2014, AIM) [Theorem 4.1]"
+    Question: does this show FS w-|> ACA?
+FS2 -> RRT22 "Wang (2014, AIM) [Theorem 4.2]"
+FS3 -> RRT32 "Wang (2014, AIM) [Theorem 4.2]"
+FS -> RRT "Wang (2014, AIM) [Theorem 4.2]"
+
+Cited:
+    RT22 -|> ISig2 "Chong, Slaman, and Yang (announced)"
+#    RRT22 -|> ADS "Csima and Mileti (2009)"
+
+#Liu (2015) - "Cone avoiding closed sets"
+#    http://www.ams.org/journals/tran/2015-367-03/S0002-9947-2014-06049-2
+#    Trans. Amer. Math. Soc. 367(3), doi:10.1090/S0002-9947-2014-06049-2
+
+RT22 w-|> WWKL "Liu (2015) [Corollary 5.1]"
 
 #Rice (2015) - "The Thin Set Theorem for Pairs Implies DNR"
 #    http://projecteuclid.org/euclid.ndjfl/1443620509
@@ -645,6 +700,8 @@ RCA w-|> RCOLOR2 "Bienvenu, Patey, and Shafer (to appear) [Proposition 6.3]"
 CAC w-|> RCOLOR2 "Bienvenu, Patey, and Shafer (to appear) [Theorem 6.9]"
 WWKL w-|> RCOLOR2 "Bienvenu, Patey, and Shafer (to appear) [Theorem 6.11]"
 
+RAN1 -> DNR "relativization and formalization of Kučera (1985)"
+
 #Generic:
 #    BSign+RWWKLn -> DNRn [Lemma 3.6]
 #    ISign+DNRn -> RWWKLn [Lemma 3.7]
@@ -652,17 +709,39 @@ WWKL w-|> RCOLOR2 "Bienvenu, Patey, and Shafer (to appear) [Theorem 6.11]"
 
 Cited:
 #    SRT22 -|> RT22 "Chong, Slaman, and Yang (2014)"
-    RT22 -|> WKL "Liu (2012)"
 #    SCAC -|> CAC "Hirschfeldt and Shore (2007)"
 #    CAC -|> RT22 "Hirschfeldt and Shore (2007)"
     SRT22 -|> DNR0 "Chong, Slaman, and Yang (2014), explained in Patey (preprint) - Somewhere over the rainbow Ramsey theorem for pairs"
 #    EM -|> RT22 "Bovykin and Weiermann (2005)"
 #    EM -|> SCAC "Lerman, Solomon, and Towsner (2013)"
 #    CAC -|> SEM "Lerman, Solomon, and Towsner (2013)"
-    RAN1 -> DNR "Kučera (1985), readily relativizes and easily formalized"
 #    RAN2 -|> BSig2 "Slaman CiE11"
 #    WKL <-> COLORk "Hirst (1990) - Marriage theorems and reverse mathematics"
 #    COH rPi12c RCA "Hirschfeldt, Shore, and Slaman (2009)"
+
+#Wang (to appear) - "The Definability Strength of Combinatorial Principles"
+#    http://arxiv.org/abs/1408.1465
+
+COH+EM+Pi01G+RRT22+WKL w-|> SADS "Wang (to appear) [Theorem 5.1]"
+COH+EM+Pi01G+RRT22+WKL w-|> TS2 "Wang (to appear) [Theorem 5.1]"
+RRT32 w-|> TS3 "Wang (to appear) [Theorem 5.2]"
+
+#Unsupported:
+#    Pi01G admits arithmetic hierarchy preservation
+#    WKL admits arithmetic hierarchy preservation
+#    COH admits Delta02-definition preservation
+#    EM admits Delta02-definition preservation
+#    RRT22 admits arithmetic hierarchy preservation
+#    RRT32 admits Delta03-definition preservation
+#    RT2 admits Sigma01- and Pi01-definition preservation
+#    FS admits Sigma01- and Pi01-definition preservation
+#    RT32 does not admit Sigma01-definition preservation
+#    Pi12 consequences of RT2 admit simultaneous preservation of (Sigma0(n+1), Pi0(n+1), Delta0(n+2)) definitions [Corollary 3.29]
+#    SADS does not admit Delta02-definition preservation [Theorem 4.1]
+#    ADS and RT22 do not admit Delta02-definition preservation [Corollary 4.2]
+#    TS2 does not admit Delta02-definition preservation [Theorem 4.3]
+#    TS3 does not admit Delta02- or Delta03-definition preservation [Theorem 4.3]
+#    RRT32 does not admit Delta02-definition preservation [Corollary 4.10]
 
 #Flood and Towsner (submitted) - "Separating principles below $\mathsf{WKL}_0$"
 #    http://arxiv.org/abs/1410.4068
@@ -672,9 +751,8 @@ DNR w-|> RWKL "Flood and Towsner (submitted) [Theorem 4.18]"
 SEM -> RWKL "Flood and Towsner (submitted) [Theorem 5.2]"
 DNR -> RWWKL "Flood and Towsner (submitted) [Theorem 5.3]"
 
-Cited:
+#Cited:
 #    DNR -|> RWKL "Bienvenu, Patey, and Shafer (to appear)"
-    RT22 -|> WKL "J. Liu (2012)"
 
 #Patey (preprint) - "Somewhere over the rainbow Ramsey theorem for pairs"
 #    http://arxiv.org/abs/1501.07424
@@ -716,12 +794,8 @@ Uncited:
     RRT22 w-|> SEM
 
 Cited:
-    RT22 -|> WKL "J. Liu (2012)"
 #    SRT22 -|> RT22 "Chong, Slaman, and Yang (2014)"
-    RRT32 -|> ACA "Wang (2013)"
     RRT22 Pi11c BSig2 "Wang (unpublished?)"
-    RRT32 w-|> WKL "Wang (?)"
-    RRT32 w-|> RRT42 "Wang (?)"
 #    RAN2 -|> BSig2 "Slaman (2011)"
     RRT22 <-> DNR0 "Miller (personal communication)"
 #    BSig2+EM -> OPT "Lerman, Solomon, and Towsner (2013)"
@@ -729,28 +803,15 @@ Cited:
     SFS3 -> STS3 "Cholak, Giusto, Hirst, and Jockusch (2005)"
     SFS2 -> STS2 "Cholak, Giusto, Hirst, and Jockusch (2005)"
 #    WKL w-|> TS2 "Friedman (FOM 53)"
-    FS3 -> RRT32 "Wang (2014) - Some logically weak ramseyan theorems"
-    FS2 -> RRT22 "Wang (2014) - Some logically weak ramseyan theorems"
     WWKL2 w-|> AMT "Bienvenu, Patey, and Shafer (to appear)"
     WWKL2 -> RRT22 "Csima and Mileti (2009)"
-    COH+WSRRT22 -> RRT22 "Wang (2014)"
-
-Blass, Hirst, and Simpson (1987) - "Logical analysis of some theorems of combinatorics and topological dynamics"
-    http://www.personal.psu.edu/t20/papers/bhs87.pdf
-    in Logic and Combinatorics (ed. Stephen G. Simpson), ISBN: 9780821850527 (ISBN-10: 0821850520)
-
-Conidis (2008) (need to resolve which paper)
-Attributed:
-    AMT w-> Pi01G "Conidis (2008)"
-    AMT+ISig2 -> Pi01G "straightforward verification of Conidis (2008)"
-
-DDGT-TA
+    COH+WSRRT22 -> RRT22 "Wang (2014, AIM)"
 
 FDM-2010
 
 Kreuzer (2012) - "Proof mining and combinatorics: Program extraction for Ramsey's theorem for pairs" (Ph.D. thesis, Technische Universität, Darmstadt)
     http://tuprints.ulb.tu-darmstadt.de/2972/
 
-Liu (multiple papers)
-    
-Wang-TA (almost certainly multiple papers)
+Mytilinaios and Slaman (1996) - "On a Question of Brown and Simpson"
+    in: Computability, Enumerability, Unsolvability: Directions in Recursion Theory (ed. Cooper, Slaman, Wainer)
+Cited for: RT2 -|> ACA, in Seetapun & Slaman (1995)
