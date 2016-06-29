@@ -65,10 +65,11 @@ class Form(BitmaskEnum):
     none = 0
     Pi02 = 1 << 0
     Pi03 = 1 << 1
-    Pi11 = 1 << 2
-    rPi12 = 1 << 3
-    Pi12 = 1 << 4
-    Pi13 = 1 << 5
+    Pi04 = 1 << 2
+    Pi11 = 1 << 3
+    rPi12 = 1 << 4
+    Pi12 = 1 << 5
+    Pi13 = 1 << 6
 
 def noForm():
     return Form.none
@@ -118,8 +119,9 @@ _F_WEAKER = {f:f for f in Form}
 _F_WEAKER[Form.Pi13] |= Form.Pi12 # Pi13 includes Pi12
 _F_WEAKER[Form.Pi12] |= Form.rPi12 # Pi12 includes rPi12
 _F_WEAKER[Form.rPi12] |= Form.Pi11 # rPi12 includes Pi11
-_F_WEAKER[Form.Pi11] |= Form.Pi03 # Pi03 includes Pi11
-_F_WEAKER[Form.Pi03] |= Form.Pi02 # Pi02 includes Pi03
+_F_WEAKER[Form.Pi11] |= Form.Pi04 # Pi11 includes Pi04
+_F_WEAKER[Form.Pi04] |= Form.Pi03 # Pi04 includes Pi03
+_F_WEAKER[Form.Pi03] |= Form.Pi02 # Pi03 includes Pi02
 
 _completeImplications(Form, _F_WEAKER)
 
