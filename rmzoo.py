@@ -84,6 +84,9 @@ parser.add_option('-r', dest='restrict_string', metavar='CLASS',
 parser.add_option('-q', dest='query_string', metavar='FACT',
     help='Show whether FACT is known, and if so, its justification.')
 
+parser.add_option('-F', dest='query_file', metavar='FILE',
+    help='Query whether all facts in FILE are known, and return a list of all unknown facts.')
+
 
 (options, args) = parser.parse_args()
 
@@ -109,10 +112,11 @@ if Restrict:
         rSet.update(splitP)
     Restrict = rSet
 Query = options.query_string
+QueryFile = options.query_file
     
 # Give errors if bad options chosen
 
-if not Implications and not NonImplications and not OnlyPrimary and not Restrict and not Weak and not Strong and not ShowForm and not Conservation and not Query:
+if not Implications and not NonImplications and not OnlyPrimary and not Restrict and not Weak and not Strong and not ShowForm and not Conservation and not Query and not QueryFile:
     parser.error('Error: No options selected.')
 if OnlyPrimary:
     if not Implications and not NonImplications and not Weak and not Strong and not ShowForm and not Conservation:
@@ -121,8 +125,11 @@ if Restrict:
     if not Implications and not NonImplications and not Weak and not Strong and not ShowForm and not Conservation:
         parser.error('Error: Option -r only works if one of -i, -n, -w, -s, -f, or -c is selected.')
 if Query:
-    if Implications or NonImplications or Weak or Strong or ShowForm or Conservation or Restrict or OnlyPrimary:
+    if Implications or NonImplications or Weak or Strong or ShowForm or Conservation or Restrict or OnlyPrimary or QueryFile:
         parser.error('Error: Option -q does not work with any other option.')
+if QueryFile:
+    if Implications or NonImplications or Weak or Strong or ShowForm or Conservation or Restrict or OnlyPrimary or Query:
+        parser.error('Error: Option -F does not work with any other option.')
 
 if len(args) > 1:
     parser.error('Too many arguments.')
@@ -217,9 +224,8 @@ nonConservation = (Literal("n") + formName + Literal("c")).setParseAction(lambda
 
 operator = reduction | nonReduction | equivalence | conservation | nonConservation
 
-query = name + Group(operator) + name + StringEnd()
-            
 if Query:
+    query = name + Group(operator) + name + StringEnd()
     Query = query.parseString(Query)
     
     a = '+'.join(sorted(set(Query[0].split('+'))))
@@ -236,6 +242,30 @@ if Query:
         print('Justification for the fact {0} {1} {2}:'.format(a, printOp(op), b))
         print(printJust(justify[(a, op, b)]))
         eprint('\nFinished.')
+
+if QueryFile:
+    parenth = Literal('"')
+    justification = QuotedString('"""',multiline=True) | quotedString.setParseAction(removeQuotes)
+    
+    fact = name + Group(operator) + name + Suppress(Optional(justification))
+    with open(QueryFile, encoding='utf-8') as f:
+        for q in f.readlines():
+            Q = fact.parseString(q)
+            
+            a = '+'.join(sorted(set(Q[0].split('+'))))
+            op = tuple(Q[1])
+            b = '+'.join(sorted(set(Q[2].split('+'))))
+            
+            s = ''
+            if a not in principles:
+                s += '\nError: {0} is not in the database.'.format(a)
+            if b not in principles:
+                s += '\nError: {0} is not in the database.'.format(b)
+            if (a,op,b) not in justify:
+                s += '\nUnknown fact: ' + q
+            if len(s) > 0:
+                warning(s)
+    eprint('\nFinished.')
 
 ##################################################################################
 #
