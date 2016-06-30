@@ -247,22 +247,32 @@ if QueryFile:
     parenth = Literal('"')
     justification = QuotedString('"""',multiline=True) | quotedString.setParseAction(removeQuotes)
     
-    fact = name + Group(operator) + name + Suppress(Optional(justification))
+    fact = name + ((Group(operator) + name + Suppress(Optional(justification))) | (Literal('form') + formName) | Literal('is') + Literal('primary'))
     with open(QueryFile, encoding='utf-8') as f:
         for q in f.readlines():
+            q = q.strip()
+            if len(q) == 0 or q[0] == '#': continue
+            
             Q = fact.parseString(q)
+            if Q[1] == 'is': continue
             
             a = '+'.join(sorted(set(Q[0].split('+'))))
-            op = tuple(Q[1])
-            b = '+'.join(sorted(set(Q[2].split('+'))))
             
             s = ''
-            if a not in principles:
-                s += '\nError: {0} is not in the database.'.format(a)
-            if b not in principles:
-                s += '\nError: {0} is not in the database.'.format(b)
-            if (a,op,b) not in justify:
-                s += '\nUnknown fact: ' + q
+            if Q[1] == 'form':
+                if not Form.isPresent(Form.fromString(Q[2]), form[a]):
+                    s += '\nUnknown fact: ' + q
+            else:
+                op = tuple(Q[1])
+                b = '+'.join(sorted(set(Q[2].split('+'))))
+                
+                if a not in principles:
+                    s += '\nError: {0} is not in the database.'.format(a)
+                if b not in principles:
+                    s += '\nError: {0} is not in the database.'.format(b)
+                if (a,op,b) not in justify:
+                    s += '\nUnknown fact: ' + q
+            
             if len(s) > 0:
                 warning(s)
     eprint('\nFinished.')
