@@ -13,8 +13,8 @@ class BitmaskEnum(int, Enum):
         obj._value_ = value
         return obj
     
-    @classmethod
-    def isPresent(cls,x,magic_num):
+    @staticmethod
+    def isPresent(x,magic_num):
         return (x & magic_num) != 0
     
     @classmethod
@@ -28,7 +28,7 @@ class BitmaskEnum(int, Enum):
     @classmethod
     @lru_cache(maxsize=32)
     def iterate(cls,magic_num):
-        return [x for x in cls if x & magic_num != 0]
+        return [x for x in cls if cls.isPresent(x, magic_num)]
     
     @classmethod
     def fromString(cls,s):
