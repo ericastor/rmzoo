@@ -182,7 +182,7 @@ SRT22 -|> SRT2 "Cholak, Jockusch, and Slaman (2001) [remark following Corollary 
 
 RCA w-|> RT22 "corollary to Specker (1971)"
 
-RT2 -|> ACA "follows from an elaboration on Seetapun's theorem; first explicit and simplified argument due to Jockusch (see Hummel (1994) [Theorem 2.1]). A clearer argument can be made from Cholak, Jockusch, and Slaman (2001) [Theorem 3.1], from which one can see that RT2 has a low_2 omega model."
+RT2 -|> ACA """follows from an elaboration on Seetapun's theorem; first explicit and simplified argument due to Jockusch (see Hummel (1994) [Theorem 2.1]). A clearer argument can be made from Cholak, Jockusch, and Slaman (2001) [Theorem 3.1], from which one can see that RT2 has a low_2 omega model."""
 
 #Uncited:
 #    ISig3 -|> PA
