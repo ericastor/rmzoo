@@ -164,6 +164,7 @@ def printJustification(a, op, b, formatted=True):
         return printedJustify[fact]
 
 principles = set([u'RCA'])
+principlesList = []
 
 def addPrinciple(a):
     setA = set(a.split(u'+'))
@@ -298,11 +299,14 @@ def parseDatabase(databaseString):
     
     database.parseString(databaseString)
     
+    global principlesList
+    principlesList = sorted(principles)
+    
     eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
 # No inputs; affects '->' and 'c'.
 def addTrivialFacts():
-    for a in principles:
+    for a in principlesList:
         addFact(a, (u'sW', u'->'), a, u'')
         addFact(a, (u'RCA', u'->'), a, u'')
         addFact(a, (u'rPi12', u'c'), a, u'')
@@ -312,12 +316,12 @@ def addTrivialFacts():
 
 # No inputs; affects '->'
 def weakenConjunctions():
-    for a in principles:
+    for a in principlesList:
         splitA = a.split(u'+')
         if len(splitA) == 1: continue # a is not a conjunction
         setA = set(splitA)
         
-        for b in principles:
+        for b in principlesList:
             splitB = b.split(u'+')
             if len(splitB) >= len(splitA): continue # b cannot be a strict subset of a
             setB = set(splitB)
@@ -329,12 +333,12 @@ def weakenConjunctions():
 # Uses '->', affects '->'
 def reductionConjunction(): # Conjunctions follow from their conjuncts
     r = 0
-    for b in principles:
+    for b in principlesList:
         splitB = b.split(u'+')
         if len(splitB) == 1: continue # b is not a conjunction
         setB = set(splitB)
         
-        for a in principles:
+        for a in principlesList:
             if a == b: continue
             
             conj = ~0
@@ -350,10 +354,10 @@ def reductionConjunction(): # Conjunctions follow from their conjuncts
 # Complete (current) transitive closure of array, using Floyd-Warshall
 def transitiveClosure(cls, array, opName): # Take the transitive closure
     r = 0
-    for c in principles:
-        for a in principles:
+    for c in principlesList:
+        for a in principlesList:
             if a == c: continue
-            for b in principles:
+            for b in principlesList:
                 if b == a or a == c: continue
                 
                 transitive = array[(a,c)] & array[(c,b)]
@@ -368,10 +372,10 @@ def transitiveClosure(cls, array, opName): # Take the transitive closure
 def rcClosure(): # Connect implication and conservativity
     imp = 0
     con = 0
-    for c in principles:
-        for a in principles:
+    for c in principlesList:
+        for a in principlesList:
             if a == c: continue
-            for b in principles:
+            for b in principlesList:
                 if b == a or b == c: continue
                 
                 # If c -> a and c is conservative over b, then a is conservative over b.
@@ -401,8 +405,8 @@ def rcClosure(): # Connect implication and conservativity
 # Uses '->', affects ONLY justify
 def extractEquivalences(): # Convert bi-implications to equivalences
     r = 0
-    for a in principles:
-        for b in principles:
+    for a in principlesList:
+        for b in principlesList:
             if b == a: continue
             
             equiv = implies[(a,b)] & implies[(b,a)]
@@ -416,10 +420,10 @@ def extractEquivalences(): # Convert bi-implications to equivalences
 # Uses '-|>' and '->', affects '-|>'
 def conjunctionSplit(): # Split non-implications over conjunctions
     r = 0
-    for b in principles:
+    for b in principlesList:
         splitB = b.split(u'+')
         setB = set(splitB)
-        for c in principles:
+        for c in principlesList:
             if b == c: continue
             
             splitC = c.split(u'+')
@@ -429,7 +433,7 @@ def conjunctionSplit(): # Split non-implications over conjunctions
             bc = u'+'.join(sorted(setBC))
             if bc not in principles: continue
             
-            for a in principles:
+            for a in principlesList:
                 splitImp = notImplies[(a,bc)] & implies[(a,c)]
                 if splitImp == 0: continue
                 
@@ -441,11 +445,11 @@ def conjunctionSplit(): # Split non-implications over conjunctions
 # Uses '->' and '-|>', affects '-|>'
 def nonImplicationClosure(): # "transitive" non-implications
     r = 0
-    for a in principles:
-        for b in principles:
+    for a in principlesList:
+        for b in principlesList:
             if b == a: continue
             
-            for c in principles:
+            for c in principlesList:
                 if c == a or c == b: continue
                 
                 bcClosure = implies[(a,b)] & notImplies[(a,c)]
@@ -464,12 +468,12 @@ def nonImplicationClosure(): # "transitive" non-implications
 # Uses '-|>' and 'c', affects '-|>'
 def conservativeClosure(): # Close non-implications over conservativity results
     r = 0
-    for c in principles:
-        for b in principles:
+    for c in principlesList:
+        for b in principlesList:
             if b == c: continue
             
             if Reduction.isPresent(Reduction.RCA, notImplies[(c,b)]): # c does not imply b
-                for a in principles:
+                for a in principlesList:
                     if a == b or a == c: continue
                     
                     # If c does not imply b, b is (form), and a is (form)-conversative over c, then a does not imply b.
@@ -483,11 +487,11 @@ def conservativeClosure(): # Close non-implications over conservativity results
 # Uses '->' and '-|>', affects 'nc'
 def extractNonConservation(): # Transfer non-implications to non-conservation facts
     r = 0
-    for c in principles:
-        for a in principles:
+    for c in principlesList:
+        for a in principlesList:
             if a == c: continue
             
-            for b in principles:
+            for b in principlesList:
                 if b == a or b == c: continue
                 
                 # If a implies c, but b does not imply c, and c is (form), then a is not (form)-conservative over b.
