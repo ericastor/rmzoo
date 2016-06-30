@@ -18,7 +18,6 @@ class BitmaskEnum(int, Enum):
         return (x & magic_num) != 0
     
     @classmethod
-    @lru_cache(maxsize=32)
     def strongest(cls,magic_num):
         if magic_num == 0:
             return cls(0)
@@ -26,7 +25,6 @@ class BitmaskEnum(int, Enum):
             return cls(1 << (magic_num.bit_length() - 1))
     
     @classmethod
-    @lru_cache(maxsize=32)
     def iterate(cls,magic_num):
         return [x for x in cls if cls.isPresent(x, magic_num)]
     

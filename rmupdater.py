@@ -173,11 +173,9 @@ def addPrinciple(a):
     principles.update(setA)
     return a
 
-@lru_cache(maxsize=128)
 def printFact(a, op, b):
     return u'{0} {1} {2}'.format(a, printOp(op), b)
 
-@lru_cache(maxsize=128)
 def printOp(op):
     if op[1] == u'nc':
         return u'n{0}c'.format(op[0])
@@ -254,9 +252,9 @@ def addPrimary(a):
     primaryIndex.append(a)
 
 from pyparsing import *
-def parseDatabase(databaseString):
+def parseDatabase(databaseString, quiet=False):
     start = time.clock()
-    eprint(u'Parsing database...')
+    if not quiet: eprint(u'Parsing database...')
     # Name parsed strings
     name = Word( alphas+"_+^{}\\$", alphanums+"_+^{}$\\").setParseAction(lambda s,l,t: addPrinciple(t[0]))
 
@@ -302,7 +300,7 @@ def parseDatabase(databaseString):
     global principlesList
     principlesList = sorted(principles)
     
-    eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
+    if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
 # No inputs; affects '->' and 'c'.
 def addTrivialFacts():
@@ -501,16 +499,16 @@ def extractNonConservation(): # Transfer non-implications to non-conservation fa
                                      ((a, (u'RCA', u'->'), c), (b, (u'RCA', u'-|>'), c), u'{0} form {1}'.format(c, x.name)))
     return r
 
-def deriveInferences():
+def deriveInferences(quiet=False):
     start = time.clock()
-    eprint(u'Adding trivial facts...')
+    if not quiet: eprint(u'Adding trivial facts...')
     addTrivialFacts()
-    eprint(u'Weakening conjunctions...')
+    if not quiet: eprint(u'Weakening conjunctions...')
     weakenConjunctions()
-    eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
+    if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
     
     start = time.clock()
-    eprint(u'Looping over implications and conservation facts:')
+    if not quiet: eprint(u'Looping over implications and conservation facts:')
     i = 1 # implies updated
     c = 1 # conservative updated
     n = 0
@@ -523,60 +521,60 @@ def deriveInferences():
         c = 0
         
         if io != 0:
-            eprint(u'Reducing implications over conjunctions...')
+            if not quiet: eprint(u'Reducing implications over conjunctions...')
             i = max(i, reductionConjunction())
             
-            eprint(u'Finding transitive implications...')
+            if not quiet: eprint(u'Finding transitive implications...')
             i = max(i, transitiveClosure(Reduction, implies, u'->'))
         if co != 0:
-            eprint(u'Finding transitive conservation facts...')
+            if not quiet: eprint(u'Finding transitive conservation facts...')
             c = max(c, transitiveClosure(Form, conservative, u'c'))
         
-        eprint(u'Relating implications and conservation facts...')
+        if not quiet: eprint(u'Relating implications and conservation facts...')
         (ip, cp) = rcClosure()
         i = max(i, ip)
         c = max(c, cp)
-    eprint(u'Finished with implications.')
-    eprint(u'Elapsed: {0:.6f} s (with {1} repeats)\n'.format(time.clock() - start, n))
+    if not quiet: eprint(u'Finished with implications.')
+    if not quiet: eprint(u'Elapsed: {0:.6f} s (with {1} repeats)\n'.format(time.clock() - start, n))
     
     start = time.clock()
-    eprint(u'Extracting equivalences...')
+    if not quiet: eprint(u'Extracting equivalences...')
     extractEquivalences()
-    eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
+    if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
     
     start = time.clock()
-    eprint(u'Looping over non-implications and conservation facts:')
+    if not quiet: eprint(u'Looping over non-implications and conservation facts:')
     r = 1
     n = 0
     while r != 0:
         n += 1
         r = 0
         
-        eprint(u'Splitting over conjunctions...')
+        if not quiet: eprint(u'Splitting over conjunctions...')
         r = max(r, conjunctionSplit())
         
-        eprint(u'Closing over implications...')
+        if not quiet: eprint(u'Closing over implications...')
         r = max(r, nonImplicationClosure())
         
-        eprint(u'Closing over conservation facts...')
+        if not quiet: eprint(u'Closing over conservation facts...')
         r = max(r, conservativeClosure())
-    eprint(u'Finished with non-implications.')
-    eprint(u'Elapsed: {0:.6f} s (with {1} repeats)\n'.format(time.clock() - start, n))
+    if not quiet: eprint(u'Finished with non-implications.')
+    if not quiet: eprint(u'Elapsed: {0:.6f} s (with {1} repeats)\n'.format(time.clock() - start, n))
     
     start = time.clock()
-    eprint(u'Extracting non-conservation facts...')
+    if not quiet: eprint(u'Extracting non-conservation facts...')
     extractNonConservation()
-    eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
+    if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
-def databaseDump(dumpFile):
+def databaseDump(dumpFile, quiet=False):
     start = time.clock()
-    eprint(u'Formatting justifications...')
+    if not quiet: eprint(u'Formatting justifications...')
     for fact in justify:
         printJustification(*fact)
-    eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
+    if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
     
     start = time.clock()
-    eprint(u'Dumping updated database to binary file...')
+    if not quiet: eprint(u'Dumping updated database to binary file...')
     with open(dumpFile, 'wb') as f:
         pickle.dump(Version, f, pickle.HIGHEST_PROTOCOL)
         pickle.dump({'principles': principles,
@@ -585,7 +583,7 @@ def databaseDump(dumpFile):
                      'form': form,
                      'primary': (primary, primaryIndex),
                      'justify': printedJustify}, f, pickle.HIGHEST_PROTOCOL)
-    eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
+    if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
 from optparse import OptionParser, OptionGroup
 def main():
@@ -594,10 +592,14 @@ def main():
 
     parser = OptionParser('Usage: %prog [options] database output', version='%prog ' + Version + ' (' + Date + ')')
 
-    parser.set_defaults(minimizeComplexity=False)
+    parser.set_defaults(minimizeComplexity=False, quiet=False, verbose=False)
     
+    parser.add_option('-q', action='store_true', dest='quiet',
+        help = 'Suppress progress/timing indicators.')
     parser.add_option('-s', action='store_true', dest='minimizeComplexity',
         help = 'Find the shortest proofs between principles. (WARNING: much slower)')
+    parser.add_option('-v', action='store_true', dest='verbose',
+        help = 'Report additional execution information.')
 
     (options, args) = parser.parse_args()
     if len(args)>2:
@@ -606,6 +608,9 @@ def main():
         parser.error(u'No database file specified.')
     if len(args)<2:
         parser.error(u'No output file specified.')
+    
+    if options.quiet and options.verbose:
+        parser.error(u'Options -q and -v are incompatible.')
     
     global minimizeComplexity
     minimizeComplexity = options.minimizeComplexity
@@ -617,10 +622,17 @@ def main():
         parser.error(u'Database file "' + databaseFile + u'" does not exist.')
     
     with open(databaseFile, encoding='utf-8') as f:
-        parseDatabase(f.read())
-    deriveInferences()
-    databaseDump(outputFile)
-    eprint(u'Total elapsed time: {0:.6f} s'.format(time.clock() - absoluteStart))
+        parseDatabase(f.read(), options.quiet)
+    deriveInferences(options.quiet)
+    databaseDump(outputFile, options.quiet)
+    if not options.quiet: eprint(u'Total elapsed time: {0:.6f} s'.format(time.clock() - absoluteStart))
+    
+        eprint(u'\nCache report: ')
+        eprint(u'   Reduction.strongest: {0}'.format(Reduction.strongest.cache_info()))
+        eprint(u'   Reduction.iterate: {0}'.format(Reduction.iterate.cache_info()))
+        eprint(u'   Form.strongest: {0}'.format(Form.strongest.cache_info()))
+        eprint(u'   Form.iterate: {0}'.format(Form.iterate.cache_info()))
+        eprint(u'   printOp: {0}'.format(printOp.cache_info()))
 
 if __name__ == '__main__':
     main()
