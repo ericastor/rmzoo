@@ -269,8 +269,8 @@ def parseDatabase(databaseString, quiet=False):
     reductionName = Optional(_reductionName, default=Reduction.RCA.name)
 
     reduction = (reductionName + Literal("->")) | (Literal("<=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "->"])
-    nonReduction = reductionName + Literal("-|>")
-    equivalence = reductionName + Literal("<->")
+    nonReduction = (reductionName + Literal("-|>")) | (Literal("</=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "-|>"])
+    equivalence = (reductionName + Literal("<->")) | (Literal("<=>") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "<->"])
 
     _formName = NoMatch()
     for f in Form:
