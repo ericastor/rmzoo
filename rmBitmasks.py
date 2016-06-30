@@ -1,4 +1,5 @@
 from enum import Enum
+from functools import lru_cache
 
 class BitmaskEnum(int, Enum):
     def __new__(cls, value=None):
@@ -17,6 +18,7 @@ class BitmaskEnum(int, Enum):
         return (x & magic_num) != 0
     
     @classmethod
+    @lru_cache(maxsize=32)
     def strongest(cls,magic_num):
         if magic_num == 0:
             return cls(0)
@@ -24,12 +26,9 @@ class BitmaskEnum(int, Enum):
             return cls(1 << (magic_num.bit_length() - 1))
     
     @classmethod
+    @lru_cache(maxsize=32)
     def iterate(cls,magic_num):
-        s = cls.strongest(magic_num)
-        while s > 0:
-            if (s & magic_num) != 0:
-                yield cls(s)
-            s >>= 1
+        return [x for x in cls if x & magic_num != 0]
     
     @classmethod
     def fromString(cls,s):
