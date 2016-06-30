@@ -116,7 +116,7 @@ GEN1+WKL Pi11c RCA "Brown and Simpson (1993) [follows from Corollary 6.5]"
 RT22+WKL w-|> ACA "Seetapun and Slaman (1995) [Theorem 3.1]"
 RT22 nPi04c RCA "Seetapun and Slaman (1995) [Theorem 3.6]"
 
-ACA -> RT22 "follows from Specker (1971)"
+ACA -> RT22 "follows from Specker (1971) [Remark 6, RT22 has $\Delta^0_3$ solutions]"
 
 #Unclear:
 #    RT22 -> C(Gamma?) "Seetapun and Slaman (1995) [Remark 3.8]"
@@ -204,6 +204,14 @@ RT2 -|> ACA "follows from an elaboration on Seetapun's theorem; first explicit a
 
 DNR w-|> WWKL "Ambos-Spies, Kjos-Hanssen, Lempp, and Slaman (2004) [Theorem 1.7]"
 
+#Dobrinen and Simpson (2004) - "Almost everywhere domination"
+#    http://projecteuclid.org/euclid.jsl/1096901775
+#    J. Symbolic Logic 69(3), doi:10.2178/jsl/1096901775
+
+ACA -> GdREG "Dobrinen and Simpson (2004) [remark following Conjecture 3.1]"
+GdREG -> POS "Dobrinen and Simpson (2004) [remark following Conjecture 3.1]"
+WKL+RAN1+GEN1 -|> GdREG "Dobrinen and Simpson (2004) [Remark 3.5]"
+
 #Mileti (2004) - "Partition theorems and computability theory" (Ph.D. thesis, UIUC)
 #    Personal archive: http://www.math.grinnell.edu/~miletijo/research/thesis.pdf
 #    ProQuest: http://search.proquest.com/docview/305200043
@@ -243,6 +251,14 @@ RT32 -> FS3 "Cholak, Giusto, Hirst, and Jockusch (2005) [Theorem 5.5 and remark]
 
 #Cited:
 #    ACA -> FSk "Friedman (FOM 53)"
+
+#Cholak, Greenberg, and Miller (2006) - "Uniform almost everywhere domination"
+#    http://www.jstor.org/stable/27588497
+#    J. Symbolic Logic 71(3), doi:10.2178/jsl/1154698592
+
+GdREG w-|> DNR "Cholak, Greenberg, and Miller (2006) [Theorem 1.4]"
+GdREG+WKL w-|> ACA "Cholak, Greenberg, and Miller (2006) [Theorem 1.6]"
+GdREG+WWKL w-|> WKL "Cholak, Greenberg, and Miller (2006) [Theorem 1.6]"
 
 #Hirschfeldt, Jockusch, Kjos-Hanssen, Lempp, and Slaman (2006) - "The strength of some combinatorial principles related to Ramsey's theorem for pairs"
 #    http://math.uchicago.edu/~drh/Papers/Papers/comb.pdf
@@ -528,9 +544,6 @@ WKL -|> POS2 "Avigad, Dean, and Rute (2012) [Corollary 4.6]"
 
 POS1 <-> WWKL "follows from Yu and Simpson (1990) [Theorem 1]"
 
-POS -|> DNR "follows from Cholak, Greenberg, and Miller (2006) [Theorem 1.4]"
-POS+WWKL -|> WKL "follows from Cholak, Greenberg, and Miller (2006) [Theorem 1.6]"
-
 #Generic:
 #    WWKLn <-> POSn <-> BSign+RANn
 
@@ -575,6 +588,13 @@ Dw2 w-> RWKLw "Flood (2012) [Remark 33]"
 
 #Cited:
 #    D22 <-> SRT22 "Cholak, Jockusch, and Slaman (2001) and Chong, Lempp, and Yang (2010)"
+
+#Kjos-Hanssen, Miller, and Solomon (2012) - "Lowness notions, measure, and domination"
+#    http://jlms.oxfordjournals.org/content/85/3/869.abstract
+#    J. London Math. Soc. 85(3), doi:10.1112/jlms/jdr072
+
+POS w-|> GdREG "Kjos-Hanssen, Miller, and Solomon (2012) [Corollary 5.5]"
+POS+WWKL -> GdREG "Kjos-Hanssen, Miller, and Solomon (2012) [Section 7]"
 
 #Kreuzer (2012) - "Primitive Recursion and the Chain Antichain Principle"
 #    http://projecteuclid.org/euclid.ndjfl/1336588253
