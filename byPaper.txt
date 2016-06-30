@@ -158,6 +158,7 @@ WWKL -> DNR "Giusto and Simpson (2000) [Lemma 6.18]"
 
 PA form Pi11
 ISig2 form Pi11
+BSig2 form Pi11
 #BSig2 form Sig03
 
 ISig2+RT22 Pi11c ISig2 "Cholak, Jockusch, and Slaman (2001) [Theorem 10.2]"
