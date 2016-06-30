@@ -159,7 +159,7 @@ def addFact(a, op, b, jst):
         error('Unrecognized operator {0}'.format(op))
 
 def addForm(a, frm):
-    form[a] |= Form.weaker(frm)
+    form[a] |= Form.stronger(frm)
 
 def addPrimary(a):
     primary.add(a)
