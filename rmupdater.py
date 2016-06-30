@@ -17,7 +17,13 @@ from __future__ import print_function
 
 import sys
 import time
+from codecs import open
 from collections import defaultdict
+
+if sys.version_info < (3,):
+    import cPickle as pickle
+else:
+    import pickle
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -28,9 +34,8 @@ def warning(s):
     Error = True
     eprint(s)
 
-def error(s):    # Just quit
-    warning(s)
-    quit()
+def error(s):    # Throw exception
+    raise Exception(s)
 
 Date = '30 May 2016'
 Version = '4.0'
@@ -90,7 +95,7 @@ def printOp(op):
         return '{0}{1}'.format(*op)
 
 def addUnjustified(a, op, b):
-    error('Error: The fact "{0} {1} {2}" is not justified.'.format(a, printOp(op), b))
+    error('The fact "{0} {1} {2}" is not justified.'.format(a, printOp(op), b))
 
 def addJustification(a, op, b, jst):
     if (a, op, b) not in justify:
@@ -98,7 +103,7 @@ def addJustification(a, op, b, jst):
 
 def addFact(a, op, b, jst):
     addJustification(a, op, b, jst)
-    justRef = justMarker + '{0} {1} {2}: {3}'.format(a, printOp(op), b, justify[(a, op, b)])
+    justRef = justMarker + u'{0} {1} {2}: {3}'.format(a, printOp(op), b, justify[(a, op, b)])
     
     if op[1] == '->': # reduction
         r = Reduction.fromString(op[0])
@@ -108,8 +113,8 @@ def addFact(a, op, b, jst):
         for x in Reduction.iterate(Reduction.weaker(r)):
             addJustification(a, (x.name, op[1]), b, justRef)
             if Reduction.isPresent(x, notImplies[(a,b)]):
-                error('Error: The following facts are contradictory.\n\n' + 
-                        '{0} {1}-> {2}: '.format(a, x.name, b) + printJust(justify[(a,(x.name,'->'),b)]) + '\n' + 
+                error('The following facts are contradictory.\n\n' + 
+                        '{0} {1}-> {2}: '.format(a, x.name, b) + printJust(justify[(a,(x.name,'->'),b)]) + '\n\n' + 
                         '{0} {1}-|> {2}: '.format(a, x.name, b) + printJust(justify[(a,(x.name,'-|>'),b)]))
     elif op[1] == '-|>': # non-reduction
         r = Reduction.fromString(op[0])
@@ -119,8 +124,8 @@ def addFact(a, op, b, jst):
         for x in Reduction.iterate(Reduction.stronger(r)):
             addJustification(a, (x.name, op[1]), b, justRef)
             if Reduction.isPresent(x, implies[(a,b)]):
-                error('Error: The following facts are contradictory.\n\n' + 
-                        '{0} {1}-> {2}: '.format(a, x.name, b) + printJust(justify[(a,(x.name,'->'),b)]) + '\n' + 
+                error('The following facts are contradictory.\n\n' + 
+                        '{0} {1}-> {2}: '.format(a, x.name, b) + printJust(justify[(a,(x.name,'->'),b)]) + '\n\n' + 
                         '{0} {1}-|> {2}: '.format(a, x.name, b) + printJust(justify[(a,(x.name,'-|>'),b)]))
     elif op[1] == '<->': # equivalence
         r = Reduction.fromString(op[0])
@@ -136,8 +141,8 @@ def addFact(a, op, b, jst):
         for x in Form.iterate(Form.weaker(frm)):
             addJustification(a, (x.name, op[1]), b, justRef)
             if Reduction.isPresent(x, nonConservative[(a,b)]):
-                error('Error: The following facts are contradictory.\n\n' + 
-                        '{0} {1}c {2}: '.format(a, x.name, b) + printJust(justify[(a,(x.name,'c'),b)]) + '\n' + 
+                error('The following facts are contradictory.\n\n' + 
+                        '{0} {1}c {2}: '.format(a, x.name, b) + printJust(justify[(a,(x.name,'c'),b)]) + '\n\n' + 
                         '{0} n{1}c {2}: '.format(a, x.name, b) + printJust(justify[(a,(x.name,'nc'),b)]))
     elif op[1] == 'nc': # non-conservation
         frm = Form.fromString(op[0])
@@ -147,11 +152,11 @@ def addFact(a, op, b, jst):
         for x in Form.iterate(Form.stronger(frm)):
             addJustification(a, (x.name, op[1]), b, justRef)
             if Reduction.isPresent(x, conservative[(a,b)]):
-                error('Error: The following facts are contradictory.\n\n' + 
-                        '{0} {1}c {2}: '.format(a, x.name, b) + printJust(justify[(a,(x.name,'c'),b)]) + '\n' + 
+                error('The following facts are contradictory.\n\n' + 
+                        '{0} {1}c {2}: '.format(a, x.name, b) + printJust(justify[(a,(x.name,'c'),b)]) + '\n\n' + 
                         '{0} n{1}c {2}: '.format(a, x.name, b) + printJust(justify[(a,(x.name,'nc'),b)]))
     else:
-        error('Unrecognized operator: {0}'.format(op))
+        error('Unrecognized operator {0}'.format(op))
 
 def addForm(a, frm):
     form[a] |= Form.weaker(frm)
@@ -161,7 +166,7 @@ def addPrimary(a):
     primaryIndex.append(a)
 
 from pyparsing import *
-def parseDatabase(databaseFile):
+def parseDatabase(databaseString):
     start = time.clock()
     eprint('Parsing database...')
     # Name parsed strings
@@ -198,12 +203,13 @@ def parseDatabase(databaseFile):
     formDef = (name + Literal("form") + formName).setParseAction(lambda s,l,t: addForm(t[0], Form.fromString(t[2])))
     primary = (name + Literal("is primary")).setParseAction(lambda s,l,t: addPrimary(t[0]))
 
-    comments = Suppress(Literal( "#" ) + SkipTo( LineEnd()))
+    comments = Suppress(Literal( "#" ) + SkipTo(LineEnd()))
 
     # Represent and parse database file
     entry = fact | formDef | primary | unjustified | comments
     database = ZeroOrMore( entry ) + StringEnd()
-    database.parseFile(databaseFile)
+    
+    database.parseString(databaseString)
     eprint('Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
 # No inputs; affects '->' and 'c'.
@@ -487,10 +493,6 @@ def deriveInferences():
     extractNonConservation()
     eprint('Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
-if sys.version_info < (3,):
-    import cPickle as pickle
-else:
-    import pickle
 def databaseDump(dumpFile):
     start = time.clock()
     eprint('Dumping updated database to binary file...')
@@ -527,7 +529,8 @@ def main():
     if not os.path.exists(databaseFile):
         parser.error('Database file "' + databaseFile + '" does not exist.')
     
-    parseDatabase(databaseFile)
+    with open(databaseFile, encoding='utf-8') as f:
+        parseDatabase(f.read())
     deriveInferences()
     databaseDump(outputFile)
     eprint('Total elapsed time: {0:.6f} s'.format(time.clock() - absoluteStart))
