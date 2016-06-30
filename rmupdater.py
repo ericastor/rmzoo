@@ -176,6 +176,7 @@ def addPrinciple(a):
 def printFact(a, op, b):
     return u'{0} {1} {2}'.format(a, printOp(op), b)
 
+@lru_cache(maxsize=1024)
 def printOp(op):
     if op[1] == u'nc':
         return u'n{0}c'.format(op[0])
@@ -627,6 +628,7 @@ def main():
     databaseDump(outputFile, options.quiet)
     if not options.quiet: eprint(u'Total elapsed time: {0:.6f} s'.format(time.clock() - absoluteStart))
     
+    if options.verbose:
         eprint(u'\nCache report: ')
         eprint(u'   Reduction.strongest: {0}'.format(Reduction.strongest.cache_info()))
         eprint(u'   Reduction.iterate: {0}'.format(Reduction.iterate.cache_info()))
