@@ -73,27 +73,33 @@ justDependencies = defaultdict(set)
 printedJustify = {}
 
 def _refComplexity(jst):
+    if isinstance(jst, str):
+        return 1
+    
     complexity = 1
-    if not isinstance(jst, str):
-        for ref in jst:
-            if isinstance(ref, str):
+    for fact in jst:
+        try:
+            complexity += justComplexity[fact]
+        except KeyError:
+            if isinstance(fact, str):
                 complexity += 1
             else:
-                complexity += getComplexity(*ref)
+                c = _refComplexity(justify[fact])
+                justComplexity[fact] = c
+                complexity += c
     return complexity
 
-def getComplexity(a, op, b):
-    fact = (a, op, b)
-    
-    if fact not in justComplexity:
-        justComplexity[fact] = _refComplexity(justify[fact])
-    
-    return justComplexity[fact]
+def getComplexity(fact):
+    try:
+        return justComplexity[fact]
+    except KeyError:
+        complexity = _refComplexity(justify[fact])
+        justComplexity[fact] = complexity
+        return complexity
 
 minimizeComplexity = False
 
-def addJustification(a, op, b, jst):
-    fact = (a, op, b)
+def addJustification(fact, jst):
     if not minimizeComplexity:
         if fact in justify:
             return 0
@@ -101,44 +107,38 @@ def addJustification(a, op, b, jst):
             justify[fact] = jst
             return 1
     
-    dependencies = set([ref for ref in jst if not isinstance(ref, str)])
-    
-    if fact not in justify:
-        justify[fact] = jst
-        for f in dependencies:
-            justDependencies[f].add(fact)
-        return 1
-    else:
+    complexity = None
+    if fact in justify:
         if jst == justify[fact]:
             return 0
         
         complexity = _refComplexity(jst)
-        if complexity >= getComplexity(*fact):
+        if complexity >= getComplexity(fact):
             return 0
-        else:
-            # Remove cached complexities dependent on the justification of 'a op b'
-            Q = deque([fact])
-            exhausted = set()
-            while len(Q) > 0:
-                f = Q.popleft()
-                if f in justComplexity:
-                    del justComplexity[f]
-                exhausted.add(f)
-                Q.extend(justDependencies[f] - exhausted)
-            
-            # Set new dependencies
-            if fact in justify:
-                oldDependencies = set([ref for ref in justify[fact] if not isinstance(ref, str)])
-            else:
-                oldDependencies = set()
-            for f in (oldDependencies - dependencies):
-                justDependencies[f].remove(fact)
-            for f in (dependencies - oldDependencies):
-                justDependencies[f].add(fact)
-            
-            justify[fact] = jst
-            justComplexity[fact] = complexity
-            return 1
+    
+        # Remove cached complexities dependent on the justification of 'fact'
+        Q = deque([fact])
+        exhausted = set()
+        while len(Q) > 0:
+            f = Q.popleft()
+            if f in justComplexity:
+                del justComplexity[f]
+            exhausted.add(f)
+            Q.extend(justDependencies[f] - exhausted)
+        
+        # Remove old dependencies
+        for f in justify[fact]:
+            if not isinstance(f, str):
+                justDependencies[f].discard(fact)
+    
+    # Add justification
+    justify[fact] = jst
+    for f in jst:
+        if not isinstance(f, str):
+            justDependencies[f].add(fact)
+    if complexity is not None:
+        justComplexity[fact] = complexity
+    return 1
 
 _justLineMarker = u'*'
 _justIndentMarker = u'@'
@@ -187,18 +187,18 @@ def addUnjustified(a, op, b):
     error(u'The fact "{0}" is not justified.'.format(printFact(a, op, b)))
 
 def addFact(a, op, b, jst):
-    ret = addJustification(a, op, b, jst)
+    fact = (a, op, b)
+    ret = addJustification(fact, jst)
     if ret == 0:
         return 0
     
-    fact = (a, op, b)
     if op[1] == u'->': # reduction
         r = Reduction.fromString(op[0])
         addReduction(a, r, b)
         for x in Reduction.iterate(Reduction.weaker(r)):
             if x == r: continue
             
-            addJustification(a, (x.name, op[1]), b, (fact,))
+            addJustification((a, (x.name, op[1]), b), (fact,))
             if Reduction.isPresent(x, notImplies[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
                         printJustification(a,(x.name,u'->'),b) + u'\n\n' + 
@@ -209,7 +209,7 @@ def addFact(a, op, b, jst):
         for x in Reduction.iterate(Reduction.stronger(r)):
             if x == r: continue
             
-            addJustification(a, (x.name, op[1]), b, (fact,))
+            addJustification((a, (x.name, op[1]), b), (fact,))
             if Reduction.isPresent(x, implies[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
                         printJustification(a,(x.name,u'->'),b) + u'\n\n' + 
@@ -224,7 +224,7 @@ def addFact(a, op, b, jst):
         for x in Form.iterate(Form.weaker(frm)):
             if x == frm: continue
             
-            addJustification(a, (x.name, op[1]), b, (fact,))
+            addJustification((a, (x.name, op[1]), b), (fact,))
             if Reduction.isPresent(x, nonConservative[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
                         printJustification(a,(x.name,u'c'),b) + u'\n\n' + 
@@ -235,7 +235,7 @@ def addFact(a, op, b, jst):
         for x in Form.iterate(Form.stronger(frm)):
             if x == frm: continue
             
-            addJustification(a, (x.name, op[1]), b, (fact,))
+            addJustification((a, (x.name, op[1]), b), (fact,))
             if Reduction.isPresent(x, conservative[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
                         printJustification(a,(x.name,u'c'),b) + u'\n\n' + 
