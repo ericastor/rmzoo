@@ -306,12 +306,13 @@ def parseDatabase(databaseString, quiet=False):
 # No inputs; affects '->' and 'c'.
 def addTrivialFacts():
     for a in principlesList:
-        addFact(a, (u'sW', u'->'), a, u'')
-        addFact(a, (u'RCA', u'->'), a, u'')
-        addFact(a, (u'rPi12', u'c'), a, u'')
+        for r in Reduction:
+            addFact(a, (r.name, u'->'), a, u'')
+        for f in Form:
+            addFact(a, (f.name, u'c'), a, u'')
         if a != u'RCA':
-            addFact(a, (u'sW', u'->'), u'RCA', u'')
-            addFact(a, (u'RCA', u'->'), u'RCA', u'')
+            for r in Reduction:
+                addFact(a, (r.name, u'->'), u'RCA', u'')
 
 # No inputs; affects '->'
 def weakenConjunctions():

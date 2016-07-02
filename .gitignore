@@ -20,6 +20,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Profiling output files
+*.prof
+*.lprof
+
 # Distribution / packaging
 .Python
 env/
