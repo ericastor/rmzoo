@@ -97,10 +97,10 @@ def getComplexity(fact):
         justComplexity[fact] = complexity
         return complexity
 
-minimizeComplexity = False
+ignoreComplexity = False
 
 def addJustification(fact, jst):
-    if not minimizeComplexity:
+    if ignoreComplexity:
         if fact in justify:
             return 0
         else:
@@ -587,7 +587,7 @@ def deriveInferences(quiet=False):
     if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
 def databaseDump(dumpFile, quiet=False):
-    if not quiet: eprint(u'{0} facts known.\n'.format(len(justify)))
+    if not quiet: eprint(u'{0:,d} facts known.\n'.format(len(justify)))
     
     start = time.clock()
     if not quiet: eprint(u'Formatting justifications...')
@@ -614,12 +614,12 @@ def main():
 
     parser = OptionParser('Usage: %prog [options] database output', version='%prog ' + Version + ' (' + Date + ')')
 
-    parser.set_defaults(minimizeComplexity=False, quiet=False, verbose=False)
+    parser.set_defaults(ignoreComplexity=False, quiet=False, verbose=False)
     
     parser.add_option('-q', action='store_true', dest='quiet',
         help = 'Suppress progress/timing indicators.')
-    parser.add_option('-s', action='store_true', dest='minimizeComplexity',
-        help = 'Find the shortest proofs between principles. (WARNING: much slower)')
+    parser.add_option('-f', action='store_true', dest='ignoreComplexity',
+        help = 'Do not optimize for shorter proofs; runs about twice as fast.')
     parser.add_option('-v', action='store_true', dest='verbose',
         help = 'Report additional execution information.')
 
@@ -634,8 +634,8 @@ def main():
     if options.quiet and options.verbose:
         parser.error(u'Options -q and -v are incompatible.')
     
-    global minimizeComplexity
-    minimizeComplexity = options.minimizeComplexity
+    global ignoreComplexity
+    ignoreComplexity = options.ignoreComplexity
     
     import os
     databaseFile = args[0]
