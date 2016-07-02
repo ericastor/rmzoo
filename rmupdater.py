@@ -358,6 +358,7 @@ def transitiveClosure(cls, array, opName): # Take the transitive closure
             if a == c: continue
             
             acRelation = array[(a,c)]
+            if acRelation == cls.none: continue
             for b in principlesList:
                 if b == a or a == c: continue
                 
