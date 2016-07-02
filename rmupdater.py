@@ -9,6 +9,7 @@
 #   Revised by Eric Astor
 #   - Version 3.0 - 29 May 2016
 #   - Version 4.0 - started 30 May 2016
+#   - Version 4.1 - optimizations & refactoring, started 2 July 2016
 #   Documentation and support: http://rmzoo.uconn.edu
 #
 ##################################################################################
@@ -38,10 +39,21 @@ def warning(s):
 def error(s):    # Throw exception
     raise Exception(s)
 
-Date = u'30 May 2016'
-Version = u'4.0'
+Date = u'2 July 2016'
+Version = u'4.1'
 
 from rmBitmasks import *
+from renderJustification import *
+
+principles = set([u'RCA'])
+principlesList = []
+
+def addPrinciple(a):
+    setA = set(a.split(u'+'))
+    a = u'+'.join(sorted(setA))
+    principles.add(a)
+    principles.update(setA)
+    return a
 
 implies = defaultdict(noReduction)
 notImplies = defaultdict(noReduction)
@@ -56,21 +68,33 @@ conservative = defaultdict(noForm)
 nonConservative = defaultdict(noForm)
 
 def addConservative(a,frm,b):
-    conservative[(a,b)] |= Form.weaker(frm)
+    conservative[(a,b)] |= Form.stronger(frm)
 
 def addNonConservative(a,frm,b):
-    nonConservative[(a,b)] |= Form.stronger(frm)
+    nonConservative[(a,b)] |= Form.weaker(frm)
 
 form = defaultdict(noForm)
 
 primary = set()
 primaryIndex = []
 
+def addForm(a, frm):
+    form[a] |= Form.weaker(frm)
+
+def addPrimary(a):
+    primary.add(a)
+    primaryIndex.append(a)
+
 justify = {}
 justComplexity = {}
 justDependencies = defaultdict(set)
 
-printedJustify = {}
+def addJustification(fact, jst):
+    if fact in justify:
+        return 0
+    else:
+        justify[fact] = jst
+        return 1
 
 def _refComplexity(jst):
     if isinstance(jst, str):
@@ -88,7 +112,6 @@ def _refComplexity(jst):
                 justComplexity[fact] = c
                 complexity += c
     return complexity
-
 def getComplexity(fact):
     try:
         return justComplexity[fact]
@@ -97,16 +120,7 @@ def getComplexity(fact):
         justComplexity[fact] = complexity
         return complexity
 
-ignoreComplexity = False
-
-def addJustification(fact, jst):
-    if ignoreComplexity:
-        if fact in justify:
-            return 0
-        else:
-            justify[fact] = jst
-            return 1
-    
+def optimizeJustification(fact, jst):
     complexity = None
     if fact in justify:
         if jst == justify[fact]:
@@ -140,49 +154,6 @@ def addJustification(fact, jst):
         justComplexity[fact] = complexity
     return 1
 
-_justLineMarker = u'*'
-_justIndentMarker = u'@'
-justMarker = _justLineMarker + _justIndentMarker
-_justIndented = justMarker + _justIndentMarker
-_justFormat = justMarker + u'{0}: '
-def indentJust(jst):
-    return jst.replace(justMarker, _justIndented)
-def printJustification(a, op, b, formatted=True):
-    fact = (a, op, b)
-    
-    if fact not in printedJustify:
-        jst = justify[fact]
-        if isinstance(jst, str):
-            printedJustify[fact] = _justFormat.format(printFact(*fact)) + jst
-        else:
-            printedJustify[fact] = _justFormat.format(printFact(*fact)) \
-                                 + u''.join((_justIndented+f if isinstance(f, str) else indentJust(printJustification(*f, formatted=False))) for f in jst)
-    
-    if formatted:
-        return printedJustify[fact].replace(_justLineMarker, u'\n').replace(_justIndentMarker, u'    ')
-    else:
-        return printedJustify[fact]
-
-principles = set([u'RCA'])
-principlesList = []
-
-def addPrinciple(a):
-    setA = set(a.split(u'+'))
-    a = u'+'.join(sorted(setA))
-    principles.add(a)
-    principles.update(setA)
-    return a
-
-def printFact(a, op, b):
-    return u'{0} {1} {2}'.format(a, printOp(op), b)
-
-@lru_cache(maxsize=1024)
-def printOp(op):
-    if op[1] == u'nc':
-        return u'n{0}c'.format(op[0])
-    else:
-        return u'{0}{1}'.format(*op)
-
 def addUnjustified(a, op, b):
     error(u'The fact "{0}" is not justified.'.format(printFact(a, op, b)))
 
@@ -201,8 +172,8 @@ def addFact(a, op, b, jst):
             addJustification((a, (x.name, op[1]), b), (fact,))
             if Reduction.isPresent(x, notImplies[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
-                        printJustification(a,(x.name,u'->'),b) + u'\n\n' + 
-                        printJustification(a,(x.name,u'-|>'),b))
+                        printJustification(a,(x.name,u'->'),b, justify) + u'\n\n' + 
+                        printJustification(a,(x.name,u'-|>'),b, justify))
     elif op[1] == u'-|>': # non-reduction
         r = Reduction.fromString(op[0])
         addNonReduction(a, r, b)
@@ -212,8 +183,8 @@ def addFact(a, op, b, jst):
             addJustification((a, (x.name, op[1]), b), (fact,))
             if Reduction.isPresent(x, implies[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
-                        printJustification(a,(x.name,u'->'),b) + u'\n\n' + 
-                        printJustification(a,(x.name,u'-|>'),b))
+                        printJustification(a,(x.name,u'->'),b, justify) + u'\n\n' + 
+                        printJustification(a,(x.name,u'-|>'),b, justify))
     elif op[1] == u'<->': # equivalence
         r = Reduction.fromString(op[0])
         addFact(a, (op[0], u'->'), b, (fact,))
@@ -221,36 +192,29 @@ def addFact(a, op, b, jst):
     elif op[1] == u'c': # conservation
         frm = Form.fromString(op[0])
         addConservative(a, frm, b)
-        for x in Form.iterate(Form.weaker(frm)):
+        for x in Form.iterate(Form.stronger(frm)):
             if x == frm: continue
             
             addJustification((a, (x.name, op[1]), b), (fact,))
             if Reduction.isPresent(x, nonConservative[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
-                        printJustification(a,(x.name,u'c'),b) + u'\n\n' + 
-                        printJustification(a,(x.name,u'nc'),b))
+                        printJustification(a,(x.name,u'c'),b, justify) + u'\n\n' + 
+                        printJustification(a,(x.name,u'nc'),b, justify))
     elif op[1] == u'nc': # non-conservation
         frm = Form.fromString(op[0])
         addNonConservative(a, frm, b)
-        for x in Form.iterate(Form.stronger(frm)):
+        for x in Form.iterate(Form.weaker(frm)):
             if x == frm: continue
             
             addJustification((a, (x.name, op[1]), b), (fact,))
             if Reduction.isPresent(x, conservative[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
-                        printJustification(a,(x.name,u'c'),b) + u'\n\n' + 
-                        printJustification(a,(x.name,u'nc'),b))
+                        printJustification(a,(x.name,u'c'),b, justify) + u'\n\n' + 
+                        printJustification(a,(x.name,u'nc'),b, justify))
     else:
         error(u'Unrecognized operator {0}'.format(op))
     
     return 1
-
-def addForm(a, frm):
-    form[a] |= Form.stronger(frm)
-
-def addPrimary(a):
-    primary.add(a)
-    primaryIndex.append(a)
 
 from pyparsing import *
 def parseDatabase(databaseString, quiet=False):
@@ -301,6 +265,7 @@ def parseDatabase(databaseString, quiet=False):
     global principlesList
     principlesList = sorted(principles)
     
+    if not quiet: eprint(u'Principles found: {0:,d}'.format(len(principlesList)))
     if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
 # No inputs; affects '->' and 'c'.
@@ -588,13 +553,7 @@ def deriveInferences(quiet=False):
     if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
 def databaseDump(dumpFile, quiet=False):
-    if not quiet: eprint(u'{0:,d} facts known.\n'.format(len(justify)))
-    
-    start = time.clock()
-    if not quiet: eprint(u'Formatting justifications...')
-    for fact in justify:
-        printJustification(*fact)
-    if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
+    if not quiet: eprint(u'Facts known: {0:,d}\n'.format(len(justify)))
     
     start = time.clock()
     if not quiet: eprint(u'Dumping updated database to binary file...')
@@ -605,7 +564,7 @@ def databaseDump(dumpFile, quiet=False):
                      'conservation': (conservative, nonConservative),
                      'form': form,
                      'primary': (primary, primaryIndex),
-                     'justify': printedJustify}, f, pickle.HIGHEST_PROTOCOL)
+                     'justify': justify}, f, pickle.HIGHEST_PROTOCOL)
     if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
 from optparse import OptionParser, OptionGroup
@@ -635,8 +594,9 @@ def main():
     if options.quiet and options.verbose:
         parser.error(u'Options -q and -v are incompatible.')
     
-    global ignoreComplexity
-    ignoreComplexity = options.ignoreComplexity
+    global addJustification
+    if not options.ignoreComplexity:
+        addJustification = optimizeJustification
     
     import os
     databaseFile = args[0]

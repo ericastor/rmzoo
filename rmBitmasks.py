@@ -27,6 +27,14 @@ class BitmaskEnum(int, Enum):
     
     @classmethod
     @lru_cache(maxsize=256)
+    def weakest(cls,magic_num):
+        if magic_num == 0:
+            return cls.none
+        else:
+            return cls(magic_num & -magic_num)
+    
+    @classmethod
+    @lru_cache(maxsize=256)
     def iterate(cls,magic_num):
         return [x for x in cls if cls.isPresent(x, magic_num)]
     
@@ -62,13 +70,13 @@ def noReduction():
 
 class Form(BitmaskEnum):
     none = 0
-    Pi02 = 1 << 0
-    Pi03 = 1 << 1
-    Pi04 = 1 << 2
+    Pi02 = 1 << 6
+    Pi03 = 1 << 5
+    Pi04 = 1 << 4
     Pi11 = 1 << 3
-    rPi12 = 1 << 4
-    Pi12 = 1 << 5
-    Pi13 = 1 << 6
+    rPi12 = 1 << 2
+    Pi12 = 1 << 1
+    Pi13 = 1 << 0
 
 def noForm():
     return Form.none
@@ -113,18 +121,18 @@ _R_STRONGER = _reverseImplications(Reduction, _R_WEAKER)
 Reduction.weaker = lambda r: _R_WEAKER[r]
 Reduction.stronger = lambda r: _R_STRONGER[r]
 
-_F_WEAKER = {f:f for f in Form}
+_F_STRONGER = {f:f for f in Form}
 
-_F_WEAKER[Form.Pi13] |= Form.Pi12 # Pi13 includes Pi12
-_F_WEAKER[Form.Pi12] |= Form.rPi12 # Pi12 includes rPi12
-_F_WEAKER[Form.rPi12] |= Form.Pi11 # rPi12 includes Pi11
-_F_WEAKER[Form.Pi11] |= Form.Pi04 # Pi11 includes Pi04
-_F_WEAKER[Form.Pi04] |= Form.Pi03 # Pi04 includes Pi03
-_F_WEAKER[Form.Pi03] |= Form.Pi02 # Pi03 includes Pi02
+_F_STRONGER[Form.Pi13] |= Form.Pi12 # Pi12 implies Pi13
+_F_STRONGER[Form.Pi12] |= Form.rPi12 # rPi12 implies Pi12
+_F_STRONGER[Form.rPi12] |= Form.Pi11 # Pi11 implies rPi12
+_F_STRONGER[Form.Pi11] |= Form.Pi04 # Pi04 implies Pi11
+_F_STRONGER[Form.Pi04] |= Form.Pi03 # Pi03 implies Pi04
+_F_STRONGER[Form.Pi03] |= Form.Pi02 # Pi02 implies Pi03
 
-_completeImplications(Form, _F_WEAKER)
+_completeImplications(Form, _F_STRONGER)
 
-_F_STRONGER = _reverseImplications(Form, _F_WEAKER)
+_F_WEAKER = _reverseImplications(Form, _F_STRONGER)
 
 Form.weaker = lambda f: _F_WEAKER[f]
 Form.stronger = lambda f: _F_STRONGER[f]

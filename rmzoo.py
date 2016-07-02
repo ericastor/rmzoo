@@ -9,6 +9,7 @@
 #   Revised by Eric Astor
 #   - Version 3.0 - 29 May 2016
 #   - Version 4.0 - started 30 May 2016
+#   - Version 4.1 - optimizations & refactoring, started 2 July 2016
 #   Documentation and support: http://rmzoo.uconn.edu
 #
 ##################################################################################
@@ -22,21 +23,20 @@ from collections import defaultdict
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
-Date = '30 May 2016'
-Version = '4.0'
-
 Error = False
 def warning(s):
     global Error
     Error = True
     eprint(s)
 
-def error(s):    # Just quit
-    warning(s)
-    quit()
+def error(s):    # Throw exception
+    raise Exception(s)
 
-# Data structures
+Date = '2 July 2016'
+Version = '4.1'
+
 from rmBitmasks import *
+from renderJustification import *
 
 _FORM_COLOR = {Form.none: "white",
   Form.weaker(Form.Pi11): "pink",
@@ -151,12 +151,6 @@ def printOp(op):
     else:
         return '{0}{1}'.format(*op)
 
-justMarker = '*@'
-def printJust(a):
-    a = a.replace('@','    ')
-    a = a.replace('*','\n')
-    return a
-
 class VersionError(Exception):
     def __init__(self, targetVersion, actualVersion):
         self.targetVersion = targetVersion
@@ -180,7 +174,25 @@ conservative, nonConservative = database['conservation']
 form = database['form']
 primary, primaryIndex = database['primary']
 justify = database['justify']
-   
+
+def queryDatabase(a, op, b, justification=True):
+    aKnown = a in principles
+    bKnown = b in principles
+    if not aKnown and not bKnown:
+        error('Error: {0} and {1} are unknown principles.'.format(a, b))
+    if not aKnown:
+        error('Error: {0} is an unknown principle.'.format(a))
+    if not bKnown:
+        error('Error: {0} is an unknown principle.'.format(b))
+    
+    if justification:
+        try:
+            return printJustification(a, op, b, justify)
+        except KeyError:
+            error('Error: {0} is not a known fact.'.format(printFact(a, op, b)))
+    else:
+        return ((a, op, b) in justify)
+
 ##################################################################################
 #
 #   IF RESTRICT OR QUERY: VALIDATE CLASS
@@ -232,16 +244,10 @@ if Query:
     op = tuple(Query[1])
     b = '+'.join(sorted(set(Query[2].split('+'))))
     
-    if a not in principles:
-        error('Error: {0} is not in the database.'.format(a))
-    if b not in principles:
-        error('Error: {0} is not in the database.'.format(b))
-    if (a,op,b) not in justify:
-        error('Error: {0} {1} {2} is not a known fact.'.format(a, printOp(op), b))
-    else:
-        print('Justification for the fact {0} {1} {2}:'.format(a, printOp(op), b))
-        print(printJust(justify[(a, op, b)]))
-        eprint('\nFinished.')
+    try:
+        print(u'Justification for the fact {0}:\n{1}'.format(printFact(a, op, b), queryDatabase(a, op, b)))
+    except Exception as e:
+        print(e)
 
 if QueryFile:
     parenth = Literal('"')
@@ -254,24 +260,25 @@ if QueryFile:
             if len(q) == 0 or q[0] == '#': continue
             
             Q = fact.parseString(q)
-            if Q[1] == 'is': continue
+            if Q[1] == 'is' and Q[2] == 'primary': continue
             
             a = '+'.join(sorted(set(Q[0].split('+'))))
             
-            s = ''
+            s = u''
+            known = False
             if Q[1] == 'form':
-                if not Form.isPresent(Form.fromString(Q[2]), form[a]):
-                    s += '\nUnknown fact: ' + q
+                known = Form.isPresent(Form.fromString(Q[2]), form[a])
             else:
                 op = tuple(Q[1])
                 b = '+'.join(sorted(set(Q[2].split('+'))))
                 
-                if a not in principles:
-                    s += '\nError: {0} is not in the database.'.format(a)
-                if b not in principles:
-                    s += '\nError: {0} is not in the database.'.format(b)
-                if (a,op,b) not in justify:
-                    s += '\nUnknown fact: ' + q
+                try:
+                    known = queryDatabase(a, op, b, justification=False)
+                except Exception as e:
+                    s += u'\n' + str(e)
+                
+            if not known:
+                s += u'\nUnknown fact: ' + q
             
             if len(s) > 0:
                 warning(s)
