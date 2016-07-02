@@ -356,11 +356,13 @@ def transitiveClosure(cls, array, opName): # Take the transitive closure
     for c in principlesList:
         for a in principlesList:
             if a == c: continue
+            
+            acRelation = array[(a,c)]
             for b in principlesList:
                 if b == a or a == c: continue
                 
-                transitive = array[(a,c)] & array[(c,b)]
-                if transitive == 0: continue
+                transitive = acRelation & array[(c,b)]
+                if transitive == cls.none: continue
                 
                 for x in cls.iterate(transitive):
                     r |= addFact(a, (x.name, opName), b,
@@ -374,23 +376,28 @@ def rcClosure(): # Connect implication and conservativity
     for c in principlesList:
         for a in principlesList:
             if a == c: continue
+            
+            cImpliesA = Reduction.isPresent(Reduction.RCA, implies[(c,a)])
+            acConservative = conservative[(a,c)]
+            caConservative = conservative[(c,a)]
             for b in principlesList:
                 if b == a or b == c: continue
                 
                 # If c -> a and c is conservative over b, then a is conservative over b.
-                if Reduction.isPresent(Reduction.RCA, implies[(c,a)]) and conservative[(c,b)] != 0:
-                    for x in Form.iterate(conservative[(c,b)]):
+                cbConservative = conservative[(c,b)]
+                if cImpliesA and cbConservative != Form.none:
+                    for x in Form.iterate(cbConservative):
                         con |= addFact(a, (x.name, u'c'), b,
                                        ((c, (u'RCA', u'->'), a), (c, (x.name, u'c'), b)))
                 
                 # If b -> c and a is conservative over c, then a is conservative over b.
-                if Reduction.isPresent(Reduction.RCA, implies[(b,c)]) and conservative[(a,c)] != 0:
-                    for x in Form.iterate(conservative[(a,c)]):
+                if Reduction.isPresent(Reduction.RCA, implies[(b,c)]) and acConservative != Form.none:
+                    for x in Form.iterate(acConservative):
                         con |= addFact(a, (x.name, u'c'), b,
                                        ((b, (u'RCA', u'->'), c), (a, (x.name, u'c'), c)))
                 
                 # If c -> b, c is (form)-conservative over a, and b is (form), then a -> b.
-                frms = form[b] & conservative[(c,a)]
+                frms = form[b] & caConservative
                 if frms != Form.none and Reduction.isPresent(Reduction.RCA, implies[(c,b)]):
                     frm = Form.strongest(frms)
                     imp |= addFact(a, (u'RCA', u'->'), b,
@@ -405,7 +412,7 @@ def extractEquivalences(): # Convert bi-implications to equivalences
             if b == a: continue
             
             equiv = implies[(a,b)] & implies[(b,a)]
-            if equiv == 0: continue
+            if equiv == Reduction.none: continue
             
             for x in Reduction.iterate(equiv):
                 r |= addFact(a, (x.name, u'<->'), b,
@@ -430,7 +437,7 @@ def conjunctionSplit(): # Split non-implications over conjunctions
             
             for a in principlesList:
                 splitImp = notImplies[(a,bc)] & implies[(a,c)]
-                if splitImp == 0: continue
+                if splitImp == Reduction.none: continue
                 
                 for x in Reduction.iterate(splitImp):
                     r |= addFact(a, (x.name, u'-|>'), b,
@@ -444,17 +451,19 @@ def nonImplicationClosure(): # "transitive" non-implications
         for b in principlesList:
             if b == a: continue
             
+            aImpliesB = implies[(a,b)]
+            if aImpliesB == Reduction.none: continue
             for c in principlesList:
                 if c == a or c == b: continue
                 
-                bcClosure = implies[(a,b)] & notImplies[(a,c)]
-                if bcClosure != 0:
+                bcClosure = aImpliesB & notImplies[(a,c)]
+                if bcClosure != Reduction.none:
                     for x in Reduction.iterate(bcClosure):
                         r |= addFact(b, (x.name, u'-|>'), c,
                                      ((a, (x.name, u'->'), b), (a, (x.name, u'-|>'), c)))
                 
-                caClosure = implies[(a,b)] & notImplies[(c,b)]
-                if caClosure != 0:
+                caClosure = aImpliesB & notImplies[(c,b)]
+                if caClosure != Reduction.none:
                     for x in Reduction.iterate(caClosure):
                         r |= addFact(c, (x.name, u'-|>'), a,
                                      ((a, (x.name, u'->'), b), (c, (x.name, u'-|>'), b)))
@@ -467,6 +476,8 @@ def conservativeClosure(): # Close non-implications over conservativity results
         for b in principlesList:
             if b == c: continue
             
+            formB = form[b]
+            if formB == Form.none: continue
             if Reduction.isPresent(Reduction.RCA, notImplies[(c,b)]): # c does not imply b
                 for a in principlesList:
                     if a == b or a == c: continue
@@ -483,17 +494,20 @@ def conservativeClosure(): # Close non-implications over conservativity results
 def extractNonConservation(): # Transfer non-implications to non-conservation facts
     r = 0
     for c in principlesList:
+        formC = form[c]
+        if formC == Form.none: continue
         for a in principlesList:
             if a == c: continue
             
-            for b in principlesList:
-                if b == a or b == c: continue
-                
-                # If a implies c, but b does not imply c, and c is (form), then a is not (form)-conservative over b.
-                if Reduction.isPresent(Reduction.RCA, implies[(a,c)]) and Reduction.isPresent(Reduction.RCA, notImplies[(b,c)]):
-                    for x in Form.iterate(form[c]):
-                        r |= addFact(a, (x.name, u'nc'), b,
-                                     ((a, (u'RCA', u'->'), c), (b, (u'RCA', u'-|>'), c), u'{0} form {1}'.format(c, x.name)))
+            # If a implies c, but b does not imply c, and c is (form), then a is not (form)-conservative over b.
+            if Reduction.isPresent(Reduction.RCA, implies[(a,c)]):
+                for b in principlesList:
+                    if b == a or b == c: continue
+                    
+                    if Reduction.isPresent(Reduction.RCA, notImplies[(b,c)]):
+                        for x in Form.iterate(formC):
+                            r |= addFact(a, (x.name, u'nc'), b,
+                                         ((a, (u'RCA', u'->'), c), (b, (u'RCA', u'-|>'), c), u'{0} form {1}'.format(c, x.name)))
     return r
 
 def deriveInferences(quiet=False):
