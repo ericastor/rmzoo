@@ -378,17 +378,13 @@ def rcClosure(): # Connect implication and conservativity
                 if b == a or b == c: continue
                 
                 # If c -> a and c is conservative over b, then a is conservative over b.
-                if Reduction.isPresent(Reduction.RCA, implies[(c,a)]):
-                    if conservative[(c,b)] == 0: continue
-                    
+                if Reduction.isPresent(Reduction.RCA, implies[(c,a)]) and conservative[(c,b)] != 0:
                     for x in Form.iterate(conservative[(c,b)]):
                         con |= addFact(a, (x.name, u'c'), b,
                                        ((c, (u'RCA', u'->'), a), (c, (x.name, u'c'), b)))
                 
                 # If b -> c and a is conservative over c, then a is conservative over b.
-                if Reduction.isPresent(Reduction.RCA, implies[(b,c)]):
-                    if conservative[(a,c)] == 0: continue
-                    
+                if Reduction.isPresent(Reduction.RCA, implies[(b,c)]) and conservative[(a,c)] != 0:
                     for x in Form.iterate(conservative[(a,c)]):
                         con |= addFact(a, (x.name, u'c'), b,
                                        ((b, (u'RCA', u'->'), c), (a, (x.name, u'c'), c)))
