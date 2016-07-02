@@ -377,31 +377,39 @@ def rcClosure(): # Connect implication and conservativity
         for a in principlesList:
             if a == c: continue
             
-            cImpliesA = Reduction.isPresent(Reduction.RCA, implies[(c,a)])
+            # If c -> a and c is conservative over b, then a is conservative over b.
+            if Reduction.isPresent(Reduction.RCA, implies[(c,a)]):
+                for b in principlesList:
+                    if b == a or b == c: continue
+                    
+                    cbConservative = conservative[(c,b)]
+                    if cbConservative != Form.none:
+                        for x in Form.iterate(cbConservative):
+                            con |= addFact(a, (x.name, u'c'), b,
+                                           ((c, (u'RCA', u'->'), a), (c, (x.name, u'c'), b)))
+            
+            # If b -> c and a is conservative over c, then a is conservative over b.
             acConservative = conservative[(a,c)]
+            if acConservative != Form.none:
+                for b in principlesList:
+                    if b == a or b == c: continue
+                    
+                    if Reduction.isPresent(Reduction.RCA, implies[(b,c)]):
+                        for x in Form.iterate(acConservative):
+                            con |= addFact(a, (x.name, u'c'), b,
+                                           ((b, (u'RCA', u'->'), c), (a, (x.name, u'c'), c)))
+            
+            # If c -> b, c is (form)-conservative over a, and b is (form), then a -> b.
             caConservative = conservative[(c,a)]
-            for b in principlesList:
-                if b == a or b == c: continue
-                
-                # If c -> a and c is conservative over b, then a is conservative over b.
-                cbConservative = conservative[(c,b)]
-                if cImpliesA and cbConservative != Form.none:
-                    for x in Form.iterate(cbConservative):
-                        con |= addFact(a, (x.name, u'c'), b,
-                                       ((c, (u'RCA', u'->'), a), (c, (x.name, u'c'), b)))
-                
-                # If b -> c and a is conservative over c, then a is conservative over b.
-                if Reduction.isPresent(Reduction.RCA, implies[(b,c)]) and acConservative != Form.none:
-                    for x in Form.iterate(acConservative):
-                        con |= addFact(a, (x.name, u'c'), b,
-                                       ((b, (u'RCA', u'->'), c), (a, (x.name, u'c'), c)))
-                
-                # If c -> b, c is (form)-conservative over a, and b is (form), then a -> b.
-                frms = form[b] & caConservative
-                if frms != Form.none and Reduction.isPresent(Reduction.RCA, implies[(c,b)]):
-                    frm = Form.strongest(frms)
-                    imp |= addFact(a, (u'RCA', u'->'), b,
-                                   ((c, (u'RCA', u'->'), b), (c, (frm.name, u'c'), a), u'{0} form {1}'.format(b, frm.name)))
+            if caConservative != Form.none:
+                for b in principlesList:
+                    if b == a or b == c: continue
+                    
+                    frms = form[b] & caConservative
+                    if frms != Form.none and Reduction.isPresent(Reduction.RCA, implies[(c,b)]):
+                        frm = Form.strongest(frms)
+                        imp |= addFact(a, (u'RCA', u'->'), b,
+                                       ((c, (u'RCA', u'->'), b), (c, (frm.name, u'c'), a), u'{0} form {1}'.format(b, frm.name)))
     return (imp, con)
 
 # Uses '->', affects ONLY justify
@@ -578,6 +586,8 @@ def deriveInferences(quiet=False):
     if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
 def databaseDump(dumpFile, quiet=False):
+    if not quiet: eprint(u'{0} facts known.\n'.format(len(justify)))
+    
     start = time.clock()
     if not quiet: eprint(u'Formatting justifications...')
     for fact in justify:
