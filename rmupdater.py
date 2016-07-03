@@ -552,6 +552,33 @@ def deriveInferences(quiet=False):
     extractNonConservation()
     if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
+def getDatabase():
+    return {'principles': principles,
+            'implication': (implies, notImplies),
+            'conservation': (conservative, nonConservative),
+            'form': form,
+            'primary': (primary, primaryIndex),
+            'justify': justify}
+
+def setDatabase(database):
+    global principles
+    principles = database['principles']
+    
+    global implies, notImplies
+    implies, notImplies = database['implication']
+    
+    global conservative, nonConservative
+    conservative, nonConservative = database['conservation']
+    
+    global form
+    form = database['form']
+    
+    global primary, primaryIndex
+    primary, primaryIndex = database['primary']
+    
+    global justify
+    justify = database['justify']
+
 def databaseDump(dumpFile, quiet=False):
     if not quiet: eprint(u'Facts known: {0:,d}\n'.format(len(justify)))
     
@@ -559,13 +586,20 @@ def databaseDump(dumpFile, quiet=False):
     if not quiet: eprint(u'Dumping updated database to binary file...')
     with open(dumpFile, 'wb') as f:
         pickle.dump(Version, f, pickle.HIGHEST_PROTOCOL)
-        pickle.dump({'principles': principles,
-                     'implication': (implies, notImplies),
-                     'conservation': (conservative, nonConservative),
-                     'form': form,
-                     'primary': (primary, primaryIndex),
-                     'justify': justify}, f, pickle.HIGHEST_PROTOCOL)
+        pickle.dump(getDatabase(), f, pickle.HIGHEST_PROTOCOL)
     if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
+
+def databaseLoad(dumpFile, quiet=False):
+    with open(dumpFile, 'rb') as f:
+        fileVersion = pickle.load(f)
+        if fileVersion != Version:
+            raise VersionError(fileVersion, Version)
+        database = pickle.load(f)
+    
+    setDatabase(database)
+    
+    global principlesList
+    principlesList = sorted(principles)
 
 from optparse import OptionParser, OptionGroup
 def main():

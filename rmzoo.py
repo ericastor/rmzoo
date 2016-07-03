@@ -57,7 +57,7 @@ from optparse import OptionParser, OptionGroup
 
 parser = OptionParser('Usage: %prog [options] database', version='%prog ' + Version + ' (' + Date + ')')
 
-parser.set_defaults(implications=False,nonimplications=False,omega=False,onlyprimary=False,weak=False,strong=False,showform=False,conservation=False)
+parser.set_defaults(implications=False,nonimplications=False,omega=False,onlyprimary=False,weak=False,strong=False,showform=False,conservation=False,add_principles=False)
 
 parser.add_option('-i', action='store_true', dest='implications',
     help='Display implications between principles.')
@@ -81,12 +81,14 @@ parser.add_option('-c', action='store_true', dest='conservation',
     
 parser.add_option('-r', dest='restrict_string', metavar='CLASS',
     help='Resrict to only the principles in CLASS.')
+
 parser.add_option('-q', dest='query_string', metavar='FACT',
     help='Show whether FACT is known, and if so, its justification.')
-
 parser.add_option('-F', dest='query_file', metavar='FILE',
     help='Query whether all facts in FILE are known, and return a list of all unknown facts.')
 
+parser.add_option('--force', action='store_true', dest='add_principles',
+    help='Allow queries involving novel conjunctions from the database. (WARNING: slow)')
 
 (options, args) = parser.parse_args()
 
@@ -113,6 +115,7 @@ if Restrict:
     Restrict = rSet
 Query = options.query_string
 QueryFile = options.query_file
+AddPrinciples = options.add_principles
     
 # Give errors if bad options chosen
 
@@ -126,10 +129,10 @@ if Restrict:
         parser.error('Error: Option -r only works if one of -i, -n, -w, -s, -f, or -c is selected.')
 if Query:
     if Implications or NonImplications or Weak or Strong or ShowForm or Conservation or Restrict or OnlyPrimary or QueryFile:
-        parser.error('Error: Option -q does not work with any other option.')
+        parser.error('Error: Option -q does not work with any other option (except --force).')
 if QueryFile:
     if Implications or NonImplications or Weak or Strong or ShowForm or Conservation or Restrict or OnlyPrimary or Query:
-        parser.error('Error: Option -F does not work with any other option.')
+        parser.error('Error: Option -F does not work with any other option (except --force).')
 
 if len(args) > 1:
     parser.error('Too many arguments.')
@@ -162,28 +165,73 @@ if sys.version_info < (3,):
     import cPickle as pickle
 else:
     import pickle
-with open(databaseFile, 'rb') as f:
-    fileVersion = pickle.load(f)
-    if fileVersion != Version:
-        raise VersionError(fileVersion, Version)
-    database = pickle.load(f)
 
-principles = database['principles']
-implies, notImplies = database['implication']
-conservative, nonConservative = database['conservation']
-form = database['form']
-primary, primaryIndex = database['primary']
-justify = database['justify']
+principles = {}
+implies, notImplies = {}, {}
+conservative, nonConservative = {}, {}
+form = {}
+primary, primaryIndex = {}, {}
+justify = {}
+def getDatabase():
+    return {'principles': principles,
+            'implication': (implies, notImplies),
+            'conservation': (conservative, nonConservative),
+            'form': form,
+            'primary': (primary, primaryIndex),
+            'justify': justify}
+def setDatabase(database):
+    global principles
+    principles = database['principles']
+    
+    global implies, notImplies
+    implies, notImplies = database['implication']
+    
+    global conservative, nonConservative
+    conservative, nonConservative = database['conservation']
+    
+    global form
+    form = database['form']
+    
+    global primary, primaryIndex
+    primary, primaryIndex = database['primary']
+    
+    global justify
+    justify = database['justify']
+
+def loadDatabase(databaseFile):
+    with open(databaseFile, 'rb') as f:
+        fileVersion = pickle.load(f)
+        if fileVersion != Version:
+            raise VersionError(fileVersion, Version)
+        database = pickle.load(f)
+    setDatabase(database)
+loadDatabase(databaseFile)
 
 def queryDatabase(a, op, b, justification=True):
     aKnown = a in principles
     bKnown = b in principles
-    if not aKnown and not bKnown:
-        error('Error: {0} and {1} are unknown principles.'.format(a, b))
+    
+    aConjunct = False
+    bConjunct = False
     if not aKnown:
-        error('Error: {0} is an unknown principle.'.format(a))
+        aConjunct = all((p in principles) for p in a.split('+'))
     if not bKnown:
-        error('Error: {0} is an unknown principle.'.format(b))
+        bConjunct = all((p in principles) for p in b.split('+'))
+    
+    s = ''
+    if not aKnown and not bKnown:
+        s += 'Error: {0} and {1} are unknown principles.'.format(a, b)
+    elif not aKnown:
+        s += 'Error: {0} is an unknown principle.'.format(a)
+    elif not bKnown:
+        s += 'Error: {0} is an unknown principle.'.format(b)
+    if aConjunct and bConjunct:
+        s += '\n\tHOWEVER: {0} and {1} are conjunctions of known principles; try running with --force.'.format(a, b)
+    elif aConjunct and bKnown:
+        s += '\n\tHOWEVER: {0} is a conjunction of known principles; try running with --force.'.format(a)
+    elif bConjunct and aKnown:
+        s += '\n\tHOWEVER: {0} is a conjunction of known principles; try running with --force.'.format(b)
+    if len(s) > 0: error(s)
     
     if justification:
         try:
@@ -240,9 +288,35 @@ if Query:
     query = name + Group(operator) + name + StringEnd()
     Query = query.parseString(Query)
     
-    a = '+'.join(sorted(set(Query[0].split('+'))))
+    splitA = sorted(set(Query[0].split('+')))
+    a = '+'.join(splitA)
+    
     op = tuple(Query[1])
-    b = '+'.join(sorted(set(Query[2].split('+'))))
+    
+    splitB = sorted(set(Query[2].split('+')))
+    b = '+'.join(splitB)
+    
+    if not (a in principles and b in principles) and AddPrinciples:
+        abort = False
+        for p in splitA:
+            if p not in principles:
+                abort = True
+                break
+        for p in splitB:
+            if p not in principles:
+                abort = True
+                break
+        if not abort:
+            eprint('Adding new principles...')
+            import rmupdater
+            rmupdater.setDatabase(getDatabase())
+            if a not in principles:
+                rmupdater.addPrinciple(a)
+            if b not in principles:
+                rmupdater.addPrinciple(b)
+            rmupdater.principlesList = sorted(rmupdater.principles)
+            rmupdater.deriveInferences(quiet=False)
+            setDatabase(rmupdater.getDatabase())
     
     try:
         print(u'Justification for the fact {0}:\n{1}'.format(printFact(a, op, b), queryDatabase(a, op, b)))
@@ -254,6 +328,8 @@ if QueryFile:
     justification = QuotedString('"""',multiline=True) | quotedString.setParseAction(removeQuotes)
     
     fact = name + ((Group(operator) + name + Suppress(Optional(justification))) | (Literal('form') + formName) | Literal('is') + Literal('primary'))
+    
+    queries = []
     with open(QueryFile, encoding='utf-8') as f:
         for q in f.readlines():
             q = q.strip()
@@ -263,26 +339,60 @@ if QueryFile:
             if Q[1] == 'is' and Q[2] == 'primary': continue
             
             a = '+'.join(sorted(set(Q[0].split('+'))))
-            
-            s = u''
-            known = False
-            if Q[1] == 'form':
-                known = Form.isPresent(Form.fromString(Q[2]), form[a])
+            if isinstance(Q[1], str):
+                op = Q[1]
             else:
                 op = tuple(Q[1])
-                b = '+'.join(sorted(set(Q[2].split('+'))))
-                
-                try:
-                    known = queryDatabase(a, op, b, justification=False)
-                except Exception as e:
-                    s += u'\n' + str(e)
-                
-            if not known:
-                s += u'\nUnknown fact: ' + q
+            b = '+'.join(sorted(set(Q[2].split('+'))))
             
-            if len(s) > 0:
-                warning(s)
-    eprint('\nFinished.')
+            queries.append((a, op, b, q))
+    
+    if AddPrinciples:
+        newPrinciples = set()
+        unknownPrinciples = set()
+        for (a, op, b, q) in queries:
+            unknown = False
+            
+            Q = a.split('+')
+            if op != 'form':
+                Q.extend(b.split('+'))
+            for p in Q:
+                if p not in principles:
+                    unknownPrinciples.add(p)
+                    unknown = True
+            if not unknown:
+                if a not in principles: newPrinciples.add(a)
+                if op != 'form' and b not in principles: newPrinciples.add(b)
+        
+        if len(unknownPrinciples) > 0:
+            warning(u'Unknown principles: {0}\n'.format(u', '.join(sorted(unknownPrinciples))))
+        if len(newPrinciples) > 0:
+            eprint('Adding {0:,d} new principles...'.format(len(newPrinciples)))
+            import rmupdater
+            rmupdater.setDatabase(getDatabase())
+            for p in newPrinciples:
+                rmupdater.addPrinciple(p)
+            rmupdater.principlesList = sorted(rmupdater.principles)
+            rmupdater.deriveInferences(quiet=False)
+            setDatabase(rmupdater.getDatabase())
+    
+    for (a, op, b, q) in queries:
+        s = u''
+        known = False
+        if op == 'form':
+            known = Form.isPresent(Form.fromString(b), form[a])
+        else:
+            try:
+                known = queryDatabase(a, op, b, justification=False)
+            except Exception as e:
+                s += u'\n' + str(e)
+            
+        if not known:
+            s += u'\nUnknown fact: ' + q
+            
+        if len(s) > 0:
+            warning(s)
+    eprint(u'\nFinished.')
 
 ##################################################################################
 #
