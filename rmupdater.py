@@ -160,6 +160,8 @@ def addUnjustified(a, op, b):
 def addFact(a, op, b, jst):
     fact = (a, op, b)
     ret = addJustification(fact, jst)
+    if op[1] == u'<->': # equivalence
+        ret |= addJustification((b, op, a), jst)
     if ret == 0:
         return 0
     
