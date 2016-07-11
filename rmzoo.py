@@ -16,7 +16,7 @@
 
 from __future__ import print_function
 
-import sys
+import itertools, sys
 from copy import copy
 from collections import defaultdict
 
@@ -179,12 +179,20 @@ def getDatabase():
             'form': form,
             'primary': (primary, primaryIndex),
             'justify': justify}
+
+equivalent = defaultdict(set)
 def setDatabase(database):
     global principles
     principles = database['principles']
     
     global implies, notImplies
     implies, notImplies = database['implication']
+    
+    global equivalent
+    for a in principles:
+        for b in principles:
+            for r in Reduction.iterate(implies[(a,b)] & implies[(b,a)]):
+                equivalent[(a, r.name)].add(b)
     
     global conservative, nonConservative
     conservative, nonConservative = database['conservation']
@@ -207,16 +215,57 @@ def loadDatabase(databaseFile):
     setDatabase(database)
 loadDatabase(databaseFile)
 
-def queryDatabase(a, op, b, justification=True):
-    aKnown = a in principles
-    bKnown = b in principles
+def knownEquivalent(a, reduction, justification=True):
+    if a in principles:
+        if justification:
+            return (a, None)
+        else:
+            return a
     
-    aConjunct = False
-    bConjunct = False
-    if not aKnown:
-        aConjunct = all((p in principles) for p in a.split('+'))
-    if not bKnown:
-        bConjunct = all((p in principles) for p in b.split('+'))
+    splitA = a.split('+')
+    if any((p not in principles) for p in splitA):
+        if justification:
+            return (None, None)
+        else:
+            return None
+    
+    aPrime = None
+    for equiv in itertools.product(*(equivalent[(p, reduction.name)] for p in splitA)):
+        aPrime = '+'.join(sorted(set(equiv)))
+        if aPrime in principles:
+            if justification:
+                equivJst = tuple((p, (reduction.name, '<->'), q) for (p,q) in zip(splitA, equiv) if p != q)
+                return (aPrime, equivJst)
+            else:
+                return aPrime
+    
+    if justification:
+        return (None, None)
+    else:
+        return None
+    
+def queryDatabase(a, op, b, justification=True):
+    if op[1].endswith('c'):
+        reduction = Reduction.RCA
+    else:
+        reduction = Reduction.fromString(op[0])
+    
+    if justification:
+        aPrime, aJst = knownEquivalent(a, reduction, justification)
+        bPrime, bJst = knownEquivalent(b, reduction, justification)
+        if aJst is not None:
+            justify[(a, (reduction.name, '<->'), aPrime)] = aJst
+        if bJst is not None:
+            justify[(b, (reduction.name, '<->'), bPrime)] = bJst
+    else:
+        aPrime = knownEquivalent(a, reduction, justification)
+        bPrime = knownEquivalent(b, reduction, justification)
+    
+    aKnown = aPrime is not None
+    bKnown = bPrime is not None
+    
+    aConjunct = (not aKnown) and all((p in principles) for p in a.split('+'))
+    bConjunct = (not bKnown) and all((p in principles) for p in b.split('+'))
     
     s = ''
     if not aKnown and not bKnown:
@@ -235,11 +284,17 @@ def queryDatabase(a, op, b, justification=True):
     
     if justification:
         try:
-            return printJustification(a, op, b, justify)
+            r = []
+            if a != aPrime:
+                r.append(printJustification(a, (reduction.name, '<->'), aPrime, justify))
+            if b != bPrime:
+                r.append(printJustification(b, (reduction.name, '<->'), bPrime, justify))
+            r.append(printJustification(aPrime, op, bPrime, justify))
+            return ''.join(r)
         except KeyError:
             error('Error: {0} is not a known fact.'.format(printFact(a, op, b)))
     else:
-        return ((a, op, b) in justify)
+        return ((aPrime, op, bPrime) in justify)
 
 ##################################################################################
 #
