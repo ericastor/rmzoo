@@ -275,6 +275,7 @@ def addTrivialFacts():
     for a in principlesList:
         for r in Reduction:
             addFact(a, (r.name, u'->'), a, u'')
+            addFact(a, (r.name, u'<->'), a, u'')
         for f in Form:
             addFact(a, (f.name, u'c'), a, u'')
         if a != u'RCA':
