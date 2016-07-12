@@ -10,6 +10,7 @@
 #   - Version 3.0 - 29 May 2016
 #   - Version 4.0 - started 30 May 2016
 #   - Version 4.1 - optimizations & refactoring, started 2 July 2016
+#   - Version 4.2 - new forms and reasoning, started 12 July 2016
 #   Documentation and support: http://rmzoo.uconn.edu
 #
 ##################################################################################
@@ -39,8 +40,8 @@ def warning(s):
 def error(s):    # Throw exception
     raise Exception(s)
 
-Date = u'2 July 2016'
-Version = u'4.1'
+Date = u'12 July 2016'
+Version = u'4.2'
 
 from rmBitmasks import *
 from renderJustification import *
@@ -488,6 +489,44 @@ def extractNonConservation(): # Transfer non-implications to non-conservation fa
                                          ((a, (u'RCA', u'->'), c), (b, (u'RCA', u'-|>'), c), u'{0} form {1}'.format(c, x.name)))
     return r
 
+# Uses 'nc' and '->', affects 'nc'
+def liftNonConservation(): # Lift non-conservation facts over known implications
+    r = 0
+    for b in principlesList:
+        for c in principlesList:
+            if c == b: continue
+            
+            nc = nonConservative[(b,c)]
+            if nc == Form.none: continue
+            for a in principlesList:
+                if a == b or a == c: continue
+                
+                # If a implies b, and b is not conservative over c, then a is not conservative over c.
+                if Reduction.isPresent(Reduction.RCA, implies[(a,b)]):
+                    for x in Form.iterate(nc):
+                        r |= addFact(a, (x.name, u'nc'), c,
+                                     ((a, (u'RCA', u'->'), b), (b, (x.name, u'nc'), c)))
+    return r
+
+# Uses 'c' and 'nc', affects '-|>'
+def extractNonImplication():
+    r = 0
+    for b in principlesList:
+        for c in principlesList:
+            if c == b: continue
+            
+            nc = nonConservative[(b,c)]
+            if nc == Form.none: continue
+            for a in principlesList:
+                if a == b or a == c: continue
+                
+                # If a is (form)-conservative over c, and b is not (form)-conservative over c, then a does not imply b.
+                frm = Form.strongest(conservative[(a,c)] & nc)
+                if frm != Form.none:
+                    r |= addFact(a, (u'RCA', u'-|>'), b,
+                                 ((a, (frm.name, u'c'), c), (b, (frm.name, u'nc'), c)))
+    return r
+
 def deriveInferences(quiet=False):
     start = time.clock()
     if not quiet: eprint(u'Adding trivial facts...')
@@ -498,32 +537,30 @@ def deriveInferences(quiet=False):
     
     start = time.clock()
     if not quiet: eprint(u'Looping over implications and conservation facts:')
-    i = 1 # implies updated
-    c = 1 # conservative updated
+    i,c = 1,1 # implies updated and conservative updated
     n = 0
     while i != 0 or c != 0:
         n += 1
+        
         io = i
         co = c
-        
-        i = 0
-        c = 0
+        i,c = 0,0
         
         if io != 0:
             if not quiet: eprint(u'Reducing implications over conjunctions...')
-            i = max(i, reductionConjunction())
+            i |= reductionConjunction()
             
             if not quiet: eprint(u'Finding transitive implications...')
-            i = max(i, transitiveClosure(Reduction, implies, u'->'))
+            i |= transitiveClosure(Reduction, implies, u'->')
         if co != 0:
             if not quiet: eprint(u'Finding transitive conservation facts...')
-            c = max(c, transitiveClosure(Form, conservative, u'c'))
+            c |= transitiveClosure(Form, conservative, u'c')
         
         if not quiet: eprint(u'Relating implications and conservation facts...')
-        (ip, cp) = rcClosure()
-        i = max(i, ip)
-        c = max(c, cp)
-    if not quiet: eprint(u'Finished with implications.')
+        ip,cp = rcClosure()
+        i |= ip
+        c |= cp
+    if not quiet: eprint(u'Finished with implications and conservation facts.')
     if not quiet: eprint(u'Elapsed: {0:.6f} s (with {1} repeats)\n'.format(time.clock() - start, n))
     
     start = time.clock()
@@ -533,27 +570,36 @@ def deriveInferences(quiet=False):
     
     start = time.clock()
     if not quiet: eprint(u'Looping over non-implications and conservation facts:')
-    r = 1
+    ni,nc = 1,1 # notImplies updated and nonConservative updated
     n = 0
-    while r != 0:
+    while ni != 0 or nc != 0:
         n += 1
-        r = 0
         
-        if not quiet: eprint(u'Splitting over conjunctions...')
-        r = max(r, conjunctionSplit())
+        nio = ni
+        nco = nc
+        ni,nc = 0,0
         
-        if not quiet: eprint(u'Closing over implications...')
-        r = max(r, nonImplicationClosure())
+        if ni != 0 or nio != 0:
+            if not quiet: eprint(u'Splitting over conjunctions...')
+            ni |= conjunctionSplit() # Uses '-|>' and '->', affects '-|>'
+            
+            if not quiet: eprint(u'Closing over implications...')
+            ni |= nonImplicationClosure() # Uses '->' and '-|>', affects '-|>'
+            
+            if not quiet: eprint(u'Closing over conservation facts...')
+            ni |= conservativeClosure() # Uses '-|>' and 'c', affects '-|>'
+            
+            if not quiet: eprint(u'Extracting non-conservation facts...')
+            nc |= extractNonConservation() # Uses '->' and '-|>', affects 'nc'
         
-        if not quiet: eprint(u'Closing over conservation facts...')
-        r = max(r, conservativeClosure())
-    if not quiet: eprint(u'Finished with non-implications.')
+        if nc != 0 or nco != 0:
+            if not quiet: eprint(u'Lifting non-conservations facts over implications...')
+            nc |= liftNonConservation() # Uses 'nc' and '->', affects 'nc'
+            
+            if not quiet: eprint(u'Extracting non-implications from non-conservation facts...')
+            ni |= extractNonImplication() # Uses 'c' and 'nc', affects '-|>'
+    if not quiet: eprint(u'Finished with non-implications and non-conservation facts.')
     if not quiet: eprint(u'Elapsed: {0:.6f} s (with {1} repeats)\n'.format(time.clock() - start, n))
-    
-    start = time.clock()
-    if not quiet: eprint(u'Extracting non-conservation facts...')
-    extractNonConservation()
-    if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
 def getDatabase():
     return {'principles': principles,

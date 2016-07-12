@@ -70,8 +70,12 @@ def noReduction():
 
 class Form(BitmaskEnum):
     none = 0
-    Pi02 = 1 << 6
-    Pi03 = 1 << 5
+    Sig02 = 1 << 10
+    Pi02 = 1 << 9
+    Sig03 = 1 << 8
+    Pi03 = 1 << 7
+    uPi03 = 1 << 6
+    Sig04 = 1 << 5
     Pi04 = 1 << 4
     Pi11 = 1 << 3
     rPi12 = 1 << 2
@@ -126,8 +130,17 @@ _F_STRONGER = {f:f for f in Form}
 _F_STRONGER[Form.Pi13] |= Form.Pi12 # Pi12 implies Pi13
 _F_STRONGER[Form.Pi12] |= Form.rPi12 # rPi12 implies Pi12
 _F_STRONGER[Form.rPi12] |= Form.Pi11 # Pi11 implies rPi12
+_F_STRONGER[Form.Pi11] |= Form.Sig04 # Sig04 implies Pi11
 _F_STRONGER[Form.Pi11] |= Form.Pi04 # Pi04 implies Pi11
+_F_STRONGER[Form.Pi11] |= Form.uPi03 # uPi03 implies Pi11
+_F_STRONGER[Form.Sig04] |= Form.Sig03 # Sig03 implies Sig04
+_F_STRONGER[Form.Sig04] |= Form.Pi03 # Pi03 implies Sig04
+_F_STRONGER[Form.Pi04] |= Form.Sig03 # Sig03 implies Pi04
 _F_STRONGER[Form.Pi04] |= Form.Pi03 # Pi03 implies Pi04
+_F_STRONGER[Form.uPi03] |= Form.Pi03 # Pi03 implies uPi03
+_F_STRONGER[Form.Sig03] |= Form.Sig02 # Sig02 implies Sig03
+_F_STRONGER[Form.Sig03] |= Form.Pi02 # Pi02 implies Sig03
+_F_STRONGER[Form.Pi03] |= Form.Sig02 # Sig02 implies Pi03
 _F_STRONGER[Form.Pi03] |= Form.Pi02 # Pi02 implies Pi03
 
 _completeImplications(Form, _F_STRONGER)

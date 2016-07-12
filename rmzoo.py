@@ -10,6 +10,7 @@
 #   - Version 3.0 - 29 May 2016
 #   - Version 4.0 - started 30 May 2016
 #   - Version 4.1 - optimizations & refactoring, started 2 July 2016
+#   - Version 4.2 - new forms and reasoning, started 12 July 2016
 #   Documentation and support: http://rmzoo.uconn.edu
 #
 ##################################################################################
@@ -32,8 +33,8 @@ def warning(s):
 def error(s):    # Throw exception
     raise Exception(s)
 
-Date = '2 July 2016'
-Version = '4.1'
+Date = '12 July 2016'
+Version = '4.2'
 
 from rmBitmasks import *
 from renderJustification import *
