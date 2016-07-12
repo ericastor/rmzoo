@@ -284,16 +284,17 @@ def queryDatabase(a, op, b, justification=True):
     if len(s) > 0: error(s)
     
     if justification:
+        r = []
+        if a != aPrime:
+            r.append(printJustification(a, (reduction.name, '<->'), aPrime, justify))
+        if b != bPrime:
+            r.append(printJustification(b, (reduction.name, '<->'), bPrime, justify))
+        
         try:
-            r = []
-            if a != aPrime:
-                r.append(printJustification(a, (reduction.name, '<->'), aPrime, justify))
-            if b != bPrime:
-                r.append(printJustification(b, (reduction.name, '<->'), bPrime, justify))
             r.append(printJustification(aPrime, op, bPrime, justify))
-            return ''.join(r)
         except KeyError:
-            error('Error: {0} is not a known fact.'.format(printFact(a, op, b)))
+            return False
+        return ''.join(r)
     else:
         return ((aPrime, op, bPrime) in justify)
 
@@ -375,7 +376,25 @@ if Query:
             setDatabase(rmupdater.getDatabase())
     
     try:
-        print(u'Justification for the fact {0}:\n{1}'.format(printFact(a, op, b), queryDatabase(a, op, b)))
+        jst = queryDatabase(a, op, b)
+        if jst:
+            print(u'Justification for the fact "{0}":\n{1}'.format(printFact(a, op, b), jst))
+        else:
+            print(u'\nError: Unknown fact "{0}"'.format(printFact(a, op, b)))
+            opp = None # opposite operation
+            if op[1] == u'->':
+                opp = (op[0], u'-|>')
+            elif op[1] == u'-|>':
+                opp = (op[0], u'->')
+            elif op[1] == u'c':
+                opp = (op[0], u'nc')
+            elif op[1] == u'nc':
+                opp = (op[0], u'c')
+            
+            if opp is not None:
+                jst = queryDatabase(a, opp, b)
+                if jst:
+                    print(u'OPPOSITE fact known! Justification for the fact "{0}":\n{1}'.format(printFact(a, opp, b), jst))
     except Exception as e:
         print(e)
 
