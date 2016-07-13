@@ -35,7 +35,7 @@ class BitmaskEnum(int, Enum):
     
     @classmethod
     @lru_cache(maxsize=256)
-    def iterate(cls,magic_num):
+    def list(cls,magic_num):
         return [x for x in cls if cls.isPresent(x, magic_num)]
     
     @classmethod

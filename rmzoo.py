@@ -192,7 +192,7 @@ def setDatabase(database):
     global equivalent
     for a in principles:
         for b in principles:
-            for r in Reduction.iterate(implies[(a,b)] & implies[(b,a)]):
+            for r in Reduction.list(implies[(a,b)] & implies[(b,a)]):
                 equivalent[(a, r.name)].add(b)
     
     global conservative, nonConservative
