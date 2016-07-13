@@ -636,7 +636,7 @@ ISig2 form Pi11
 #    EM does not have low solutions "Kreuzer (2012) [Proposition 5.2]"
 
 #Cited:
-#????    BPi1 Pi03c RCA "well-known fact"
+    #BPi1 Pi03c RCA "Paris (1980) [Theorem 33, and independently by Friedman]"
 
 #Liu (2012) - "$\mathsf{RT}^2_2$ does not imply \mathsf{WKL}_0$"
 #    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9058600&fileId=S0022481200000761
