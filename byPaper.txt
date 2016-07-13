@@ -50,7 +50,14 @@ BSig2 -|> ISig2 "Paris and Kirby (1978) [Proposition 8]"
 #    in: Model Theory of Algebra and Arithmetic (ed: Pacholski, Wierzejewski, & Wilkie)
 #        ISBN: 978-3-540-10269-4
 
-BSig2 nPi03c RCA "Paris (1980) - A hierarchy of cuts in models of arithmetic, p. 331"
+BSig2 Pi03c RCA "Paris (1980) [Theorem 33, and independently by Friedman]"
+BSig3 Pi04c ISig2 "Paris (1980) [Theorem 33, and independently by Friedman]"
+BSig2 nSig03c RCA "Paris (1980) [remark following proof of Theorem 33, p. 331]"
+BSig3 nSig04c ISig2 "Paris (1980) [remark following proof of Theorem 33, p. 331]"
+
+#Generic:
+#    BSig(n+1) Pi0(n+2)c ISign "Paris (1980) [Theorem 33, and independently by Friedman]"
+#    BSig(n+1) nSig0(n+2)c ISign "Paris (1980) [remark following proof of Theorem 33, p. 331]"
 
 #Simpson (1985) - "Reverse Mathematics"
 #    in: Recursion Theory (ed. Anil Nerode and Richard A. Shore), pp. 461-471, ISBN-10: 0-8218-1447-8
@@ -108,6 +115,20 @@ WWKL w-|> WKL "Yu and Simpson (1990) [Section 2, theorems]"
 GEN1+WKL Pi11c RCA "Brown and Simpson (1993) [follows from Corollary 6.5]"
 
 #WKLplus w-|> ACA "Brown and Simpson (1993) [Corollary 6.15]"
+
+#Hájek (1993) - "Interpretability and fragments of arithmetic"
+#    in: Arithmetic, Proof Theory, and Computational Complexity (ed. Clote and Krajícek)
+#        ISBN: 9780198536901
+
+BSig2+WKL Pi11c BSig2 "Hájek (1993) [Corollary 3.14]"
+BSig3+WKL Pi11c BSig3 "Hájek (1993) [Corollary 3.14]"
+
+ISig2+WKL Pi11c ISig2 "Hájek (1993) [Corollary 3.14]"
+ISig3+WKL Pi11c ISig3 "Hájek (1993) [Corollary 3.14]"
+
+#Generic:
+#    BSig(n+1)+WKL Pi11c BSig(n+1) "Hájek (1993) [Corollary 3.14]"
+#    ISig(n+1)+WKL Pi11c ISig(n+1) "Hájek (1993) [Corollary 3.14]"
 
 #Seetapun and Slaman (1995) - "On the Strength of Ramsey's Theorem"
 #    http://projecteuclid.org/euclid.ndjfl/1040136917
@@ -182,7 +203,7 @@ SRT22 -|> SRT2 "Cholak, Jockusch, and Slaman (2001) [remark following Corollary 
 
 RCA w-|> RT22 "corollary to Specker (1971)"
 
-RT2 -|> ACA """follows from an elaboration on Seetapun's theorem; first explicit and simplified argument due to Jockusch (see Hummel (1994) [Theorem 2.1]). A clearer argument can be made from Cholak, Jockusch, and Slaman (2001) [Theorem 3.1], from which one can see that RT2 has a low_2 omega model."""
+RT2 w-|> ACA """follows from an elaboration on Seetapun's theorem; first explicit and simplified argument due to Jockusch (see Hummel (1994) [Theorem 2.1]). A clearer argument can be made from Cholak, Jockusch, and Slaman (2001) [Theorem 3.1], from which one can see that RT2 has a low_2 omega model."""
 
 #Uncited:
 #    ISig3 -|> PA
@@ -678,6 +699,7 @@ RRT32+RT22+WKL w-|> ACA "Wang (2013) [Corollary 3.4]"
 D22 -|> ISig2 "Chong, Slaman, and Yang (2014) [Theorem 2.2]"
 D22 -|> RT22 "Chong, Slaman, and Yang (2014) [Corollary 2.5]"
 BSig2+D22+WKL -|> RT22 "Chong, Slaman, and Yang (2014) [Theorem 2.7]"
+BSig2+D22+WKL -|> ISig2 "Chong, Slaman, and Yang (2014) [Theorem 2.7 and closing remark of Section 5]"
 
 #Cited:
 #    SRT22 -> BSig2 "Cholak, Jockusch, and Slaman (2001)"
@@ -711,7 +733,6 @@ FS3 -> RRT32 "Wang (2014, AIM) [Theorem 4.2]"
 FS -> RRT "Wang (2014, AIM) [Theorem 4.2]"
 
 #Cited:
-#????    RT22 -|> ISig2 "Chong, Slaman, and Yang (announced)"
 #    RRT22 -|> ADS "Csima and Mileti (2009)"
 
 #Liu (2015) - "Cone avoiding closed sets"
@@ -797,6 +818,27 @@ nD2IP+ISig2 -> GEN1 "Cholak, Downey, and Igusa (to appear) [Proposition 5.7]"
 
 HYP w-|> GEN1 "W. Miller and Martin (1968) [Every non-trivial $\Delta^0_2$ degree is hyperimmune], Sacks (1963) [There is a $\Delta^0_2$ minimal degree], and sets that join to a 1-generic are Turing-incomparable."
 
+#Patey (to appear) - "Iterative forcing and hyperimmunity in reverse mathematics"
+#    http://www.ludovicpatey.com/media/research/iterative-forcing-extended.pdf
+#    to appear in Computability
+
+#Unsupported:
+#    SADS does not admit hyperimmunity preservation "Patey (to appear) [Theorem 6]"
+#    SADS does not admit preservation of 2 hyperimmunities "Patey (to appear) [Theorem 6]"
+#    STS2 does not admit hyperimmunity preservation "Patey (to appear) [Theorem 9]"
+#    AMT admits hyperimmunity preservation "Patey (to appear) [remark following Theorem 11]"
+#    Pi01G admits hyperimmunity preservation "Patey (to appear) [remark following Theorem 11]"
+#    RRT22 admits hyperimmunity preservation "Patey (to appear) [remark following Theorem 11]"
+#    COH admits hyperimmunity preservation "Patey (to appear) [Theorem 12]"
+#    WKL admits hyperimmunity preservation "Patey (to appear) [Theorem 14]"
+#    EM admits hyperimmunity preservation "Patey (to appear) [Theorem 17]"
+#    STS2 admits preservation of k hyperimmunities "Patey (to appear) [Theorem 23]"
+#    STS2 does not admit hyperimmunity preservation "Patey (to appear) [Theorem 23]"
+
+#Cited:
+#    COH+WKL+RRT22+Pi01G+EM+TS2(k+1) -|> SADS "Patey (submitted) - The weakness of being cohesive, thin or free in reverse mathematics"
+#    COH+WKL+RRT22+Pi01G+EM+TS2(k+1) -|> STS2(k) "Patey (submitted) - The weakness of being cohesive, thin or free in reverse mathematics"
+
 #Wang (to appear) - "The Definability Strength of Combinatorial Principles"
 #    http://arxiv.org/abs/1408.1465
 
@@ -832,6 +874,11 @@ DNR -> RWWKL "Flood and Towsner (submitted) [Theorem 5.3]"
 #Cited:
 #    DNR -|> RWKL "Bienvenu, Patey, and Shafer (to appear)"
 
+#Chong, Slaman, and Yang (preprint) - "The inductive strength of Ramsey's theorem for pairs"
+#    http://www.math.nus.edu.sg/~chongct/ISigma2.pdf
+
+RT22 -|> ISig2 "Chong, Slaman, and Yang (preprint) [Corollary 4.2]"
+
 #Patey (preprint) - "Somewhere over the rainbow Ramsey theorem for pairs"
 #    http://arxiv.org/abs/1501.07424
 
@@ -861,6 +908,12 @@ BSig2+SFS2 -> WSRRT22 "Patey (preprint) [Theorem 6.14]"
 
 RRT22 <-> DNR0 "J. Miller (personal communication)"
 
+SFS3 -> STS3 "Cholak, Giusto, Hirst, and Jockusch (2005) [follows from proof of Theorem 3.2]"
+SFS2 -> STS2 "Cholak, Giusto, Hirst, and Jockusch (2005) [follows from proof of Theorem 3.2]"
+
+#Generic:
+#    SFSk -> STSk "Cholak, Giusto, Hirst, and Jockusch (2005) [follows from proof of Theorem 3.2]"
+
 #Unsupported:
 #    SRRT22 has low solutions
 #    WSRRT22 has low solutions
@@ -875,13 +928,53 @@ RRT22 <-> DNR0 "J. Miller (personal communication)"
 
 #Cited:
 #    SRT22 -|> RT22 "Chong, Slaman, and Yang (2014)"
-#????    RRT22 Pi11c BSig2 "Wang (unpublished?)"
 #    RAN2 -|> BSig2 "Slaman (2011)"
 #    BSig2+EM -> OPT "Lerman, Solomon, and Towsner (2013)"
 #    RCA -|> FS2 "Cholak, Giusto, Hirst, and Jockusch (2005)"
-#????    SFS3 -> STS3 "Cholak, Giusto, Hirst, and Jockusch (2005)"
-#????    SFS2 -> STS2 "Cholak, Giusto, Hirst, and Jockusch (2005)"
 #    WKL w-|> TS2 "Friedman (FOM 53)"
 #????    WWKL2 w-|> AMT "Bienvenu, Patey, and Shafer (to appear)"
-#????    WWKL2 -> RRT22 "Csima and Mileti (2009)"
 #????    COH+WSRRT22 -> RRT22 "Wang (2014, AIM)"
+
+# Patey and Yokoyama (preprint) - "The proof-theoretic strength of Ramsey's theorem for pairs and two colors"
+#    http://arxiv.org/abs/1601.00050
+
+#   NOTE: uPi03 represents twiddle-Pi03 from Patey and Yokoyama... for all sets X, a Pi03 formula with parameter X
+#         Pi03 -> uPi03 -> Pi11
+
+GP22 -> SGP22 "by definition"
+
+RT22 -> GP22 "Infinite sets contain infinite families of large finite sets"
+SRT22 -> SGP22 "Infinite sets contain infinite families of large finite sets"
+
+BSig2 uPi03c RCA "Patey and Yokoyama (preprint) [Theorem 1.5]; noted to be a parameterized version of the Parsons/Paris/Friedman conservation theorem"
+
+COH+SGP22 -> GP22 "Patey and Yokoyama (preprint) [remark preceding Definition 5.3]"
+SADS+SGP22+WKL w-|> SRT22 "Patey and Yokoyama (preprint) [Corollary 5.4]"
+SADS+SGP22+WKL w-|> SEM "Patey and Yokoyama (preprint) [Corollary 5.4]"
+COH+EM+GP22+WKL -|> ADS "Patey and Yokoyama (preprint) [Corollary 5.6]"
+SRT22 -|> GP22 "Patey and Yokoyama (preprint) [remark following proof of Theorem 5.7]"
+GP22 -> DNR0 "Patey and Yokoyama (preprint) [Theorem 5.7]"
+SGP22 uPi03c RCA "Patey and Yokoyama (preprint) [Theorem 6.4]"
+ADS+GP22+WKL uPi03c RCA "Patey and Yokoyama (preprint) [Theorem 6.5]"
+EM+WKL uPi03c RCA "Patey and Yokoyama (preprint) [Theorem 7.3 and reasoning similar to Theorem 8.2]"
+RT22+WKL uPi03c RCA "Patey and Yokoyama (preprint) [Theorems 7.4 and 8.2]"
+SGP22 -> BSig2 "Patey and Yokoyama (preprint) [Theorem 9.1, due to Kreuzer]"
+
+CSig2 form Pi11
+
+#Unsupported:
+#    SADS+SGP22+WKL has low solutions "Patey and Yokoyama (preprint) [Corollary 5.3]"
+#    SGP22 admits hyperimmunity preservation "Patey and Yokoyama (preprint) [Theorem 5.5]"
+
+#Generic:
+#    RTnk -> GPnk "Infinite sets contain infinite families of large finite sets"
+#    SRTnk -> SGPnk "Infinite sets contain infinite families of large finite sets"
+
+#Cited:
+    #RT22 -> BSig2 "Hirst (1987)"
+#????    ADS Pi11c WKL "Chong, Slaman, and Yang (2012)"
+#            NOTE: This is incorrect, since ADS -> BSig2 and WKL Pi11c RCA.
+#????    CAC Pi11c WKL "Chong, Slaman, and Yang (2012)"
+#            NOTE: This is incorrect, since CAC -> BSig2 and WKL Pi11c RCA.
+    #SRT22+WKL -|> ISig2 "Chong, Slaman, and Yang (2014)"
+#????    RT22+WKL -|> ISig2 "Chong, Slaman, and Yang (preprint)"

@@ -285,11 +285,17 @@ def queryDatabase(a, op, b, justification=True):
     
     if justification:
         r = []
+        if a != aPrime or b != bPrime:
+            r.append(u'\n')
+            if a != aPrime:
+                r.append(u'NOTE: {0} is not a known principle, but is equivalent to {1}\n'.format(a, aPrime))
+            if b != bPrime:
+                r.append(u'NOTE: {0} is not a known principle, but is equivalent to {1}\n'.format(a, aPrime))
+        
         if a != aPrime:
             r.append(printJustification(a, (reduction.name, '<->'), aPrime, justify))
         if b != bPrime:
             r.append(printJustification(b, (reduction.name, '<->'), bPrime, justify))
-        
         try:
             r.append(printJustification(aPrime, op, bPrime, justify))
         except KeyError:
