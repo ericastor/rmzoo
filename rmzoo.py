@@ -21,6 +21,8 @@ import itertools, sys
 from copy import copy
 from collections import defaultdict
 
+from rmupdater import standardizeFact
+
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
@@ -332,9 +334,12 @@ for r in Reduction:
         _reductionName |= Literal(r.name)
 reductionName = Optional(_reductionName, default=Reduction.RCA.name)
 
-reduction = (reductionName + Literal("->")) | (Literal("<=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "->"])
-nonReduction = reductionName + Literal("-|>")
-equivalence = reductionName + Literal("<->")
+implication = (reductionName + Literal("->")) | (Literal("=>") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "->"])
+nonImplication = (reductionName + Literal("-|>")) | (Literal("=/>") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "-|>"])
+equivalence = (reductionName + Literal("<->")) | (Literal("<=>") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "<->"])
+
+reduction = Literal("<=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)
+nonReduction = Literal("</=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)
 
 _formName = NoMatch()
 for f in Form:
@@ -345,19 +350,19 @@ formName = _formName
 conservation = formName + Literal("c")
 nonConservation = (Literal("n") + formName + Literal("c")).setParseAction(lambda s,l,t: [t[1], "nc"])
 
-operator = reduction | nonReduction | equivalence | conservation | nonConservation
+operator = implication | nonImplication | reduction | nonReduction | equivalence | conservation | nonConservation
 
 if Query:
     query = name + Group(operator) + name + StringEnd()
     Query = query.parseString(Query)
     
-    splitA = sorted(set(Query[0].split('+')))
-    a = '+'.join(splitA)
+    op = Query[1]
+    if not isinstance(op, str):
+        op = tuple(op)
+    a, op, b = standardizeFact(Query[0], op, Query[2])
     
-    op = tuple(Query[1])
-    
-    splitB = sorted(set(Query[2].split('+')))
-    b = '+'.join(splitB)
+    splitA = a.split('+')
+    splitB = b.split('+')
     
     if not (a in principles and b in principles) and AddPrinciples:
         abort = False
@@ -419,12 +424,11 @@ if QueryFile:
             Q = fact.parseString(q)
             if Q[1] == 'is' and Q[2] == 'primary': continue
             
-            a = '+'.join(sorted(set(Q[0].split('+'))))
-            if isinstance(Q[1], str):
-                op = Q[1]
-            else:
-                op = tuple(Q[1])
-            b = '+'.join(sorted(set(Q[2].split('+'))))
+            op = Q[1]
+            if not isinstance(op, str):
+                op = tuple(op)
+            
+            a, op, b = standardizeFact(Q[0], op, Q[2])
             
             queries.append((a, op, b, q))
     

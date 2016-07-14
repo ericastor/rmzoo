@@ -219,46 +219,62 @@ def addFact(a, op, b, jst):
     
     return 1
 
+def standardizePrinciple(a):
+    return u'+'.join(sorted(set(a.split(u'+'))))
+def standardizeFact(a, op, b):
+    a = standardizePrinciple(a)
+    b = standardizePrinciple(b)
+    if op[1] == u'<=':
+        op = (op[0], u'->')
+        a,b = b,a
+    elif op[1] == u'</=':
+        op = (op[0], u'-|>')
+        a,b = b,a
+    return a, op, b
+
 from pyparsing import *
 def parseDatabase(databaseString, quiet=False):
     start = time.clock()
     if not quiet: eprint(u'Parsing database...')
     # Name parsed strings
     name = Word( alphas+"_+^{}\\$", alphanums+"_+^{}$\\").setParseAction(lambda s,l,t: addPrinciple(t[0]))
-
+    
     parenth = Literal('"')
     justification = QuotedString('"""',multiline=True) | quotedString.setParseAction(removeQuotes)
-
+    
     _reductionName = NoMatch()
     for r in Reduction:
         if r != Reduction.none:
             _reductionName |= Literal(r.name)
     reductionName = Optional(_reductionName, default=Reduction.RCA.name)
-
-    reduction = (reductionName + Literal("->")) | (Literal("<=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "->"])
-    nonReduction = (reductionName + Literal("-|>")) | (Literal("</=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "-|>"])
+    
+    implication = (reductionName + Literal("->")) | (Literal("=>") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "->"])
+    nonImplication = (reductionName + Literal("-|>")) | (Literal("=/>") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "-|>"])
     equivalence = (reductionName + Literal("<->")) | (Literal("<=>") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "<->"])
-
+    
+    reduction = (Literal("<=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "<="])
+    nonReduction = (Literal("</=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "</="])
+    
     _formName = NoMatch()
     for f in Form:
         if f != Form.none:
             _formName |= Literal(f.name)
     formName = _formName
-
+    
     conservation = formName + Literal("c")
     nonConservation = (Literal("n") + formName + Literal("c")).setParseAction(lambda s,l,t: [t[1], "nc"])
-
-    operator = reduction | nonReduction | equivalence | conservation | nonConservation
-
+    
+    operator = implication | nonImplication | reduction | nonReduction | equivalence | conservation | nonConservation
+    
     # Database lines
-    unjustified = (name + Group(operator) + name + ~justification).setParseAction(lambda s,l,t: addUnjustified(t[0], t[1], t[2]))
-    fact = (name + Group(operator) + name + justification).setParseAction(lambda s,l,t: addFact(t[0], tuple(t[1]), t[2], t[3]))
+    unjustified = (name + Group(operator) + name + ~justification).setParseAction(lambda s,l,t: addUnjustified(*standardizeFact(t[0], tuple(t[1]), t[2])))
+    fact = (name + Group(operator) + name + justification).setParseAction(lambda s,l,t: addFact(*standardizeFact(t[0], tuple(t[1]), t[2]), t[3]))
 
     formDef = (name + Literal("form") + formName).setParseAction(lambda s,l,t: addForm(t[0], Form.fromString(t[2])))
     primary = (name + Literal("is primary")).setParseAction(lambda s,l,t: addPrimary(t[0]))
-
+    
     comments = Suppress(Literal( "#" ) + SkipTo(LineEnd()))
-
+    
     # Represent and parse database file
     entry = fact | formDef | primary | unjustified | comments
     database = ZeroOrMore( entry ) + StringEnd()
