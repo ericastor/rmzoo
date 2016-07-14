@@ -361,16 +361,13 @@ if Query:
         op = tuple(op)
     a, op, b = standardizeFact(Query[0], op, Query[2])
     
-    splitA = a.split('+')
-    splitB = b.split('+')
-    
     if not (a in principles and b in principles) and AddPrinciples:
         abort = False
-        for p in splitA:
+        for p in a.split(u'+'):
             if p not in principles:
                 abort = True
                 break
-        for p in splitB:
+        for p in b.split(u'+'):
             if p not in principles:
                 abort = True
                 break
@@ -405,7 +402,16 @@ if Query:
             if opp is not None:
                 jst = queryDatabase(a, opp, b)
                 if jst:
-                    print(u'OPPOSITE fact known! Justification for the fact "{0}":\n{1}'.format(printFact(a, opp, b), jst))
+                    print(u'CONTRADICTING fact known! Justification for the fact "{0}":\n{1}'.format(printFact(a, opp, b), jst))
+            if op[1] == u'<->':
+                opp = (op[0], u'-|>')
+                jst = queryDatabase(a, opp, b)
+                if jst:
+                    print(u'CONTRADICTING fact known! Justification for the fact "{0}":\n{1}'.format(printFact(a, opp, b), jst))
+                else:
+                    jst = queryDatabase(b, opp, a)
+                    if jst:
+                        print(u'CONTRADICTING fact known! Justification for the fact "{0}":\n{1}'.format(printFact(b, opp, a), jst))
     except Exception as e:
         print(e)
 
