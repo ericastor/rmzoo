@@ -338,8 +338,8 @@ implication = (reductionName + Literal("->")) | (Literal("=>") + Optional(Suppre
 nonImplication = (reductionName + Literal("-|>")) | (Literal("=/>") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "-|>"])
 equivalence = (reductionName + Literal("<->")) | (Literal("<=>") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "<->"])
 
-reduction = Literal("<=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)
-nonReduction = Literal("</=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)
+reduction = (Literal("<=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "<="])
+nonReduction = (Literal("</=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "</="])
 
 _formName = NoMatch()
 for f in Form:

@@ -12,10 +12,21 @@ def indentJust(jst):
 def printOp(op):
     if op[1] == u'nc':
         return u'n{0}c'.format(op[0])
+    elif op[1] in (u'=>', u'=/>', u'<=', u'</=', u'<=>'):
+        return u'{1}_{0}'.format(*op)
     else:
         return u'{0}{1}'.format(*op)
 
 def printFact(a, op, b):
+    if op[0] in (u'sW', u'W', u'gW', u'sc', u'c'): # Reducibility fact
+        if op[1] == u'->':
+            op = (op[0], u'<=')
+            a,b = b,a
+        elif op[1] == u'-|>':
+            op = (op[0], u'</=')
+            a,b = b,a
+        elif op[1] == u'<->':
+            op = (op[0], u'<=>')
     return u'{0} {1} {2}'.format(a, printOp(op), b)
 
 printedJustify = {}
