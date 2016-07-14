@@ -622,7 +622,7 @@ POS+WWKL -> GdREG "Kjos-Hanssen, Miller, and Solomon (2012) [Section 7]"
 #    Notre Dame J. Formal Logic 53(2), doi:10.1215/00294527-1715716
 
 CAC+WKL -|> ISig2 "Kreuzer (2012) [Corollary 4.3]"
-SEM -> BSig2 "Kreuzer (2012) [Proposition A.1]"
+SEM -> RT1 "Kreuzer (2012) [Proposition A.1]"
 
 ISig2 form Pi11
 
@@ -703,6 +703,14 @@ BSig2+D22+WKL -|> ISig2 "Chong, Slaman, and Yang (2014) [Theorem 2.7 and closing
 
 #Cited:
 #    SRT22 -> BSig2 "Cholak, Jockusch, and Slaman (2001)"
+
+#Kang (2014) - "Combinatorial principles between $\mathsf{RRT}^2_2$ and $\mathsf{RT}^2_2$"
+#    http://link.springer.com/article/10.1007/s11464-014-0390-6
+#    Front. Math. China 9(6), doi:10.1007/s11464-014-0390-6
+
+RRT22 w-|> TS2 "Kang (2014) [Theorem 9]"
+EM -> RRT22 "Kang (2014) [Theorem 10, due to Wang]"
+RRT22 w-|> EM "Kang (2014) [Theorem 11]"
 
 #Wang (2014, APAL) - "Cohesive sets and rainbows"
 #    http://www.sciencedirect.com/science/article/pii/S0168007213000651
@@ -886,7 +894,7 @@ RRT22 -> WSRRT22 "by definition"
 WSRRT22 -> SRRT22 "by definition"
 
 SRT22 -|> RRT22 "Patey (preprint) [Corollary 2.12]"
-SEM c-> DNR "Patey (preprint) [Corollary 3.6]"
+DNR <=_c SEM "Patey (preprint) [Corollary 3.6]"
 CAC w-|> SEM "Patey (preprint) [Corollary 3.7]"
 EM -> DNR0 "Patey (preprint) [Theorem 3.10]"
 SEM -> DNR "Patey (preprint) [Theorem 3.13]"
@@ -910,6 +918,8 @@ RRT22 <-> DNR0 "J. Miller (personal communication)"
 
 SFS3 -> STS3 "Cholak, Giusto, Hirst, and Jockusch (2005) [follows from proof of Theorem 3.2]"
 SFS2 -> STS2 "Cholak, Giusto, Hirst, and Jockusch (2005) [follows from proof of Theorem 3.2]"
+
+DNR <=_c SRT22 "Hirschfeldt, Jockusch, Kjos-Hanssen, Lempp, and Slaman (2008) [follows from proof of Theorem 2.3]"
 
 #Generic:
 #    SFSk -> STSk "Cholak, Giusto, Hirst, and Jockusch (2005) [follows from proof of Theorem 3.2]"
