@@ -314,8 +314,8 @@ def weakenConjunctions():
             setB = set(splitB)
             
             if setB <= setA:
-                addFact(a,(u'sW',u'->'),b,u'')
-                addFact(a,(u'RCA',u'->'),b,u'')
+                for r in Reduction:
+                    addFact(a, (r.name, u'->'), b, u'')
 
 # Uses '->', affects '->'
 def reductionConjunction(): # Conjunctions follow from their conjuncts
