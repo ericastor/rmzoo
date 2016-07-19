@@ -88,81 +88,30 @@ def addPrimary(a):
 
 justify = {}
 justComplexity = {}
-justDependencies = defaultdict(set)
 
-def addJustification(fact, jst):
-    if fact in justify:
-        return 0
+def addJustification(fact, jst, cplx):
+    if fact not in justify or cplx < justComplexity[fact]:
+        justify[fact] = jst
+        justComplexity[fact] = cplx
+        return 1
     else:
+        return 0
+
+def unoptimizedJustification(fact, jst, cplx):
+    if fact not in justify:
         justify[fact] = jst
         return 1
-
-def _refComplexity(jst):
-    if isinstance(jst, str):
-        return 1
-    
-    complexity = 1
-    for fact in jst:
-        try:
-            complexity += justComplexity[fact]
-        except KeyError:
-            if isinstance(fact, str):
-                complexity += 1
-            else:
-                c = _refComplexity(justify[fact])
-                justComplexity[fact] = c
-                complexity += c
-    return complexity
-def getComplexity(fact):
-    try:
-        return justComplexity[fact]
-    except KeyError:
-        complexity = _refComplexity(justify[fact])
-        justComplexity[fact] = complexity
-        return complexity
-
-def optimizeJustification(fact, jst):
-    complexity = None
-    if fact in justify:
-        if jst == justify[fact]:
-            return 0
-        
-        complexity = _refComplexity(jst)
-        if complexity >= getComplexity(fact):
-            return 0
-    
-        # Remove cached complexities dependent on the justification of 'fact'
-        Q = deque([fact])
-        exhausted = set()
-        while len(Q) > 0:
-            f = Q.popleft()
-            if f in justComplexity:
-                del justComplexity[f]
-            exhausted.add(f)
-            Q.extend(justDependencies[f] - exhausted)
-        
-        # Remove old dependencies
-        for f in justify[fact]:
-            if not isinstance(f, str):
-                justDependencies[f].discard(fact)
-    
-    # Add justification
-    justify[fact] = jst
-    for f in jst:
-        if not isinstance(f, str):
-            justDependencies[f].add(fact)
-    if complexity is not None:
-        justComplexity[fact] = complexity
-    return 1
+    else:
+        return 0
 
 def addUnjustified(a, op, b):
     error(u'The fact "{0}" is not justified.'.format(printFact(a, op, b)))
 
-def addFact(a, op, b, jst):
+def addFact(a, op, b, jst, cplx):
     fact = (a, op, b)
-    ret = addJustification(fact, jst)
+    ret = addJustification(fact, jst, cplx)
     if op[1] == u'<->': # equivalence
-        ret |= addJustification((b, op, a), jst)
+        ret |= addJustification((b, op, a), jst, cplx)
     if ret == 0:
         return 0
     
@@ -172,7 +121,8 @@ def addFact(a, op, b, jst):
         for x in Reduction.list(Reduction.weaker(r)):
             if x == r: continue
             
-            ret |= addJustification((a, (x.name, op[1]), b), (fact,))
+            ret |= addJustification((a, (x.name, op[1]), b),
+                                    (fact,), 1 + cplx)
             if Reduction.isPresent(x, notImplies[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
                         printJustification(a,(x.name,u'->'),b, justify) + u'\n\n' + 
@@ -183,22 +133,26 @@ def addFact(a, op, b, jst):
         for x in Reduction.list(Reduction.stronger(r)):
             if x == r: continue
             
-            ret |= addJustification((a, (x.name, op[1]), b), (fact,))
+            ret |= addJustification((a, (x.name, op[1]), b),
+                                    (fact,), 1 + cplx)
             if Reduction.isPresent(x, implies[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
                         printJustification(a,(x.name,u'->'),b, justify) + u'\n\n' + 
                         printJustification(a,(x.name,u'-|>'),b, justify))
     elif op[1] == u'<->': # equivalence
         r = Reduction.fromString(op[0])
-        ret |= addFact(a, (op[0], u'->'), b, (fact,))
-        ret |= addFact(b, (op[0], u'->'), a, (fact,))
+        ret |= addFact(a, (op[0], u'->'), b,
+                       (fact,), 1 + cplx)
+        ret |= addFact(b, (op[0], u'->'), a,
+                       (fact,), 1 + cplx)
     elif op[1] == u'c': # conservation
         frm = Form.fromString(op[0])
         addConservative(a, frm, b)
         for x in Form.list(Form.stronger(frm)):
             if x == frm: continue
             
-            ret |= addJustification((a, (x.name, op[1]), b), (fact,))
+            ret |= addJustification((a, (x.name, op[1]), b),
+                                    (fact,), 1 + cplx)
             if Reduction.isPresent(x, nonConservative[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
                         printJustification(a,(x.name,u'c'),b, justify) + u'\n\n' + 
@@ -209,7 +163,8 @@ def addFact(a, op, b, jst):
         for x in Form.list(Form.weaker(frm)):
             if x == frm: continue
             
-            ret |= addJustification((a, (x.name, op[1]), b), (fact,))
+            ret |= addJustification((a, (x.name, op[1]), b),
+                                    (fact,), 1 + cplx)
             if Reduction.isPresent(x, conservative[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
                         printJustification(a,(x.name,u'c'),b, justify) + u'\n\n' + 
@@ -268,7 +223,7 @@ def parseDatabase(databaseString, quiet=False):
     
     # Database lines
     unjustified = (name + Group(operator) + name + ~justification).setParseAction(lambda s,l,t: addUnjustified(*standardizeFact(t[0], tuple(t[1]), t[2])))
-    fact = (name + Group(operator) + name + justification).setParseAction(lambda s,l,t: addFact(*standardizeFact(t[0], tuple(t[1]), t[2]), t[3]))
+    fact = (name + Group(operator) + name + justification).setParseAction(lambda s,l,t: addFact(*standardizeFact(t[0], tuple(t[1]), t[2]), t[3], 1))
 
     formDef = (name + Literal("form") + formName).setParseAction(lambda s,l,t: addForm(t[0], Form.fromString(t[2])))
     primary = (name + Literal("is primary")).setParseAction(lambda s,l,t: addPrimary(t[0]))
@@ -291,13 +246,13 @@ def parseDatabase(databaseString, quiet=False):
 def addTrivialFacts():
     for a in principlesList:
         for r in Reduction:
-            addFact(a, (r.name, u'->'), a, u'')
-            addFact(a, (r.name, u'<->'), a, u'')
+            addFact(a, (r.name, u'->'), a, u'', 1)
+            addFact(a, (r.name, u'<->'), a, u'', 1)
         for f in Form:
-            addFact(a, (f.name, u'c'), a, u'')
+            addFact(a, (f.name, u'c'), a, u'', 1)
         if a != u'RCA':
             for r in Reduction:
-                addFact(a, (r.name, u'->'), u'RCA', u'')
+                addFact(a, (r.name, u'->'), u'RCA', u'', 1)
 
 # No inputs; affects '->'
 def weakenConjunctions():
@@ -315,7 +270,7 @@ def weakenConjunctions():
             
             if setB <= setA:
                 for r in Reduction:
-                    addFact(a, (r.name, u'->'), b, u'')
+                    addFact(a, (r.name, u'->'), b, u'', 1)
 
 # Uses '->', affects '->'
 def reductionConjunction(): # Conjunctions follow from their conjuncts
@@ -334,8 +289,9 @@ def reductionConjunction(): # Conjunctions follow from their conjuncts
             if conj == Reduction.none: continue
             
             for x in Reduction.list(conj):
+                aImpConjuncts = tuple([(a, (x.name, u'->'), t) for t in splitB])
                 r |= addFact(a, (x.name, u'->'), b,
-                             tuple([(a, (x.name, u'->'), t) for t in splitB]))
+                             aImpConjuncts, sum(justComplexity[aImpX] for aImpX in aImpConjuncts))
     return r
 
 # Complete (current) transitive closure of array, using Floyd-Warshall
@@ -354,8 +310,11 @@ def transitiveClosure(cls, array, opName): # Take the transitive closure
                 if transitive == cls.none: continue
                 
                 for x in cls.list(transitive):
+                    aOpC = (a, (x.name, opName), c)
+                    cOpB = (c, (x.name, opName), b)
+                    
                     r |= addFact(a, (x.name, opName), b,
-                                 ((a, (x.name, opName), c), (c, (x.name, opName), b)))
+                                 (aOpC, cOpB), 1 + justComplexity[aOpC] + justComplexity[cOpB])
     return r
 
 # Uses '->' and 'c', affects 'c'
@@ -370,11 +329,13 @@ def liftConservation(): # Lift conservation facts over known implications
                     
                     if Reduction.isPresent(Reduction.RCA, implies[(b,a)]):
                         for x in Form:
+                            bImpA = (b, (u'RCA', u'->'), a)
                             r |= addFact(a, (x.name, u'c'), b,
-                                         ((b, (u'RCA', u'->'), a),))
+                                         (bImpA,), 1 + justComplexity[bImpA])
                 continue
             
             cImpliesA = Reduction.isPresent(Reduction.RCA, implies[(c,a)])
+            cImpA = (c, (u'RCA', u'->'), a)
             acConservative = conservative[(a,c)]
             acConservativeForms = Form.list(acConservative)
             for b in principlesList:
@@ -385,15 +346,18 @@ def liftConservation(): # Lift conservation facts over known implications
                     cbConservative = conservative[(c,b)]
                     if cbConservative != Form.none:
                         for x in Form.list(cbConservative):
+                            cConsB = (c, (x.name, u'c'), b)
                             r |= addFact(a, (x.name, u'c'), b,
-                                         ((c, (x.name, u'c'), b), (c, (u'RCA', u'->'), a)))
+                                         (cConsB, cImpA), 1 + justComplexity[cConsB] + justComplexity[cImpA])
                 
                 # If a is conservative over c, and b implies c, then a is conservative over b.
                 if acConservative != Form.none:
                     if Reduction.isPresent(Reduction.RCA, implies[(b,c)]):
                         for x in acConservativeForms:
+                            aConsC = (a, (x.name, u'c'), c)
+                            bImpC = (b, (u'RCA', u'->'), c)
                             r |= addFact(a, (x.name, u'c'), b,
-                                         ((a, (x.name, u'c'), c), (b, (u'RCA', u'->'), c)))
+                                         (aConsC, bImpC), 1 + justComplexity[aConsC] + justComplexity[bImpC])
     return r
 
 # Uses '->' and 'c', affects '->'
@@ -407,13 +371,24 @@ def implementPositiveConservation(): # Apply known conservation facts to implica
             if caConservative == Form.none: continue
             for b in principlesList:
                 if b == a: continue
+                if b == c:
+                    # If b is (form)-conservative over a and b has form F, then a implies b.
+                    frms = form[b] & caConservative
+                    if frms != Form.none:
+                        for x in Form.list(frms):
+                            bConsA = (b, (x.name, u'c'), a)
+                            r |= addFact(a, (u'RCA', u'->'), b,
+                                         (bConsA, u'{0} form {1}'.format(b, x.name)), 2 + justComplexity[bConsA])
+                    continue
                 
                 # If c is (form)-conservative over a, c implies b, and b is a (form) statement, then a implies b.
                 frms = form[b] & caConservative
                 if frms != Form.none and Reduction.isPresent(Reduction.RCA, implies[(c,b)]):
                     for x in Form.list(frms):
+                        cImpB = (c, (u'RCA', u'->'), b)
+                        cConsA = (c, (x.name, u'c'), a)
                         r |= addFact(a, (u'RCA', u'->'), b,
-                                     ((c, (u'RCA', u'->'), b), (c, (x.name, u'c'), a), u'{0} form {1}'.format(b, x.name)))
+                                     (cImpB, cConsA, u'{0} form {1}'.format(b, x.name)), 2 + justComplexity[cImpB] + justComplexity[cConsA])
     return r
 
 # Uses '->', affects ONLY justify
@@ -427,8 +402,10 @@ def extractEquivalences(): # Convert bi-implications to equivalences
             if equiv == Reduction.none: continue
             
             for x in Reduction.list(equiv):
+                aImpB = (a, (x.name, u'->'), b)
+                bImpA = (b, (x.name, u'->'), a)
                 r |= addFact(a, (x.name, u'<->'), b,
-                             ((a, (x.name, u'->'), b), (b, (x.name, u'->'), a)))
+                             (aImpB, bImpA), 1 + justComplexity[aImpB] + justComplexity[bImpA])
     return r
 
 # Uses '-|>' and '->', affects '-|>'
@@ -453,8 +430,10 @@ def conjunctionSplit(): # Split non-implications over conjunctions
                 
                 # If a does not imply b+c, but a implies c, then a does not imply b.
                 for x in Reduction.list(splitImp):
+                    aNImpBC = (a, (x.name, u'-|>'), bc)
+                    aImpC = (a, (x.name, u'->'), c)
                     r |= addFact(a, (x.name, u'-|>'), b,
-                                 ((a, (x.name, u'-|>'), bc), (a, (x.name, u'->'), c)))
+                                 (aNImpBC, aImpC), 1 + justComplexity[aNImpBC] + justComplexity[aImpC])
     return r
 
 # Uses '->' and '-|>', affects '-|>'
@@ -473,15 +452,19 @@ def nonImplicationClosure(): # "transitive" non-implications
                 abClosure = cImpliesA & notImplies[(c,b)]
                 if abClosure != Reduction.none:
                     for x in Reduction.list(abClosure):
+                        cImpA = (c, (x.name, u'->'), a)
+                        cNImpB = (c, (x.name, u'-|>'), b)
                         r |= addFact(a, (x.name, u'-|>'), b,
-                                     ((c, (x.name, u'->'), a), (c, (x.name, u'-|>'), b)))
+                                     (cImpA, cNImpB), 1 + justComplexity[cImpA] + justComplexity[cNImpB])
                 
                 # If a does not imply c, but b implies c, then a does not imply b
                 abClosure = aNotImpliesC & implies[(b,c)]
                 if abClosure != Reduction.none:
                     for x in Reduction.list(abClosure):
+                        aNImpC = (a, (x.name, u'-|>'), c)
+                        bImpC = (b, (x.name, u'->'), c)
                         r |= addFact(a, (x.name, u'-|>'), b,
-                                     ((a, (x.name, u'-|>'), c), (b, (x.name, u'->'), c)))
+                                     (aNImpC, bImpC), 1 + justComplexity[aNImpC] + justComplexity[bImpC])
     return r
 
 # Uses '-|>' and 'c', affects '-|>'
@@ -500,8 +483,10 @@ def implementNegativeConservation(): # Apply known conservation facts to non-imp
                     # If c does not imply b, b is (form), and a is (form)-conversative over c, then a does not imply b.
                     frms = form[b] & conservative[(a,c)]
                     for x in Form.list(frms):
+                        cImpB = (c, (u'RCA', u'-|>'), b)
+                        aConsC = (a, (x.name, u'c'), c)
                         r |= addFact(a, (u'RCA', u'-|>'), b,
-                                     ((c, (u'RCA', u'-|>'), b), (a, (x.name, u'c'), c), u'{0} form {1}'.format(b, x.name)))
+                                     (cImpB, aConsC, u'{0} form {1}'.format(b, x.name)), 2 + justComplexity[cImpB] + justComplexity[aConsC])
     return r
 
 # Uses '->' and '-|>', affects 'nc'
@@ -512,15 +497,28 @@ def extractNonConservation(): # Transfer non-implications to non-conservation fa
         if cForm == Form.none: continue
         cForms = Form.list(cForm)
         for a in principlesList:
+            if a == c:
+                for b in principlesList:
+                    if b == a: continue
+                    
+                    # If b does not imply a, and a is (form), then a is not (form)-conservative over b.
+                    if Reduction.isPresent(Reduction.RCA, notImplies[(b,a)]):
+                        bNImpA = (b, (u'RCA', u'-|>'), a)
+                        for x in cForms:
+                            r |= addFact(a, (x.name, u'nc'), b,
+                                         (bNImpA, u'{0} form {1}'.format(a, x.name)), 2 + justComplexity[bNImpA])
+                continue
             # If a implies c, but b does not imply c, and c is (form), then a is not (form)-conservative over b.
             if Reduction.isPresent(Reduction.RCA, implies[(a,c)]):
+                aImpC = (a, (u'RCA', u'->'), c)
                 for b in principlesList:
                     if b == a or b == c: continue
                     
                     if Reduction.isPresent(Reduction.RCA, notImplies[(b,c)]):
+                        bNImpC = (b, (u'RCA', u'-|>'), c)
                         for x in cForms:
                             r |= addFact(a, (x.name, u'nc'), b,
-                                         ((a, (u'RCA', u'->'), c), (b, (u'RCA', u'-|>'), c), u'{0} form {1}'.format(c, x.name)))
+                                         (aImpC, bNImpC, u'{0} form {1}'.format(c, x.name)), 2 + justComplexity[aImpC] + justComplexity[bNImpC])
     return r
 
 # Uses 'nc' and '->', affects 'nc'
@@ -531,6 +529,7 @@ def liftNonConservation(): # Lift non-conservation facts over known implications
             if a == c: continue
             
             aImpliesC = Reduction.isPresent(Reduction.RCA, implies[(a,c)])
+            aImpC = (a, (u'RCA', u'->'), c)
             acNonConservative = nonConservative[(a,c)]
             acNonConservativeForms = Form.list(acNonConservative)
             for b in principlesList:
@@ -541,15 +540,18 @@ def liftNonConservation(): # Lift non-conservation facts over known implications
                     cbNonConservative = nonConservative[(c,b)]
                     if cbNonConservative != Form.none:
                         for x in Form.list(cbNonConservative):
+                            cNConsB = (c, (x.name, u'nc'), b)
                             r |= addFact(a, (x.name, u'nc'), b,
-                                         ((a, (u'RCA', u'->'), c), (c, (x.name, u'nc'), b)))
+                                         (aImpC, cNConsB), 1 + justComplexity[aImpC] + justComplexity[cNConsB])
                 
                 # If a is not conservative over c, and c implies b, then a is not conservative over b.
                 if acNonConservative != Form.none:
                     if Reduction.isPresent(Reduction.RCA, implies[(c,b)]):
                         for x in acNonConservativeForms:
+                            aNConsC = (a, (x.name, u'nc'), c)
+                            cImpB = (c, (u'RCA', u'->'), b)
                             r |= addFact(a, (x.name, u'nc'), b,
-                                         ((a, (x.name, u'nc'), c), (c, (u'RCA', u'->'), b)))
+                                         (aNConsC, cImpB), 1 + justComplexity[aNConsC] + justComplexity[cImpB])
     return r
 
 # Uses 'c' and 'nc', affects 'nc'
@@ -567,8 +569,10 @@ def conservationConflict():
                 conflict = acNonConservative & conservative[(b,c)]
                 if conflict == Form.none: continue
                 for x in Form.list(conflict):
+                    aNConsC = (a, (x.name, u'nc'), c)
+                    bConsC = (b, (x.name, u'c'), c)
                     r |= addFact(a, (x.name, u'nc'), b,
-                                 ((a, (x.name, u'nc'), c), (b, (x.name, u'c'), c)))
+                                 (aNConsC, bConsC), 1 + justComplexity[aNConsC] + justComplexity[bConsC])
     return r
 
 # Uses 'nc', affects '-|>'
@@ -582,8 +586,9 @@ def extractNonImplication(): # Transfer non-conservation facts to non-implicatio
             baNonConservative = nonConservative[(b,a)]
             if baNonConservative == Form.none: continue
             for x in Form.list(baNonConservative):
+                bNConsA = (b, (x.name, u'nc'), a)
                 r |= addFact(a, (u'RCA', u'-|>'), b,
-                             ((b, (x.name, u'nc'), a),))
+                             (bNConsA,), 1 + justComplexity[bNConsA])
     return r
 
 def deriveInferences(quiet=False):
@@ -720,12 +725,10 @@ def main():
 
     parser = OptionParser('Usage: %prog [options] database output', version='%prog ' + Version + ' (' + Date + ')')
 
-    parser.set_defaults(ignoreComplexity=False, quiet=False, verbose=False)
+    parser.set_defaults(quiet=False, verbose=False)
     
     parser.add_option('-q', action='store_true', dest='quiet',
         help = 'Suppress progress/timing indicators.')
-    parser.add_option('-f', action='store_true', dest='ignoreComplexity',
-        help = 'Do not optimize for shorter proofs; runs about twice as fast.')
     parser.add_option('-v', action='store_true', dest='verbose',
         help = 'Report additional execution information.')
 
@@ -739,10 +742,6 @@ def main():
     
     if options.quiet and options.verbose:
         parser.error(u'Options -q and -v are incompatible.')
-    
-    global addJustification
-    if not options.ignoreComplexity:
-        addJustification = optimizeJustification
     
     import os
     databaseFile = args[0]
