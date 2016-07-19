@@ -988,3 +988,23 @@ CSig2 form Pi11
 #            NOTE: This is incorrect, since CAC -> BSig2 and WKL Pi11c RCA.
     #SRT22+WKL -|> ISig2 "Chong, Slaman, and Yang (2014)"
 #????    RT22+WKL -|> ISig2 "Chong, Slaman, and Yang (preprint)"
+
+#Patey (preprint) - "Partial orders and immunity in reverse mathematics"
+#    http://arxiv.org/abs/1607.04506
+
+#CAC w-|> DNR "Patey (preprint, Partial orders) [Corollary 17]"
+psRT22 <-> ADS "Patey (preprint, Partial orders) [Theorem 20]"
+ADS+WWKL w-|> SCAC "Patey (preprint, Partial orders) [Corollary 32]"
+WSCAC </=_c SCAC "Patey (preprint, Partial orders) [Corollary 40]"
+
+#Generic:
+#    psRT2k+WWKL -|> SCAC (for every k >= 2) "Patey (preprint, Partial orders) [Corollary 31]"
+
+#Unsupported:
+# NOTE: "Preservation of co-c.e. hyperimmunity" might be better called "preservation of hypersimplicity"
+#    RT22 admits co-ce hyperimmunity preservation "Patey (preprint, Partial orders) [Corollary 8]"
+#    CAC admits c.b.-immunity preservation "Patey (preprint, Partial orders) [Theorem 13]"
+#    DNR does not admit c.b.-immunity preservation "Patey (preprint, Partial orders) [Theorem 16]"
+#    SCAC does not admit dependent hyperimmunity preservation "Patey (preprint, Partial orders) [Corollary 24]"
+#    psRT2k admits dependent hyperimmunity preservation "Patey (preprint, Partial orders) [Theorem 25]"
+#    WWKL admits dependent hyperimmunity preservation "Patey (preprint, Partial orders) [Corollary 30]"
