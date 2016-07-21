@@ -11,6 +11,7 @@
 #   - Version 4.0 - started 30 May 2016
 #   - Version 4.1 - optimizations & refactoring, started 2 July 2016
 #   - Version 4.2 - new forms and reasoning, started 12 July 2016
+#   - Version 4.3 - changed internal representations, started 21 July 2016
 #   Documentation and support: http://rmzoo.uconn.edu
 #
 ##################################################################################
@@ -35,8 +36,8 @@ def warning(s):
 def error(s):    # Throw exception
     raise Exception(s)
 
-Date = '12 July 2016'
-Version = '4.2'
+Date = '21 July 2016'
+Version = '4.3'
 
 from rmBitmasks import *
 from renderJustification import *
@@ -151,12 +152,6 @@ databaseFile = args[0]
 
 eprint('Importing and organizing data...')
 
-def printOp(op):
-    if op[1] == 'nc':
-        return 'n{0}c'.format(op[0])
-    else:
-        return '{0}{1}'.format(*op)
-
 class VersionError(Exception):
     def __init__(self, targetVersion, actualVersion):
         self.targetVersion = targetVersion
@@ -195,7 +190,7 @@ def setDatabase(database):
     for a in principles:
         for b in principles:
             for r in Reduction.list(implies[(a,b)] & implies[(b,a)]):
-                equivalent[(a, r.name)].add(b)
+                equivalent[(a, r)].add(b)
     
     global conservative, nonConservative
     conservative, nonConservative = database['conservation']
@@ -233,11 +228,11 @@ def knownEquivalent(a, reduction, justification=True):
             return None
     
     aPrime = None
-    for equiv in itertools.product(*(equivalent[(p, reduction.name)] for p in splitA)):
+    for equiv in itertools.product(*(equivalent[(p, reduction)] for p in splitA)):
         aPrime = '+'.join(sorted(set(equiv)))
         if aPrime in principles:
             if justification:
-                equivJst = tuple((p, (reduction.name, '<->'), q) for (p,q) in zip(splitA, equiv) if p != q)
+                equivJst = tuple((p, (reduction, '<->'), q) for (p,q) in zip(splitA, equiv) if p != q)
                 return (aPrime, equivJst)
             else:
                 return aPrime
@@ -248,18 +243,18 @@ def knownEquivalent(a, reduction, justification=True):
         return None
     
 def queryDatabase(a, op, b, justification=True):
-    if op[1].endswith('c'):
+    if op[1] in (u'c', u'nc'):
         reduction = Reduction.RCA
     else:
-        reduction = Reduction.fromString(op[0])
+        reduction = op[0]
     
     if justification:
         aPrime, aJst = knownEquivalent(a, reduction, justification)
         bPrime, bJst = knownEquivalent(b, reduction, justification)
         if aJst is not None:
-            justify[(a, (reduction.name, '<->'), aPrime)] = aJst
+            justify[(a, (reduction, '<->'), aPrime)] = aJst
         if bJst is not None:
-            justify[(b, (reduction.name, '<->'), bPrime)] = bJst
+            justify[(b, (reduction, '<->'), bPrime)] = bJst
     else:
         aPrime = knownEquivalent(a, reduction, justification)
         bPrime = knownEquivalent(b, reduction, justification)
@@ -295,9 +290,9 @@ def queryDatabase(a, op, b, justification=True):
                 r.append(u'NOTE: {0} is not a known principle, but is equivalent to {1}\n'.format(a, aPrime))
         
         if a != aPrime:
-            r.append(printJustification(a, (reduction.name, '<->'), aPrime, justify))
+            r.append(printJustification(a, (reduction, '<->'), aPrime, justify))
         if b != bPrime:
-            r.append(printJustification(b, (reduction.name, '<->'), bPrime, justify))
+            r.append(printJustification(b, (reduction, '<->'), bPrime, justify))
         try:
             r.append(printJustification(aPrime, op, bPrime, justify))
         except KeyError:
@@ -332,23 +327,25 @@ _reductionName = NoMatch()
 for r in Reduction:
     if r != Reduction.none:
         _reductionName |= Literal(r.name)
-reductionName = Optional(_reductionName, default=Reduction.RCA.name)
+_reductionType = _reductionName.setParseAction(lambda s,l,t: [Reduction.fromString(t[0])])
+reductionType = Optional(_reductionType, default=Reduction.RCA)
+postfixReductionType = Optional(Suppress(Literal("_")) + _reductionType, default=Reduction.RCA)
 
-implication = (reductionName + Literal("->")) | (Literal("=>") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "->"])
-nonImplication = (reductionName + Literal("-|>")) | (Literal("=/>") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "-|>"])
-equivalence = (reductionName + Literal("<->")) | (Literal("<=>") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "<->"])
+implication = (reductionType + Literal("->")) | (Literal("=>") + postfixReductionType).setParseAction(lambda s,l,t: [t[1], "->"])
+nonImplication = (reductionType + Literal("-|>")) | (Literal("=/>") + postfixReductionType).setParseAction(lambda s,l,t: [t[1], "-|>"])
+equivalence = (reductionType + Literal("<->")) | (Literal("<=>") + postfixReductionType).setParseAction(lambda s,l,t: [t[1], "<->"])
 
-reduction = (Literal("<=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "<="])
-nonReduction = (Literal("</=") + Optional(Suppress(Literal("_")) + _reductionName, default=Reduction.RCA.name)).setParseAction(lambda s,l,t: [t[1], "</="])
+reduction = (Literal("<=") + postfixReductionType).setParseAction(lambda s,l,t: [t[1], "<="])
+nonReduction = (Literal("</=") + postfixReductionType).setParseAction(lambda s,l,t: [t[1], "</="])
 
 _formName = NoMatch()
 for f in Form:
     if f != Form.none:
         _formName |= Literal(f.name)
-formName = _formName
+formType = _formName.setParseAction(lambda s,l,t: [Form.fromString(t[0])])
 
-conservation = formName + Literal("c")
-nonConservation = (Literal("n") + formName + Literal("c")).setParseAction(lambda s,l,t: [t[1], "nc"])
+conservation = formType + Literal("c")
+nonConservation = (Literal("n") + formType + Literal("c")).setParseAction(lambda s,l,t: [t[1], "nc"])
 
 operator = implication | nonImplication | reduction | nonReduction | equivalence | conservation | nonConservation
 
@@ -419,7 +416,7 @@ if QueryFile:
     parenth = Literal('"')
     justification = QuotedString('"""',multiline=True) | quotedString.setParseAction(removeQuotes)
     
-    fact = name + ((Group(operator) + name + Suppress(Optional(justification))) | (Literal('form') + formName) | Literal('is') + Literal('primary'))
+    fact = name + ((Group(operator) + name + Suppress(Optional(justification))) | (Literal('form') + formType) | (Literal('is') + Literal('primary')))
     
     queries = []
     with open(QueryFile, encoding='utf-8') as f:
@@ -430,11 +427,10 @@ if QueryFile:
             Q = fact.parseString(q)
             if Q[1] == 'is' and Q[2] == 'primary': continue
             
-            op = Q[1]
+            a,op,b = Q
             if not isinstance(op, str):
                 op = tuple(op)
-            
-            a, op, b = standardizeFact(Q[0], op, Q[2])
+                a,op,b = standardizeFact(a, op, b)
             
             queries.append((a, op, b, q))
     
@@ -471,7 +467,7 @@ if QueryFile:
         s = u''
         known = False
         if op == 'form':
-            known = Form.isPresent(Form.fromString(b), form[a])
+            known = Form.isPresent(b, form[a])
         else:
             try:
                 known = queryDatabase(a, op, b, justification=False)

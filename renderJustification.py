@@ -10,15 +10,26 @@ def indentJust(jst):
 
 @lru_cache(maxsize=1024)
 def printOp(op):
-    if op[1] == u'nc':
-        return u'n{0}c'.format(op[0])
-    elif op[1] in (u'=>', u'=/>', u'<=', u'</=', u'<=>'):
-        return u'{1}_{0}'.format(*op)
+    if isinstance(op, str):
+        return op
+    
+    opCtx, opCore = op
+    try:
+        opCtx = opCtx.name
+    except AttributeError:
+        pass
+    
+    if opCore == u'nc':
+        return u'n{0}c'.format(opCtx)
+    elif opCore in (u'=>', u'=/>', u'<=', u'</=', u'<=>'):
+        return u'{1}_{0}'.format(opCtx, opCore)
     else:
-        return u'{0}{1}'.format(*op)
+        return u'{0}{1}'.format(opCtx, opCore)
 
 def printFact(a, op, b):
-    if op[0] in (u'sW', u'W', u'gW', u'sc', u'c'): # Reducibility fact
+    if op == u'form':
+        b = b.name
+    elif op[0] in (u'sW', u'W', u'gW', u'sc', u'c'): # Reducibility fact
         if op[1] == u'->':
             op = (op[0], u'<=')
             a,b = b,a
@@ -37,12 +48,19 @@ def printJustification(a, op, b, justify, formatted=True):
     try:
         r = printedJustify[fact]
     except KeyError:
-        jst = justify[fact]
-        if isinstance(jst, str):
-            r = _justFormat.format(printFact(*fact)) + jst
+        if op == u'form':
+            r = justMarker + printFact(*fact)
         else:
-            r = _justFormat.format(printFact(*fact)) \
-                + u''.join((_justIndented+f if isinstance(f, str) else indentJust(printJustification(*f, justify, formatted=False))) for f in jst)
+            try:
+                jst = justify[fact]
+            except KeyError:
+                raise Exception(u'ERROR: Referenced fact "{0}" not justified!'.format(printFact(*fact)))
+            
+            if isinstance(jst, str):
+                r = _justFormat.format(printFact(*fact)) + jst
+            else:
+                r = _justFormat.format(printFact(*fact)) \
+                    + u''.join((_justIndented+f if isinstance(f, str) else indentJust(printJustification(*f, justify, formatted=False))) for f in jst)
         printedJustify[fact] = r
     
     if formatted:
