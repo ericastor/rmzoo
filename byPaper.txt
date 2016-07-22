@@ -942,8 +942,8 @@ DNR <=_c SRT22 "Hirschfeldt, Jockusch, Kjos-Hanssen, Lempp, and Slaman (2008) [f
 #    BSig2+EM -> OPT "Lerman, Solomon, and Towsner (2013)"
 #    RCA -|> FS2 "Cholak, Giusto, Hirst, and Jockusch (2005)"
 #    WKL w-|> TS2 "Friedman (FOM 53)"
-#????    WWKL2 w-|> AMT "Bienvenu, Patey, and Shafer (to appear)"
-#????    COH+WSRRT22 -> RRT22 "Wang (2014, AIM)"
+#????    WWKL2 w-|> AMT "Bienvenu, Patey, and Shafer (in preparation) - The role of randomness in reverse mathematics"
+#????    COH+WSRRT22 -> RRT22 "Wang (2014, APAL)"
 
 # Patey and Yokoyama (preprint) - "The proof-theoretic strength of Ramsey's theorem for pairs and two colors"
 #    http://arxiv.org/abs/1601.00050
@@ -982,12 +982,7 @@ CSig2 form Pi11
 
 #Cited:
     #RT22 -> BSig2 "Hirst (1987)"
-#????    ADS Pi11c WKL "Chong, Slaman, and Yang (2012)"
-#            NOTE: This is incorrect, since ADS -> BSig2 and WKL Pi11c RCA.
-#????    CAC Pi11c WKL "Chong, Slaman, and Yang (2012)"
-#            NOTE: This is incorrect, since CAC -> BSig2 and WKL Pi11c RCA.
     #SRT22+WKL -|> ISig2 "Chong, Slaman, and Yang (2014)"
-#????    RT22+WKL -|> ISig2 "Chong, Slaman, and Yang (preprint)"
 
 #Patey (preprint) - "Partial orders and immunity in reverse mathematics"
 #    http://arxiv.org/abs/1607.04506
