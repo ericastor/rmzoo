@@ -14,9 +14,7 @@ def lru_cache(*args, **kwargs):
 try:
     from functools import lru_cache
 except ImportError:
-    import platform
-    if platform.python_implementation() != u'PyPy':
-        try:
-            from backports.functools_lru_cache import lru_cache
-        except ImportError:
-            pass
+    try:
+        from repoze.lru import lru_cache
+    except ImportError:
+        pass
