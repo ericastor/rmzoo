@@ -92,12 +92,14 @@ justify = {}
 justComplexity = {}
 
 def addJustification(fact, jst, cplx):
-    if fact not in justify or cplx < justComplexity[fact]:
-        justify[fact] = jst
-        justComplexity[fact] = cplx
-        return 1
-    else:
-        return 0
+    try:
+        if cplx >= justComplexity[fact]:
+            return 0
+    except KeyError:
+        pass
+    justify[fact] = jst
+    justComplexity[fact] = cplx
+    return 1
 
 def unoptimizedJustification(fact, jst, cplx):
     if fact not in justify:
