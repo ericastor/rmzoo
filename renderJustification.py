@@ -1,4 +1,6 @@
-from functools import lru_cache
+from __future__ import print_function, unicode_literals
+
+from version_guard import lru_cache, isString
 
 _justLineMarker = u'*'
 _justIndentMarker = u'@'
@@ -10,7 +12,7 @@ def indentJust(jst):
 
 @lru_cache(maxsize=1024)
 def printOp(op):
-    if isinstance(op, str):
+    if isString(op):
         return op
     
     opCtx, opCore = op
@@ -41,8 +43,8 @@ def printFact(a, op, b):
     return u'{0} {1} {2}'.format(a, printOp(op), b)
 
 printedJustify = {}
-def printJustification(a, op, b, justify, formatted=True):
-    fact = (a, op, b)
+def printJustification(fact, justify, formatted=True):
+    a,op,b = fact
     
     r = ''
     try:
@@ -56,11 +58,11 @@ def printJustification(a, op, b, justify, formatted=True):
             except KeyError:
                 raise Exception(u'ERROR: Referenced fact "{0}" not justified!'.format(printFact(*fact)))
             
-            if isinstance(jst, str):
+            if isString(jst):
                 r = _justFormat.format(printFact(*fact)) + jst
             else:
                 r = _justFormat.format(printFact(*fact)) \
-                    + u''.join((_justIndented+f if isinstance(f, str) else indentJust(printJustification(*f, justify, formatted=False))) for f in jst)
+                    + u''.join((_justIndented+f if isString(f) else indentJust(printJustification(f, justify, formatted=False))) for f in jst)
         printedJustify[fact] = r
     
     if formatted:

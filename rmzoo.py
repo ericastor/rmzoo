@@ -16,11 +16,15 @@
 #
 ##################################################################################
 
-from __future__ import print_function
+from __future__ import print_function, unicode_literals
 
-import itertools, sys
-from copy import copy
+import sys
+
+import itertools
+from io import open
 from collections import defaultdict
+
+from version_guard import isString
 
 from rmupdater import standardizeFact
 
@@ -96,8 +100,6 @@ parser.add_option('--force', action='store_true', dest='add_principles',
 
 (options, args) = parser.parse_args()
 
-import os
-
 Implications = options.implications
 NonImplications = options.nonimplications
 Weak = options.weak
@@ -159,9 +161,9 @@ class VersionError(Exception):
     def __str__(self):
         return 'Version mismatch: found v{0}, targeting v{1}'.format(actualVersion, targetVersion)
 
-if sys.version_info < (3,):
+try:
     import cPickle as pickle
-else:
+except ImportError:
     import pickle
 
 principles = {}
@@ -180,6 +182,9 @@ def getDatabase():
 
 equivalent = defaultdict(set)
 def setDatabase(database):
+    if database['version'] != Version:
+        raise VersionError(database['version'], Version)
+    
     global principles
     principles = database['principles']
     
@@ -206,10 +211,8 @@ def setDatabase(database):
 
 def loadDatabase(databaseFile):
     with open(databaseFile, 'rb') as f:
-        fileVersion = pickle.load(f)
-        if fileVersion != Version:
-            raise VersionError(fileVersion, Version)
         database = pickle.load(f)
+    
     setDatabase(database)
 loadDatabase(databaseFile)
 
@@ -290,11 +293,11 @@ def queryDatabase(a, op, b, justification=True):
                 r.append(u'NOTE: {0} is not a known principle, but is equivalent to {1}\n'.format(a, aPrime))
         
         if a != aPrime:
-            r.append(printJustification(a, (reduction, '<->'), aPrime, justify))
+            r.append(printJustification((a, (reduction, '<->'), aPrime), justify))
         if b != bPrime:
-            r.append(printJustification(b, (reduction, '<->'), bPrime, justify))
+            r.append(printJustification((b, (reduction, '<->'), bPrime), justify))
         try:
-            r.append(printJustification(aPrime, op, bPrime, justify))
+            r.append(printJustification((aPrime, op, bPrime), justify))
         except KeyError:
             return False
         return ''.join(r)
@@ -354,7 +357,7 @@ if Query:
     Query = query.parseString(Query)
     
     op = Query[1]
-    if not isinstance(op, str):
+    if not isString(op):
         op = tuple(op)
     a, op, b = standardizeFact(Query[0], op, Query[2])
     
@@ -380,37 +383,37 @@ if Query:
             rmupdater.deriveInferences(quiet=False)
             setDatabase(rmupdater.getDatabase())
     
-    try:
-        jst = queryDatabase(a, op, b)
-        if jst:
-            print(u'Justification for the fact "{0}":\n{1}'.format(printFact(a, op, b), jst))
-        else:
-            print(u'\nError: Unknown fact "{0}"'.format(printFact(a, op, b)))
-            opp = None # opposite operation
-            if op[1] == u'->':
-                opp = (op[0], u'-|>')
-            elif op[1] == u'-|>':
-                opp = (op[0], u'->')
-            elif op[1] == u'c':
-                opp = (op[0], u'nc')
-            elif op[1] == u'nc':
-                opp = (op[0], u'c')
-            
-            if opp is not None:
-                jst = queryDatabase(a, opp, b)
+#    try:
+    jst = queryDatabase(a, op, b)
+    if jst:
+        print(u'Justification for the fact "{0}":\n{1}'.format(printFact(a, op, b), jst))
+    else:
+        print(u'\nError: Unknown fact "{0}"'.format(printFact(a, op, b)))
+        opp = None # opposite operation
+        if op[1] == u'->':
+            opp = (op[0], u'-|>')
+        elif op[1] == u'-|>':
+            opp = (op[0], u'->')
+        elif op[1] == u'c':
+            opp = (op[0], u'nc')
+        elif op[1] == u'nc':
+            opp = (op[0], u'c')
+        
+        if opp is not None:
+            jst = queryDatabase(a, opp, b)
+            if jst:
+                print(u'CONTRADICTING fact known! Justification for the fact "{0}":\n{1}'.format(printFact(a, opp, b), jst))
+        if op[1] == u'<->':
+            opp = (op[0], u'-|>')
+            jst = queryDatabase(a, opp, b)
+            if jst:
+                print(u'CONTRADICTING fact known! Justification for the fact "{0}":\n{1}'.format(printFact(a, opp, b), jst))
+            else:
+                jst = queryDatabase(b, opp, a)
                 if jst:
-                    print(u'CONTRADICTING fact known! Justification for the fact "{0}":\n{1}'.format(printFact(a, opp, b), jst))
-            if op[1] == u'<->':
-                opp = (op[0], u'-|>')
-                jst = queryDatabase(a, opp, b)
-                if jst:
-                    print(u'CONTRADICTING fact known! Justification for the fact "{0}":\n{1}'.format(printFact(a, opp, b), jst))
-                else:
-                    jst = queryDatabase(b, opp, a)
-                    if jst:
-                        print(u'CONTRADICTING fact known! Justification for the fact "{0}":\n{1}'.format(printFact(b, opp, a), jst))
-    except Exception as e:
-        print(e)
+                    print(u'CONTRADICTING fact known! Justification for the fact "{0}":\n{1}'.format(printFact(b, opp, a), jst))
+#    except Exception as e:
+#        print(e)
 
 if QueryFile:
     parenth = Literal('"')
@@ -428,7 +431,7 @@ if QueryFile:
             if Q[1] == 'is' and Q[2] == 'primary': continue
             
             a,op,b = Q
-            if not isinstance(op, str):
+            if not isString(op):
                 op = tuple(op)
                 a,op,b = standardizeFact(a, op, b)
             

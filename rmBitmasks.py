@@ -1,5 +1,8 @@
+from __future__ import print_function, unicode_literals
+
 from enum import Enum
-from functools import lru_cache
+
+from version_guard import lru_cache
 
 class BitmaskEnum(int, Enum):
     def __new__(cls, value=None):

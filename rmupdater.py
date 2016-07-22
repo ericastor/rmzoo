@@ -20,13 +20,14 @@ from __future__ import print_function, unicode_literals
 
 import sys
 import time
-from codecs import open
-from collections import defaultdict, deque
-from functools import lru_cache
+from io import open
+from collections import defaultdict
 
-if sys.version_info < (3,):
+from version_guard import lru_cache
+
+try:
     import cPickle as pickle
-else:
+except ImportError:
     import pickle
 
 def eprint(*args, **kwargs):
@@ -126,8 +127,8 @@ def addFact(a, op, b, jst, cplx):
                                     (fact,), 1 + cplx)
             if Reduction.isPresent(x, notImplies[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
-                        printJustification(a,(x,u'->'),b, justify) + u'\n\n' + 
-                        printJustification(a,(x,u'-|>'),b, justify))
+                        printJustification((a,(x,u'->'),b), justify) + u'\n\n' + 
+                        printJustification((a,(x,u'-|>'),b), justify))
     elif op[1] == u'-|>': # non-reduction
         r = op[0]
         addNonReduction(a, r, b)
@@ -138,8 +139,8 @@ def addFact(a, op, b, jst, cplx):
                                     (fact,), 1 + cplx)
             if Reduction.isPresent(x, implies[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
-                        printJustification(a,(x,u'->'),b, justify) + u'\n\n' + 
-                        printJustification(a,(x,u'-|>'),b, justify))
+                        printJustification((a,(x,u'->'),b), justify) + u'\n\n' + 
+                        printJustification((a,(x,u'-|>'),b), justify))
     elif op[1] == u'<->': # equivalence
         r = op[0]
         ret |= addFact(a, (op[0], u'->'), b,
@@ -156,8 +157,8 @@ def addFact(a, op, b, jst, cplx):
                                     (fact,), 1 + cplx)
             if Reduction.isPresent(x, nonConservative[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
-                        printJustification(a,(x,u'c'),b, justify) + u'\n\n' + 
-                        printJustification(a,(x,u'nc'),b, justify))
+                        printJustification((a,(x,u'c'),b), justify) + u'\n\n' + 
+                        printJustification((a,(x,u'nc'),b), justify))
     elif op[1] == u'nc': # non-conservation
         frm = op[0]
         addNonConservative(a, frm, b)
@@ -168,8 +169,8 @@ def addFact(a, op, b, jst, cplx):
                                     (fact,), 1 + cplx)
             if Reduction.isPresent(x, conservative[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
-                        printJustification(a,(x,u'c'),b, justify) + u'\n\n' + 
-                        printJustification(a,(x,u'nc'),b, justify))
+                        printJustification((a,(x,u'c'),b), justify) + u'\n\n' + 
+                        printJustification((a,(x,u'nc'),b), justify))
     else:
         error(u'Unrecognized operator {0}'.format(op))
     
@@ -227,7 +228,11 @@ def parseDatabase(databaseString, quiet=False):
     
     # Database lines
     unjustified = (name + Group(operator) + name + ~justification).setParseAction(lambda s,l,t: addUnjustified(*standardizeFact(t[0], tuple(t[1]), t[2])))
-    fact = (name + Group(operator) + name + justification).setParseAction(lambda s,l,t: addFact(*standardizeFact(t[0], tuple(t[1]), t[2]), t[3], 1))
+    
+    def _addFactParseAction(s,l,t):
+        a,op,b = standardizeFact(t[0], tuple(t[1]), t[2])
+        addFact(a, op, b, t[3], 1)
+    fact = (name + Group(operator) + name + justification).setParseAction(_addFactParseAction)
 
     formDef = (name + Literal("form") + formType).setParseAction(lambda s,l,t: addForm(t[0], t[2]))
     primary = (name + Literal("is primary")).setParseAction(lambda s,l,t: addPrimary(t[0]))
@@ -674,7 +679,8 @@ def deriveInferences(quiet=False):
     if not quiet: eprint(u'Elapsed: {0:.6f} s (with {1} repeats)\n'.format(time.clock() - start, n))
 
 def getDatabase():
-    return {'principles': principles,
+    return {'version': Version,
+            'principles': principles,
             'implication': (implies, notImplies),
             'conservation': (conservative, nonConservative),
             'form': form,
@@ -682,8 +688,12 @@ def getDatabase():
             'justify': justify}
 
 def setDatabase(database):
-    global principles
+    if database['version'] != Version:
+        raise VersionError(database['version'], Version)
+    
+    global principles, principlesList
     principles = database['principles']
+    principlesList = sorted(principles)
     
     global implies, notImplies
     implies, notImplies = database['implication']
@@ -700,27 +710,20 @@ def setDatabase(database):
     global justify
     justify = database['justify']
 
-def databaseDump(dumpFile, quiet=False):
+def dumpDatabase(dumpFile, quiet=False):
     if not quiet: eprint(u'Facts known: {0:,d}\n'.format(len(justify)))
     
     start = time.clock()
     if not quiet: eprint(u'Dumping updated database to binary file...')
     with open(dumpFile, 'wb') as f:
-        pickle.dump(Version, f, pickle.HIGHEST_PROTOCOL)
         pickle.dump(getDatabase(), f, pickle.HIGHEST_PROTOCOL)
     if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
-def databaseLoad(dumpFile, quiet=False):
+def loadDatabase(dumpFile, quiet=False):
     with open(dumpFile, 'rb') as f:
-        fileVersion = pickle.load(f)
-        if fileVersion != Version:
-            raise VersionError(fileVersion, Version)
         database = pickle.load(f)
     
     setDatabase(database)
-    
-    global principlesList
-    principlesList = sorted(principles)
 
 from optparse import OptionParser, OptionGroup
 def main():
@@ -756,7 +759,7 @@ def main():
     with open(databaseFile, encoding='utf-8') as f:
         parseDatabase(f.read(), options.quiet)
     deriveInferences(options.quiet)
-    databaseDump(outputFile, options.quiet)
+    dumpDatabase(outputFile, options.quiet)
     if not options.quiet: eprint(u'Total elapsed time: {0:.6f} s'.format(time.clock() - absoluteStart))
     
     if options.verbose:
