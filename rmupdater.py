@@ -314,6 +314,7 @@ def transitiveClosure(cls, array, opName): # Take the transitive closure
             
             acRelation = array[(a,c)]
             if acRelation == cls.none: continue
+            
             for b in principlesList:
                 if b == a or b == c: continue
                 
@@ -321,10 +322,11 @@ def transitiveClosure(cls, array, opName): # Take the transitive closure
                 if transitive == cls.none: continue
                 
                 for x in cls.list(transitive):
-                    aOpC = (a, (x, opName), c)
-                    cOpB = (c, (x, opName), b)
+                    op = (x, opName)
+                    aOpC = (a, op, c)
+                    cOpB = (c, op, b)
                     
-                    r |= addFact(a, (x, opName), b,
+                    r |= addFact(a, op, b,
                                  (aOpC, cOpB), 1 + justComplexity[aOpC] + justComplexity[cOpB])
     return r
 
@@ -341,34 +343,44 @@ def liftConservation(): # Lift conservation facts over known implications
                     if Reduction.isPresent(Reduction.RCA, implies[(b,a)]):
                         for x in Form:
                             bImpA = (b, (Reduction.RCA, u'->'), a)
+                            
                             r |= addFact(a, (x, u'c'), b,
                                          (bImpA,), 1 + justComplexity[bImpA])
                 continue
             
-            cImpliesA = Reduction.isPresent(Reduction.RCA, implies[(c,a)])
-            cImpA = (c, (Reduction.RCA, u'->'), a)
-            acConservative = conservative[(a,c)]
-            acConservativeForms = Form.list(acConservative)
-            for b in principlesList:
-                if b == a or b == c: continue
+            # If c is conservative over b, and c implies a, then a is conservative over b.
+            if Reduction.isPresent(Reduction.RCA, implies[(c,a)]):
+                cImpA = (c, (Reduction.RCA, u'->'), a)
+                cplxCImpA = justComplexity[cImpA]
                 
-                # If c is conservative over b, and c implies a, then a is conservative over b.
-                if cImpliesA:
+                for b in principlesList:
+                    if b == a or b == c: continue
+                    
                     cbConservative = conservative[(c,b)]
                     if cbConservative != Form.none:
                         for x in Form.list(cbConservative):
                             cConsB = (c, (x, u'c'), b)
+                            
                             r |= addFact(a, (x, u'c'), b,
-                                         (cConsB, cImpA), 1 + justComplexity[cConsB] + justComplexity[cImpA])
+                                         (cConsB, cImpA), 1 + justComplexity[cConsB] + cplxCImpA)
+            
+            # If a is conservative over c, and b implies c, then a is conservative over b.
+            acConservative = conservative[(a,c)]
+            if acConservative != Form.none:
+                acConservativeForms = Form.list(acConservative)
+                aConsCForms = [(a, (x, u'c'), c) for x in acConservativeForms]
+                cplxAConsC = [justComplexity[aConsC] for aConsC in aConsCForms]
+                acLoop = zip(acConservativeForms, aConsCForms, cplxAConsC)
                 
-                # If a is conservative over c, and b implies c, then a is conservative over b.
-                if acConservative != Form.none:
+                for b in principlesList:
+                    if b == a or b == c: continue
+                    
                     if Reduction.isPresent(Reduction.RCA, implies[(b,c)]):
-                        for x in acConservativeForms:
-                            aConsC = (a, (x, u'c'), c)
+                        for x,aConsC,cplxAC in acLoop:
                             bImpC = (b, (Reduction.RCA, u'->'), c)
+                            
                             r |= addFact(a, (x, u'c'), b,
-                                         (aConsC, bImpC), 1 + justComplexity[aConsC] + justComplexity[bImpC])
+                                         (aConsC, bImpC), 1 + cplxAC + justComplexity[bImpC])
     return r
 
 # Uses '->' and 'c', affects '->'
@@ -454,28 +466,35 @@ def nonImplicationClosure(): # "transitive" non-implications
         for a in principlesList:
             if a == c: continue
             
+            # If c implies a, but c does not imply b, then a does not imply b
             cImpliesA = implies[(c,a)]
+            if cImpliesA != Reduction.none:
+                for b in principlesList:
+                    if b == a or b == c: continue
+                    
+                    abClosure = cImpliesA & notImplies[(c,b)]
+                    if abClosure != Reduction.none:
+                        for x in Reduction.list(abClosure):
+                            cImpA = (c, (x, u'->'), a)
+                            cNImpB = (c, (x, u'-|>'), b)
+                            
+                            r |= addFact(a, (x, u'-|>'), b,
+                                         (cImpA, cNImpB), 1 + justComplexity[cImpA] + justComplexity[cNImpB])
+            
+            # If a does not imply c, but b implies c, then a does not imply b
             aNotImpliesC = notImplies[(a,c)]
-            for b in principlesList:
-                if b == a or b == c: continue
-                
-                # If c implies a, but c does not imply b, then a does not imply b
-                abClosure = cImpliesA & notImplies[(c,b)]
-                if abClosure != Reduction.none:
-                    for x in Reduction.list(abClosure):
-                        cImpA = (c, (x, u'->'), a)
-                        cNImpB = (c, (x, u'-|>'), b)
-                        r |= addFact(a, (x, u'-|>'), b,
-                                     (cImpA, cNImpB), 1 + justComplexity[cImpA] + justComplexity[cNImpB])
-                
-                # If a does not imply c, but b implies c, then a does not imply b
-                abClosure = aNotImpliesC & implies[(b,c)]
-                if abClosure != Reduction.none:
-                    for x in Reduction.list(abClosure):
-                        aNImpC = (a, (x, u'-|>'), c)
-                        bImpC = (b, (x, u'->'), c)
-                        r |= addFact(a, (x, u'-|>'), b,
-                                     (aNImpC, bImpC), 1 + justComplexity[aNImpC] + justComplexity[bImpC])
+            if aNotImpliesC != Reduction.none:
+                for b in principlesList:
+                    if b == a or b == c: continue
+                    
+                    abClosure = aNotImpliesC & implies[(b,c)]
+                    if abClosure != Reduction.none:
+                        for x in Reduction.list(abClosure):
+                            aNImpC = (a, (x, u'-|>'), c)
+                            bImpC = (b, (x, u'->'), c)
+                            
+                            r |= addFact(a, (x, u'-|>'), b,
+                                         (aNImpC, bImpC), 1 + justComplexity[aNImpC] + justComplexity[bImpC])
     return r
 
 # Uses '-|>' and 'c', affects '-|>'
@@ -539,30 +558,39 @@ def liftNonConservation(): # Lift non-conservation facts over known implications
         for a in principlesList:
             if a == c: continue
             
-            aImpliesC = Reduction.isPresent(Reduction.RCA, implies[(a,c)])
-            aImpC = (a, (Reduction.RCA, u'->'), c)
-            acNonConservative = nonConservative[(a,c)]
-            acNonConservativeForms = Form.list(acNonConservative)
-            for b in principlesList:
-                if b == a or b == c: continue
+            # If a implies c, and c is not conservative over b, then a is not conservative over b.
+            if Reduction.isPresent(Reduction.RCA, implies[(a,c)]):
+                aImpC = (a, (Reduction.RCA, u'->'), c)
+                cplxAImpC = justComplexity[aImpC]
                 
-                # If a implies c, and c is not conservative over b, then a is not conservative over b.
-                if aImpliesC:
+                for b in principlesList:
+                    if b == a or b == c: continue
+                    
                     cbNonConservative = nonConservative[(c,b)]
                     if cbNonConservative != Form.none:
                         for x in Form.list(cbNonConservative):
                             cNConsB = (c, (x, u'nc'), b)
+                            
                             r |= addFact(a, (x, u'nc'), b,
-                                         (aImpC, cNConsB), 1 + justComplexity[aImpC] + justComplexity[cNConsB])
+                                         (aImpC, cNConsB), 1 + cplxAImpC + justComplexity[cNConsB])
+            
+            # If a is not conservative over c, and c implies b, then a is not conservative over b.
+            acNonConservative = nonConservative[(a,c)]
+            if acNonConservative != Form.none:
+                acNonConservativeForms = Form.list(acNonConservative)
+                aNConsCForms = [(a, (x, u'nc'), c) for x in acNonConservativeForms]
+                cplxANConsC = [justComplexity[aNConsC] for aNConsC in aNConsCForms]
+                acLoop = zip(acNonConservativeForms, aNConsCForms, cplxANConsC)
                 
-                # If a is not conservative over c, and c implies b, then a is not conservative over b.
-                if acNonConservative != Form.none:
+                for b in principlesList:
+                    if b == a or b == c: continue
+                
                     if Reduction.isPresent(Reduction.RCA, implies[(c,b)]):
-                        for x in acNonConservativeForms:
-                            aNConsC = (a, (x, u'nc'), c)
+                        for x,aNConsC,cplxAC in acLoop:
                             cImpB = (c, (Reduction.RCA, u'->'), b)
+                            
                             r |= addFact(a, (x, u'nc'), b,
-                                         (aNConsC, cImpB), 1 + justComplexity[aNConsC] + justComplexity[cImpB])
+                                         (aNConsC, cImpB), 1 + cplxAC + justComplexity[cImpB])
     return r
 
 # Uses 'c' and 'nc', affects 'nc'
@@ -582,6 +610,7 @@ def conservationConflict():
                 for x in Form.list(conflict):
                     aNConsC = (a, (x, u'nc'), c)
                     bConsC = (b, (x, u'c'), c)
+                    
                     r |= addFact(a, (x, u'nc'), b,
                                  (aNConsC, bConsC), 1 + justComplexity[aNConsC] + justComplexity[bConsC])
     return r
