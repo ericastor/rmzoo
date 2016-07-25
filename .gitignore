@@ -1,5 +1,7 @@
 # Files produced
 *.dat
+*.bak
+*.dir
 
 # Images produced
 *.dot

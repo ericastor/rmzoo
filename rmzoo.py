@@ -16,7 +16,7 @@
 #
 ##################################################################################
 
-from __future__ import print_function, unicode_literals
+from __future__ import print_function
 
 import sys
 
@@ -24,7 +24,7 @@ import itertools
 from io import open
 from collections import defaultdict
 
-from version_guard import isString
+from version_guard import isString, closingWrapper
 
 from rmupdater import standardizeFact
 
@@ -40,8 +40,8 @@ def warning(s):
 def error(s):    # Throw exception
     raise Exception(s)
 
-Date = '21 July 2016'
-Version = '4.3'
+Date = u'25 July 2016'
+Version = u'4.4'
 
 from rmBitmasks import *
 from renderJustification import *
@@ -59,44 +59,44 @@ _CONS_COLOR = {Form.none: "white",
 #
 ##################################################################################
     
-eprint('\nRM Zoo (v{0})'.format(Version))
+eprint(u'\nRM Zoo (v{0})'.format(Version))
 
 from optparse import OptionParser, OptionGroup
 
-parser = OptionParser('Usage: %prog [options] database', version='%prog ' + Version + ' (' + Date + ')')
+parser = OptionParser(u'Usage: %prog [options] database', version=u'%prog {0} ({1})'.format(Version, Date))
 
 parser.set_defaults(implications=False,nonimplications=False,omega=False,onlyprimary=False,weak=False,strong=False,showform=False,conservation=False,add_principles=False)
 
 parser.add_option('-i', action='store_true', dest='implications',
-    help='Display implications between principles.')
+    help=u'Display implications between principles.')
 parser.add_option('-n', action='store_true', dest='nonimplications',
-    help='Display non-implications between principles.')
+    help=u'Display non-implications between principles.')
 parser.add_option('-w', action='store_true', dest='weak',
-    help='Display weakest non-redundant open implications.')
+    help=u'Display weakest non-redundant open implications.')
 parser.add_option('-s', action='store_true', dest='strong',
-    help='Display strongest non-redundant open implications.')
+    help=u'Display strongest non-redundant open implications.')
 parser.add_option('-t', dest='reducibility', default='RCA',
-    help='Display facts relative to REDUCIBILITY-implications.')
+    help=u'Display facts relative to REDUCIBILITY-implications.')
 parser.add_option('-o', action='store_const', dest='reducibility', const='w',
-    help='Display only facts that hold in omega models.')
+    help=u'Display only facts that hold in omega models.')
 parser.add_option('-p', action='store_true', dest='onlyprimary',
-    help='Display only facts about primary principles.')
+    help=u'Display only facts about primary principles.')
     
 parser.add_option('-f', action='store_true', dest='showform',
-    help='Indicate syntactic forms of principles.')
+    help=u'Indicate syntactic forms of principles.')
 parser.add_option('-c', action='store_true', dest='conservation',
-    help='Display known conservation results.')
+    help=u'Display known conservation results.')
     
 parser.add_option('-r', dest='restrict_string', metavar='CLASS',
-    help='Resrict to only the principles in CLASS.')
+    help=u'Resrict to only the principles in CLASS.')
 
 parser.add_option('-q', dest='query_string', metavar='FACT',
-    help='Show whether FACT is known, and if so, its justification.')
+    help=u'Show whether FACT is known, and if so, its justification.')
 parser.add_option('-F', dest='query_file', metavar='FILE',
-    help='Query whether all facts in FILE are known, and return a list of all unknown facts.')
+    help=u'Query whether all facts in FILE are known, and return a list of all unknown facts.')
 
 parser.add_option('--force', action='store_true', dest='add_principles',
-    help='Allow queries involving novel conjunctions from the database. (WARNING: slow)')
+    help=u'Allow queries involving novel conjunctions from the database. (WARNING: slow)')
 
 (options, args) = parser.parse_args()
 
@@ -112,9 +112,9 @@ Restrict = options.restrict_string
 if Restrict:
     rSet = set()
     for p in Restrict.split():
-        splitP = p.split('+')
+        splitP = p.split(u'+')
         setP = set(splitP)
-        p = '+'.join(sorted(setP))
+        p = u'+'.join(sorted(setP))
         
         rSet.add(p)
         rSet.update(splitP)
@@ -126,25 +126,25 @@ AddPrinciples = options.add_principles
 # Give errors if bad options chosen
 
 if not Implications and not NonImplications and not OnlyPrimary and not Restrict and not Weak and not Strong and not ShowForm and not Conservation and not Query and not QueryFile:
-    parser.error('Error: No options selected.')
+    parser.error(u'Error: No options selected.')
 if OnlyPrimary:
     if not Implications and not NonImplications and not Weak and not Strong and not ShowForm and not Conservation:
-        parser.error('Error: Option -p only works if one of -i, -n, -w, -s, -f, or -c is selected.')
+        parser.error(u'Error: Option -p only works if one of -i, -n, -w, -s, -f, or -c is selected.')
 if Restrict:
     if not Implications and not NonImplications and not Weak and not Strong and not ShowForm and not Conservation:
-        parser.error('Error: Option -r only works if one of -i, -n, -w, -s, -f, or -c is selected.')
+        parser.error(u'Error: Option -r only works if one of -i, -n, -w, -s, -f, or -c is selected.')
 if Query:
     if Implications or NonImplications or Weak or Strong or ShowForm or Conservation or Restrict or OnlyPrimary or QueryFile:
-        parser.error('Error: Option -q does not work with any other option (except --force).')
+        parser.error(u'Error: Option -q does not work with any other option (except --force).')
 if QueryFile:
     if Implications or NonImplications or Weak or Strong or ShowForm or Conservation or Restrict or OnlyPrimary or Query:
-        parser.error('Error: Option -F does not work with any other option (except --force).')
+        parser.error(u'Error: Option -F does not work with any other option (except --force).')
 
 if len(args) > 1:
-    parser.error('Too many arguments.')
+    parser.error(u'Too many arguments.')
 if len(args) < 1:
-    parser.error('No database file specified.')
-databaseFile = args[0]
+    parser.error(u'No database file specified.')
+shelfFile = args[0]
     
 ##################################################################################
 #
@@ -152,19 +152,16 @@ databaseFile = args[0]
 #
 ##################################################################################
 
-eprint('Importing and organizing data...')
+eprint(u'Importing and organizing data...')
 
 class VersionError(Exception):
     def __init__(self, targetVersion, actualVersion):
         self.targetVersion = targetVersion
         self.actualVersion = actualVersion
     def __str__(self):
-        return 'Version mismatch: found v{0}, targeting v{1}'.format(actualVersion, targetVersion)
+        return u'Version mismatch: found v{0}, targeting v{1}'.format(actualVersion, targetVersion)
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+import shelve
 
 principles = {}
 implies, notImplies = {}, {}
@@ -173,7 +170,8 @@ form = {}
 primary, primaryIndex = {}, {}
 justify = {}
 def getDatabase():
-    return {'principles': principles,
+    return {'version': Version,
+            'principles': principles,
             'implication': (implies, notImplies),
             'conservation': (conservative, nonConservative),
             'form': form,
@@ -209,12 +207,10 @@ def setDatabase(database):
     global justify
     justify = database['justify']
 
-def loadDatabase(databaseFile):
-    with open(databaseFile, 'rb') as f:
-        database = pickle.load(f)
-    
-    setDatabase(database)
-loadDatabase(databaseFile)
+def loadDatabase(shelfFile):
+    with closingWrapper(shelve.open(shelfFile, flag='r', protocol=2)) as shelf:
+        setDatabase(shelf)
+loadDatabase(shelfFile)
 
 def knownEquivalent(a, reduction, justification=True):
     if a in principles:
@@ -223,7 +219,7 @@ def knownEquivalent(a, reduction, justification=True):
         else:
             return a
     
-    splitA = a.split('+')
+    splitA = a.split(u'+')
     if any((p not in principles) for p in splitA):
         if justification:
             return (None, None)
@@ -232,10 +228,10 @@ def knownEquivalent(a, reduction, justification=True):
     
     aPrime = None
     for equiv in itertools.product(*(equivalent[(p, reduction)] for p in splitA)):
-        aPrime = '+'.join(sorted(set(equiv)))
+        aPrime = u'+'.join(sorted(set(equiv)))
         if aPrime in principles:
             if justification:
-                equivJst = tuple((p, (reduction, '<->'), q) for (p,q) in zip(splitA, equiv) if p != q)
+                equivJst = tuple((p, (reduction, u'<->'), q) for (p,q) in zip(splitA, equiv) if p != q)
                 return (aPrime, equivJst)
             else:
                 return aPrime
@@ -255,9 +251,9 @@ def queryDatabase(a, op, b, justification=True):
         aPrime, aJst = knownEquivalent(a, reduction, justification)
         bPrime, bJst = knownEquivalent(b, reduction, justification)
         if aJst is not None:
-            justify[(a, (reduction, '<->'), aPrime)] = aJst
+            justify[(a, (reduction, u'<->'), aPrime)] = aJst
         if bJst is not None:
-            justify[(b, (reduction, '<->'), bPrime)] = bJst
+            justify[(b, (reduction, u'<->'), bPrime)] = bJst
     else:
         aPrime = knownEquivalent(a, reduction, justification)
         bPrime = knownEquivalent(b, reduction, justification)
@@ -265,22 +261,22 @@ def queryDatabase(a, op, b, justification=True):
     aKnown = aPrime is not None
     bKnown = bPrime is not None
     
-    aConjunct = (not aKnown) and all((p in principles) for p in a.split('+'))
-    bConjunct = (not bKnown) and all((p in principles) for p in b.split('+'))
+    aConjunct = (not aKnown) and all((p in principles) for p in a.split(u'+'))
+    bConjunct = (not bKnown) and all((p in principles) for p in b.split(u'+'))
     
-    s = ''
+    s = u''
     if not aKnown and not bKnown:
-        s += 'Error: {0} and {1} are unknown principles.'.format(a, b)
+        s += u'Error: {0} and {1} are unknown principles.'.format(a, b)
     elif not aKnown:
-        s += 'Error: {0} is an unknown principle.'.format(a)
+        s += u'Error: {0} is an unknown principle.'.format(a)
     elif not bKnown:
-        s += 'Error: {0} is an unknown principle.'.format(b)
+        s += u'Error: {0} is an unknown principle.'.format(b)
     if aConjunct and bConjunct:
-        s += '\n\tHOWEVER: {0} and {1} are conjunctions of known principles; try running with --force.'.format(a, b)
+        s += u'\n\tHOWEVER: {0} and {1} are conjunctions of known principles; try running with --force.'.format(a, b)
     elif aConjunct and bKnown:
-        s += '\n\tHOWEVER: {0} is a conjunction of known principles; try running with --force.'.format(a)
+        s += u'\n\tHOWEVER: {0} is a conjunction of known principles; try running with --force.'.format(a)
     elif bConjunct and aKnown:
-        s += '\n\tHOWEVER: {0} is a conjunction of known principles; try running with --force.'.format(b)
+        s += u'\n\tHOWEVER: {0} is a conjunction of known principles; try running with --force.'.format(b)
     if len(s) > 0: error(s)
     
     if justification:
@@ -293,14 +289,14 @@ def queryDatabase(a, op, b, justification=True):
                 r.append(u'NOTE: {0} is not a known principle, but is equivalent to {1}\n'.format(a, aPrime))
         
         if a != aPrime:
-            r.append(printJustification((a, (reduction, '<->'), aPrime), justify))
+            r.append(printJustification((a, (reduction, u'<->'), aPrime), justify))
         if b != bPrime:
-            r.append(printJustification((b, (reduction, '<->'), bPrime), justify))
+            r.append(printJustification((b, (reduction, u'<->'), bPrime), justify))
         try:
             r.append(printJustification((aPrime, op, bPrime), justify))
         except KeyError:
             return False
-        return ''.join(r)
+        return u''.join(r)
     else:
         return ((aPrime, op, bPrime) in justify)
 
@@ -314,7 +310,7 @@ if Restrict:
     
     for a in Restrict:  # Give warnings if CLASS is not a subset of principles
         if a not in principles:
-            error('Error: '+a+' is not in the database.')
+            error(u'Error: '+a+u' is not in the database.')
 
 ##################################################################################
 #
@@ -372,7 +368,7 @@ if Query:
                 abort = True
                 break
         if not abort:
-            eprint('Adding new principles...')
+            eprint(u'Adding new principles...')
             import rmupdater
             rmupdater.setDatabase(getDatabase())
             if a not in principles:
@@ -425,10 +421,10 @@ if QueryFile:
     with open(QueryFile, encoding='utf-8') as f:
         for q in f.readlines():
             q = q.strip()
-            if len(q) == 0 or q[0] == '#': continue
+            if len(q) == 0 or q[0] == u'#': continue
             
             Q = fact.parseString(q)
-            if Q[1] == 'is' and Q[2] == 'primary': continue
+            if Q[1] == u'is' and Q[2] == u'primary': continue
             
             a,op,b = Q
             if not isString(op):
@@ -443,21 +439,21 @@ if QueryFile:
         for (a, op, b, q) in queries:
             unknown = False
             
-            Q = a.split('+')
-            if op != 'form':
-                Q.extend(b.split('+'))
+            Q = a.split(u'+')
+            if op != u'form':
+                Q.extend(b.split(u'+'))
             for p in Q:
                 if p not in principles:
                     unknownPrinciples.add(p)
                     unknown = True
             if not unknown:
                 if a not in principles: newPrinciples.add(a)
-                if op != 'form' and b not in principles: newPrinciples.add(b)
+                if op != u'form' and b not in principles: newPrinciples.add(b)
         
         if len(unknownPrinciples) > 0:
             warning(u'Unknown principles: {0}\n'.format(u', '.join(sorted(unknownPrinciples))))
         if len(newPrinciples) > 0:
-            eprint('Adding {0:,d} new principles...'.format(len(newPrinciples)))
+            eprint(u'Adding {0:,d} new principles...'.format(len(newPrinciples)))
             import rmupdater
             rmupdater.setDatabase(getDatabase())
             for p in newPrinciples:
@@ -469,7 +465,7 @@ if QueryFile:
     for (a, op, b, q) in queries:
         s = u''
         known = False
-        if op == 'form':
+        if op == u'form':
             known = Form.isPresent(b, form[a])
         else:
             try:
@@ -501,7 +497,7 @@ if Restrict:
 
 if Implications or NonImplications or Weak or Strong:
 
-    eprint('Removing redundant facts for clarity...')
+    eprint(u'Removing redundant facts for clarity...')
     
     # Create print versions of functions
     
@@ -642,7 +638,7 @@ if Implications or NonImplications or Weak or Strong:
 
 if Implications or NonImplications or Weak or Strong or ShowForm or Conservation:
 
-    eprint('Printing DOT file...')
+    eprint(u'Printing DOT file...')
 
     print("""//
 // RM Zoo (v""" + Version + """)
@@ -672,43 +668,43 @@ node [shape=none,color=white];
                 if printImplies[(a,b)]:
                     style = []
                     if printNotImplies[(b,a)] and not NonImplications:
-                        style.append('color = "black:white:black"')
+                        style.append(u'color = "black:white:black"')
                     if len(equivSet[a]) > 0:
-                        style.append('minlen = 2')
-                    s = ''
+                        style.append(u'minlen = 2')
+                    s = u''
                     if len(style) > 0:
-                        s = ' [{0}]'.format(', '.join(style))
-                    print('" {0} " -> " {1} "{2}'.format(a,b,s))
+                        s = u' [{0}]'.format(u', '.join(style))
+                    print(u'" {0} " -> " {1} "{2}'.format(a,b,s))
                         
     if NonImplications:
         
         for a in primary:
             for b in primary:
                 if printNotImplies[(a,b)]:
-                        print('" {0} " -> " {1} " [color = "red"]'.format(a,b))
+                        print(u'" {0} " -> " {1} " [color = "red"]'.format(a,b))
     
     if not OnlyPrimary:
         for a in primary:
             for b in equivSet[a]:
-                print('" {0} " -> " {1} "  [dir = both]'.format(a,b))
+                print(u'" {0} " -> " {1} "  [dir = both]'.format(a,b))
                     
     if Weak:
         for a in primary:
             for b in primary:
                 if printWeakOpen[(a,b)]:
-                    print('" {0} " -> " {1} "  [color = "green"]'.format(a,b))
+                    print(u'" {0} " -> " {1} "  [color = "green"]'.format(a,b))
                 
     if Strong:
         for a in primary:
             for b in primary:
                 if printStrongOpen[(a,b)]:
-                    print('" {0} " -> " {1} "  [color = "orange"]'.format(a,b))
+                    print(u'" {0} " -> " {1} "  [color = "orange"]'.format(a,b))
         
     if ShowForm:
         for a in principles:
             if a in form:
                 if form[a] != Form.none:
-                    print('" {0} " [shape=box, style=filled, fillcolor={1}]'.format(a, _FORM_COLOR[form[a]]))
+                    print(u'" {0} " [shape=box, style=filled, fillcolor={1}]'.format(a, _FORM_COLOR[form[a]]))
                 
     
     if Conservation:
@@ -717,8 +713,8 @@ node [shape=none,color=white];
                 if a == b: continue
                 
                 if printConservative[(a,b)] != Form.none:
-                    print('" {0} " -> " {1} "  [color = "{2}"]'.format(a,b, _CONS_COLOR[printConservative[(a,b)]]))
+                    print(u'" {0} " -> " {1} "  [color = "{2}"]'.format(a,b, _CONS_COLOR[printConservative[(a,b)]]))
 
-    print('}')
-    eprint('Finished.')
+    print(u'}')
+    eprint(u'Finished.')
 

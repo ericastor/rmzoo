@@ -12,23 +12,21 @@
 #   - Version 4.1 - optimizations & refactoring, started 2 July 2016
 #   - Version 4.2 - new forms and reasoning, started 12 July 2016
 #   - Version 4.3 - changed internal representations, started 21 July 2016
+#   - Version 4.4 - moved to a shelf database, started 25 July 2016
 #   Documentation and support: http://rmzoo.uconn.edu
 #
 ##################################################################################
 
-from __future__ import print_function, unicode_literals
+from __future__ import print_function
 
 import sys
 import time
 from io import open
 from collections import defaultdict
 
-from version_guard import lru_cache
+from version_guard import lru_cache, closingWrapper
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+import shelve
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -42,8 +40,8 @@ def warning(s):
 def error(s):    # Throw exception
     raise Exception(s)
 
-Date = u'21 July 2016'
-Version = u'4.3'
+Date = u'25 July 2016'
+Version = u'4.4'
 
 from rmBitmasks import *
 from renderJustification import *
@@ -718,57 +716,61 @@ def getDatabase():
             'primary': (primary, primaryIndex),
             'justify': justify}
 
-def setDatabase(database):
-    if database['version'] != Version:
-        raise VersionError(database['version'], Version)
+def setDatabase(shelf):
+    if shelf['version'] != Version:
+        raise VersionError(shelf['version'], Version)
     
     global principles, principlesList
-    principles = database['principles']
+    principles = shelf['principles']
     principlesList = sorted(principles)
     
     global implies, notImplies
-    implies, notImplies = database['implication']
+    implies, notImplies = shelf['implication']
     
     global conservative, nonConservative
-    conservative, nonConservative = database['conservation']
+    conservative, nonConservative = shelf['conservation']
     
     global form
-    form = database['form']
+    form = shelf['form']
     
     global primary, primaryIndex
-    primary, primaryIndex = database['primary']
+    primary, primaryIndex = shelf['primary']
     
     global justify
-    justify = database['justify']
+    justify = shelf['justify']
 
-def dumpDatabase(dumpFile, quiet=False):
+def dumpDatabase(shelfFile, quiet=False):
     if not quiet: eprint(u'Facts known: {0:,d}\n'.format(len(justify)))
     
     start = time.clock()
     if not quiet: eprint(u'Dumping updated database to binary file...')
-    with open(dumpFile, 'wb') as f:
-        pickle.dump(getDatabase(), f, pickle.HIGHEST_PROTOCOL)
+    with closingWrapper(shelve.open(shelfFile, flag='n', protocol=2)) as shelf:
+        shelf['version'] = Version
+        shelf['principles'] = principles
+        shelf['primary'] = (primary, primaryIndex)
+        shelf['form'] = form
+        shelf['implication'] = (implies, notImplies)
+        shelf['conservation'] = (conservative, nonConservative)
+        shelf['justify'] = justify
     if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
-def loadDatabase(dumpFile, quiet=False):
-    with open(dumpFile, 'rb') as f:
-        database = pickle.load(f)
-    
-    setDatabase(database)
+def loadDatabase(shelfFile, quiet=False):
+    with closingWrapper(shelve.open(shelfFile, flag='r', protocol=2)) as shelf:
+        setDatabase(shelf)
 
 from optparse import OptionParser, OptionGroup
 def main():
     absoluteStart = time.clock()
     eprint(u'\nRM Zoo (v{0})\n'.format(Version))
 
-    parser = OptionParser('Usage: %prog [options] database output', version='%prog ' + Version + ' (' + Date + ')')
+    parser = OptionParser(u'Usage: %prog [options] database output', version=u'%prog {0} ({1})'.format(Version, Date))
 
     parser.set_defaults(quiet=False, verbose=False)
     
     parser.add_option('-q', action='store_true', dest='quiet',
-        help = 'Suppress progress/timing indicators.')
+        help = u'Suppress progress/timing indicators.')
     parser.add_option('-v', action='store_true', dest='verbose',
-        help = 'Report additional execution information.')
+        help = u'Report additional execution information.')
 
     (options, args) = parser.parse_args()
     if len(args)>2:
