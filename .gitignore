@@ -1,7 +1,8 @@
-# Files produced
+# Database files produced
 *.dat
 *.bak
 *.dir
+*.db
 
 # Images produced
 *.dot
@@ -80,3 +81,5 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+*.db
