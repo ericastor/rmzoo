@@ -147,6 +147,7 @@ if len(args) > 0:
     shelfTitle = args[0]
 else:
     eprint(u'No database title specified; defaulting to "database".')
+    shelfTitle = u'database'
     
 ##################################################################################
 #
