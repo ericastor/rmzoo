@@ -12,6 +12,7 @@
 #   - Version 4.1 - optimizations & refactoring, started 2 July 2016
 #   - Version 4.2 - new forms and reasoning, started 12 July 2016
 #   - Version 4.3 - changed internal representations, started 21 July 2016
+#   - Version 4.4 - moved to a shelf database, started 25 July 2016
 #   Documentation and support: http://rmzoo.uconn.edu
 #
 ##################################################################################
@@ -63,7 +64,7 @@ eprint(u'\nRM Zoo (v{0})'.format(Version))
 
 from optparse import OptionParser, OptionGroup
 
-parser = OptionParser(u'Usage: %prog [options] database', version=u'%prog {0} ({1})'.format(Version, Date))
+parser = OptionParser(u'Usage: %prog [options] [database]', version=u'%prog {0} ({1})'.format(Version, Date))
 
 parser.set_defaults(implications=False,nonimplications=False,omega=False,onlyprimary=False,weak=False,strong=False,showform=False,conservation=False,add_principles=False)
 
@@ -142,9 +143,10 @@ if QueryFile:
 
 if len(args) > 1:
     parser.error(u'Too many arguments.')
-if len(args) < 1:
-    parser.error(u'No database file specified.')
-shelfFile = args[0]
+if len(args) > 0:
+    shelfTitle = args[0]
+else:
+    eprint(u'No database title specified; defaulting to "database".')
     
 ##################################################################################
 #
@@ -207,10 +209,10 @@ def setDatabase(database):
     global justify
     justify = database['justify']
 
-def loadDatabase(shelfFile):
-    with closingWrapper(shelve.open(shelfFile, flag='r', protocol=2)) as shelf:
+def loadDatabase(shelfTitle):
+    with closingWrapper(shelve.open(shelfTitle, flag='r', protocol=2)) as shelf:
         setDatabase(shelf)
-loadDatabase(shelfFile)
+loadDatabase(shelfTitle)
 
 def knownEquivalent(a, reduction, justification=True):
     if a in principles:

@@ -193,7 +193,7 @@ def standardizeFact(a, op, b):
 from pyparsing import *
 def parseDatabase(databaseString, quiet=False):
     start = time.clock()
-    if not quiet: eprint(u'Parsing database...')
+    if not quiet: eprint(u'Parsing results...')
     # Name parsed strings
     name = Word( alphas+"_+^{}\\$", alphanums+"_+^{}$\\").setParseAction(lambda s,l,t: addPrinciple(t[0]))
     
@@ -739,12 +739,12 @@ def setDatabase(shelf):
     global justify
     justify = shelf['justify']
 
-def dumpDatabase(shelfFile, quiet=False):
+def dumpDatabase(shelfTitle, quiet=False):
     if not quiet: eprint(u'Facts known: {0:,d}\n'.format(len(justify)))
     
     start = time.clock()
     if not quiet: eprint(u'Dumping updated database to binary file...')
-    with closingWrapper(shelve.open(shelfFile, flag='n', protocol=2)) as shelf:
+    with closingWrapper(shelve.open(shelfTitle, flag='n', protocol=2)) as shelf:
         shelf['version'] = Version
         shelf['principles'] = principles
         shelf['primary'] = (primary, primaryIndex)
@@ -762,37 +762,40 @@ from optparse import OptionParser, OptionGroup
 def main():
     absoluteStart = time.clock()
     eprint(u'\nRM Zoo (v{0})\n'.format(Version))
-
-    parser = OptionParser(u'Usage: %prog [options] database output', version=u'%prog {0} ({1})'.format(Version, Date))
-
+    
+    parser = OptionParser(u'Usage: %prog [options] results [database_title]', version=u'%prog {0} ({1})'.format(Version, Date))
+    
     parser.set_defaults(quiet=False, verbose=False)
     
     parser.add_option('-q', action='store_true', dest='quiet',
         help = u'Suppress progress/timing indicators.')
     parser.add_option('-v', action='store_true', dest='verbose',
         help = u'Report additional execution information.')
-
+    
     (options, args) = parser.parse_args()
     if len(args)>2:
         parser.error(u'Too many arguments provided.')
     if len(args)<1:
-        parser.error(u'No database file specified.')
-    if len(args)<2:
-        parser.error(u'No output file specified.')
+        parser.error(u'No results file specified.')
     
     if options.quiet and options.verbose:
         parser.error(u'Options -q and -v are incompatible.')
     
     import os
-    databaseFile = args[0]
-    outputFile = args[1]
-    if not os.path.exists(databaseFile):
-        parser.error(u'Database file "' + databaseFile + u'" does not exist.')
+    resultsFile = args[0]
+    if len(args) > 1:
+        shelfTitle = args[1]
+    else:
+        eprint(u'No database title specified; defaulting to "database".')
+        shelfTitle = u'database'
     
-    with open(databaseFile, encoding='utf-8') as f:
+    if not os.path.exists(resultsFile):
+        parser.error(u'Results file "{0}" does not exist.'.format(resultsFile))
+    
+    with open(resultsFile, encoding='utf-8') as f:
         parseDatabase(f.read(), options.quiet)
     deriveInferences(options.quiet)
-    dumpDatabase(outputFile, options.quiet)
+    dumpDatabase(shelfTitle, options.quiet)
     if not options.quiet: eprint(u'Total elapsed time: {0:.6f} s'.format(time.clock() - absoluteStart))
     
     if options.verbose:
