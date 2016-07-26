@@ -367,7 +367,7 @@ def liftConservation(): # Lift conservation facts over known implications
                 acConservativeForms = Form.list(acConservative)
                 aConsCForms = [(a, (x, u'c'), c) for x in acConservativeForms]
                 cplxAConsC = [justComplexity[aConsC] for aConsC in aConsCForms]
-                acLoop = zip(acConservativeForms, aConsCForms, cplxAConsC)
+                acLoop = list(zip(acConservativeForms, aConsCForms, cplxAConsC))
                 
                 for b in principlesList:
                     if b == a or b == c: continue
@@ -577,7 +577,7 @@ def liftNonConservation(): # Lift non-conservation facts over known implications
                 acNonConservativeForms = Form.list(acNonConservative)
                 aNConsCForms = [(a, (x, u'nc'), c) for x in acNonConservativeForms]
                 cplxANConsC = [justComplexity[aNConsC] for aNConsC in aNConsCForms]
-                acLoop = zip(acNonConservativeForms, aNConsCForms, cplxANConsC)
+                acLoop = list(zip(acNonConservativeForms, aNConsCForms, cplxANConsC))
                 
                 for b in principlesList:
                     if b == a or b == c: continue
