@@ -786,7 +786,7 @@ def main():
         shelfTitle = args[1]
     else:
         eprint(u'No database title specified; defaulting to "database".')
-        shelfTitle = u'database'
+        shelfTitle = 'database'
     
     if not os.path.exists(resultsFile):
         parser.error(u'Results file "{0}" does not exist.'.format(resultsFile))
