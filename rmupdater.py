@@ -92,30 +92,27 @@ justComplexity = {}
 def addJustification(fact, jst, cplx):
     try:
         if cplx >= justComplexity[fact]:
-            return 0
+            return False
     except KeyError:
         pass
     justify[fact] = jst
     justComplexity[fact] = cplx
-    return 1
+    return True
 
 def unoptimizedJustification(fact, jst, cplx):
-    if fact not in justify:
-        justify[fact] = jst
-        return 1
+    if fact in justify:
+        return False
     else:
-        return 0
+        justify[fact] = jst
+        return True
 
 def addUnjustified(a, op, b):
     error(u'The fact "{0}" is not justified.'.format(printFact(a, op, b)))
 
 def addFact(a, op, b, jst, cplx):
     fact = (a, op, b)
-    ret = addJustification(fact, jst, cplx)
-    if op[1] == u'<->': # equivalence
-        ret |= addJustification((b, op, a), jst, cplx)
-    if ret == 0:
-        return 0
+    if not addJustification(fact, jst, cplx):
+        return False
     
     if op[1] == u'->': # reduction
         r = op[0]
@@ -123,8 +120,8 @@ def addFact(a, op, b, jst, cplx):
         for x in Reduction.list(Reduction.weaker(r)):
             if x == r: continue
             
-            ret |= addJustification((a, (x, op[1]), b),
-                                    (fact,), 1 + cplx)
+            addJustification((a, (x, op[1]), b),
+                             (fact,), 1 + cplx)
             if Reduction.isPresent(x, notImplies[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
                         printJustification((a,(x,u'->'),b), justify) + u'\n\n' + 
@@ -135,26 +132,28 @@ def addFact(a, op, b, jst, cplx):
         for x in Reduction.list(Reduction.stronger(r)):
             if x == r: continue
             
-            ret |= addJustification((a, (x, op[1]), b),
-                                    (fact,), 1 + cplx)
+            addJustification((a, (x, op[1]), b),
+                             (fact,), 1 + cplx)
             if Reduction.isPresent(x, implies[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
                         printJustification((a,(x,u'->'),b), justify) + u'\n\n' + 
                         printJustification((a,(x,u'-|>'),b), justify))
     elif op[1] == u'<->': # equivalence
+        addJustification((b, op, a), jst, cplx)
+        
         r = op[0]
-        ret |= addFact(a, (op[0], u'->'), b,
-                       (fact,), 1 + cplx)
-        ret |= addFact(b, (op[0], u'->'), a,
-                       (fact,), 1 + cplx)
+        addFact(a, (op[0], u'->'), b,
+                (fact,), 1 + cplx)
+        addFact(b, (op[0], u'->'), a,
+                (fact,), 1 + cplx)
     elif op[1] == u'c': # conservation
         frm = op[0]
         addConservative(a, frm, b)
         for x in Form.list(Form.stronger(frm)):
             if x == frm: continue
             
-            ret |= addJustification((a, (x, op[1]), b),
-                                    (fact,), 1 + cplx)
+            addJustification((a, (x, op[1]), b),
+                             (fact,), 1 + cplx)
             if Reduction.isPresent(x, nonConservative[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
                         printJustification((a,(x,u'c'),b), justify) + u'\n\n' + 
@@ -165,8 +164,8 @@ def addFact(a, op, b, jst, cplx):
         for x in Form.list(Form.weaker(frm)):
             if x == frm: continue
             
-            ret |= addJustification((a, (x, op[1]), b),
-                                    (fact,), 1 + cplx)
+            addJustification((a, (x, op[1]), b),
+                             (fact,), 1 + cplx)
             if Reduction.isPresent(x, conservative[(a,b)]):
                 error(u'The following facts are contradictory.\n\n' + 
                         printJustification((a,(x,u'c'),b), justify) + u'\n\n' + 
@@ -174,7 +173,7 @@ def addFact(a, op, b, jst, cplx):
     else:
         error(u'Unrecognized operator {0}'.format(op))
     
-    return 1
+    return True
 
 def standardizePrinciple(a):
     return u'+'.join(sorted(set(a.split(u'+'))))
@@ -283,7 +282,7 @@ def weakenConjunctions():
 
 # Uses '->', affects '->'
 def reductionConjunction(): # Conjunctions follow from their conjuncts
-    r = 0
+    r = False
     for b in principlesList:
         splitB = b.split(u'+')
         if len(splitB) == 1: continue # b is not a conjunction
@@ -305,7 +304,7 @@ def reductionConjunction(): # Conjunctions follow from their conjuncts
 
 # Complete (current) transitive closure of array, using Floyd-Warshall
 def transitiveClosure(cls, array, opName): # Take the transitive closure
-    r = 0
+    r = False
     for c in principlesList:
         for a in principlesList:
             if a == c: continue
@@ -330,7 +329,7 @@ def transitiveClosure(cls, array, opName): # Take the transitive closure
 
 # Uses '->' and 'c', affects 'c'
 def liftConservation(): # Lift conservation facts over known implications
-    r = 0
+    r = False
     for c in principlesList:
         for a in principlesList:
             if a == c:
@@ -383,7 +382,7 @@ def liftConservation(): # Lift conservation facts over known implications
 
 # Uses '->' and 'c', affects '->'
 def implementPositiveConservation(): # Apply known conservation facts to implications
-    r = 0
+    r = False
     for c in principlesList:
         for a in principlesList:
             if a == c: continue
@@ -414,7 +413,7 @@ def implementPositiveConservation(): # Apply known conservation facts to implica
 
 # Uses '->', affects ONLY justify
 def extractEquivalences(): # Convert bi-implications to equivalences
-    r = 0
+    r = False
     for a in principlesList:
         for b in principlesList:
             if b == a: continue
@@ -431,7 +430,7 @@ def extractEquivalences(): # Convert bi-implications to equivalences
 
 # Uses '-|>' and '->', affects '-|>'
 def conjunctionSplit(): # Split non-implications over conjunctions
-    r = 0
+    r = False
     for b in principlesList:
         splitB = b.split(u'+')
         setB = set(splitB)
@@ -459,7 +458,7 @@ def conjunctionSplit(): # Split non-implications over conjunctions
 
 # Uses '->' and '-|>', affects '-|>'
 def nonImplicationClosure(): # "transitive" non-implications
-    r = 0
+    r = False
     for c in principlesList:
         for a in principlesList:
             if a == c: continue
@@ -497,7 +496,7 @@ def nonImplicationClosure(): # "transitive" non-implications
 
 # Uses '-|>' and 'c', affects '-|>'
 def implementNegativeConservation(): # Apply known conservation facts to non-implications
-    r = 0
+    r = False
     for c in principlesList:
         for b in principlesList:
             if b == c: continue
@@ -519,7 +518,7 @@ def implementNegativeConservation(): # Apply known conservation facts to non-imp
 
 # Uses '->' and '-|>', affects 'nc'
 def extractNonConservation(): # Transfer non-implications to non-conservation facts
-    r = 0
+    r = False
     for c in principlesList:
         cForm = form[c]
         if cForm == Form.none: continue
@@ -551,7 +550,7 @@ def extractNonConservation(): # Transfer non-implications to non-conservation fa
 
 # Uses 'nc' and '->', affects 'nc'
 def liftNonConservation(): # Lift non-conservation facts over known implications
-    r = 0
+    r = False
     for c in principlesList:
         for a in principlesList:
             if a == c: continue
@@ -593,7 +592,7 @@ def liftNonConservation(): # Lift non-conservation facts over known implications
 
 # Uses 'c' and 'nc', affects 'nc'
 def conservationConflict():
-    r = 0
+    r = False
     for c in principlesList:
         for a in principlesList:
             if a == c: continue
@@ -615,7 +614,7 @@ def conservationConflict():
 
 # Uses 'nc', affects '-|>'
 def extractNonImplication(): # Transfer non-conservation facts to non-implications
-    r = 0
+    r = False
     for a in principlesList:
         for b in principlesList:
             if b == a: continue
@@ -639,22 +638,22 @@ def deriveInferences(quiet=False):
     
     start = time.clock()
     if not quiet: eprint(u'Looping over implications and conservation facts:')
-    i,c = 1,1 # implies updated and conservative updated
+    i,c = True,True # implies updated and conservative updated
     n = 0
-    while i != 0 or c != 0:
+    while i or c:
         n += 1
         
         io = i
         co = c
-        i,c = 0,0
+        i,c = False,False
         
-        if io != 0:
+        if io:
             if not quiet: eprint(u'Reducing implications over conjunctions...')
             i |= reductionConjunction() # Uses '->', affects '->'
             
             if not quiet: eprint(u'Finding transitive implications...')
             i |= transitiveClosure(Reduction, implies, u'->') # Uses '->', affects '->'
-        if co != 0:
+        if co:
             if not quiet: eprint(u'Finding transitive conservation facts...')
             c |= transitiveClosure(Form, conservative, u'c') # Uses 'c', affects 'c'
         
@@ -673,16 +672,16 @@ def deriveInferences(quiet=False):
     
     start = time.clock()
     if not quiet: eprint(u'Looping over non-implications and conservation facts:')
-    ni,nc = 1,1 # notImplies updated and nonConservative updated
+    ni,nc = True,True # notImplies updated and nonConservative updated
     n = 0
-    while ni != 0 or nc != 0:
+    while ni or nc:
         n += 1
         
         nio = ni
         nco = nc
-        ni,nc = 0,0
+        ni,nc = False,False
         
-        if nio != 0:
+        if nio:
             if not quiet: eprint(u'Splitting over conjunctions...')
             ni |= conjunctionSplit() # Uses '-|>' and '->', affects '-|>'
             
@@ -695,7 +694,7 @@ def deriveInferences(quiet=False):
             if not quiet: eprint(u'Extracting non-conservation facts...')
             nc |= extractNonConservation() # Uses '->' and '-|>', affects 'nc'
         
-        if nco != 0:
+        if nco:
             if not quiet: eprint(u'Lifting non-conservation facts over implications...')
             nc |= liftNonConservation() # Uses 'nc' and '->', affects 'nc'
             
