@@ -282,26 +282,26 @@ def queryDatabase(a, op, b, justification=True):
         s += u'\n\tHOWEVER: {0} is a conjunction of known principles; try running with --force.'.format(b)
     if len(s) > 0: error(s)
     
-    if justification:
-        r = []
-        if a != aPrime or b != bPrime:
-            r.append(u'\n')
+    if (aPrime, op, bPrime) in justify:
+        if not justification:
+            return True
+        else:
+            r = []
+            if a != aPrime or b != bPrime:
+                r.append(u'\n')
+                if a != aPrime:
+                    r.append(u'NOTE: {0} is not a known principle, but is equivalent to {1}\n'.format(a, aPrime))
+                if b != bPrime:
+                    r.append(u'NOTE: {0} is not a known principle, but is equivalent to {1}\n'.format(b, bPrime))
+            
             if a != aPrime:
-                r.append(u'NOTE: {0} is not a known principle, but is equivalent to {1}\n'.format(a, aPrime))
+                r.append(printJustification((a, (reduction, u'<->'), aPrime), justify))
             if b != bPrime:
-                r.append(u'NOTE: {0} is not a known principle, but is equivalent to {1}\n'.format(a, aPrime))
-        
-        if a != aPrime:
-            r.append(printJustification((a, (reduction, u'<->'), aPrime), justify))
-        if b != bPrime:
-            r.append(printJustification((b, (reduction, u'<->'), bPrime), justify))
-        try:
+                r.append(printJustification((b, (reduction, u'<->'), bPrime), justify))
             r.append(printJustification((aPrime, op, bPrime), justify))
-        except KeyError:
-            return False
-        return u''.join(r)
+            return u''.join(r)
     else:
-        return ((aPrime, op, bPrime) in justify)
+        return False
 
 ##################################################################################
 #
