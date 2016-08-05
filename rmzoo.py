@@ -13,6 +13,7 @@
 #   - Version 4.2 - new forms and reasoning, started 12 July 2016
 #   - Version 4.3 - changed internal representations, started 21 July 2016
 #   - Version 4.4 - moved to a shelf database, started 25 July 2016
+#   - Version 5.0 - clean implementation of inference rules, started 1 August 2016
 #   Documentation and support: http://rmzoo.uconn.edu
 #
 ##################################################################################
@@ -41,8 +42,9 @@ def warning(s):
 def error(s):    # Throw exception
     raise Exception(s)
 
-Date = u'25 July 2016'
-Version = u'4.4'
+Date = u'1 August 2016'
+Version = u'5.0'
+DatabaseVersion = u'5.0'
 
 from rmBitmasks import *
 from renderJustification import *
@@ -170,7 +172,7 @@ form = {}
 primary, primaryIndex = {}, {}
 justify = {}
 def getDatabase():
-    return {'version': Version,
+    return {'version': DatabaseVersion,
             'principles': principles,
             'implication': (implies, notImplies),
             'conservation': (conservative, nonConservative),
@@ -180,8 +182,8 @@ def getDatabase():
 
 equivalent = defaultdict(set)
 def setDatabase(database):
-    if database['version'] != Version:
-        raise VersionError(Version, database['version'])
+    if database['version'] != DatabaseVersion:
+        raise VersionError(DatabaseVersion, database['version'])
     
     global principles
     principles = database['principles']
