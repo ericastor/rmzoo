@@ -254,12 +254,18 @@ def parseDatabase(databaseString, quiet=False):
 def addTrivialFacts():
     for a in principlesList:
         for r in Reduction:
+            if r == Reduction.none: continue
+            
             addFact(a, (r, u'->'), a, u'', 1)
             addFact(a, (r, u'<->'), a, u'', 1)
         for f in Form:
+            if f == Form.none: continue
+            
             addFact(a, (f, u'c'), a, u'', 1)
         if a != u'RCA':
             for r in Reduction:
+                if r == Reduction.none: continue
+                
                 addFact(a, (r, u'->'), u'RCA', u'', 1)
 
 # No inputs; affects '->'
@@ -278,6 +284,8 @@ def weakenConjunctions():
             
             if setB <= setA:
                 for r in Reduction:
+                    if r == Reduction.none: continue
+                    
                     addFact(a, (r, u'->'), b, u'', 1)
 
 # Uses '->', affects '->'
@@ -339,6 +347,8 @@ def liftConservation(): # Lift conservation facts over known implications
                     
                     if Reduction.isPresent(Reduction.RCA, implies[(b,a)]):
                         for x in Form:
+                            if x == Form.none: continue
+                            
                             bImpA = (b, (Reduction.RCA, u'->'), a)
                             
                             r |= addFact(a, (x, u'c'), b,

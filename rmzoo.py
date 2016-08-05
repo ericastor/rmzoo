@@ -159,10 +159,7 @@ eprint(u'Importing and organizing data...')
 
 class VersionError(Exception):
     def __init__(self, targetVersion, actualVersion):
-        self.targetVersion = targetVersion
-        self.actualVersion = actualVersion
-    def __str__(self):
-        return u'Version mismatch: found v{0}, targeting v{1}'.format(actualVersion, targetVersion)
+        super(VersionError, self).__init__(u'Version mismatch: found v{0}, targeting v{1}'.format(actualVersion, targetVersion))
 
 import shelve
 
@@ -184,7 +181,7 @@ def getDatabase():
 equivalent = defaultdict(set)
 def setDatabase(database):
     if database['version'] != Version:
-        raise VersionError(database['version'], Version)
+        raise VersionError(Version, database['version'])
     
     global principles
     principles = database['principles']
