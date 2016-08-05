@@ -33,10 +33,12 @@ RCA w-|> WKL "Friedman (1975) [Theorem 1.4]"
 BSig2 <-> BPi1 "Paris and Kirby (1978) [Proposition 1]"
 BSig3 <-> BPi2 "Paris and Kirby (1978) [Proposition 1]"
 ISig2 -> BSig2 "Paris and Kirby (1978) [Proposition 4]"
+ISig3 -> BSig3 "Paris and Kirby (1978) [Proposition 4]"
 BSig3 -> ISig2 "Paris and Kirby (1978) [Proposition 5]"
 ISig2 -|> BSig3 "Paris and Kirby (1978) [Proposition 7]"
 RCA -|> BSig2 "Paris and Kirby (1978) [Proposition 7]"
 BSig2 -|> ISig2 "Paris and Kirby (1978) [Proposition 8]"
+BSig3 -|> ISig3 "Paris and Kirby (1978) [Proposition 8]"
 
 #Generic:
 #    BSig(n+1) <-> BPin "Paris and Kirby (1978) [Proposition 1]"
