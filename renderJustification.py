@@ -31,7 +31,7 @@ def printOp(op):
 def printFact(a, op, b):
     if op == u'form':
         b = b.name
-    elif op[0] in (u'sW', u'W', u'gW', u'sc', u'c'): # Reducibility fact
+    elif op[0] in (Reduction.sW, Reduction.W, Reduction.gW, Reduction.sc, Reduction.c): # Reducibility fact, not implication fact
         if op[1] == u'->':
             op = (op[0], u'<=')
             a,b = b,a
