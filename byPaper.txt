@@ -1,3 +1,47 @@
+##### Primary principles #####
+
+ACA is primary
+WKL is primary
+WWKL is primary
+RCA is primary
+
+BSig3 is primary
+BSig2 is primary
+
+RT is primary
+RT2 is primary
+RT22 is primary
+SRT2 is primary
+SRT22 is primary
+SFS2 is primary
+STS2 is primary
+
+EM is primary
+
+AMT+ISig2 is primary
+
+CAC is primary
+ADS is primary
+SADS is primary
+OPT is primary
+
+DNR0 is primary
+DNR is primary
+
+WWKL2 is primary
+FIP is primary
+RWKL is primary
+
+StCOH is primary
+
+GEN1+WKL is primary
+COH+WKL is primary
+RT22+WKL is primary
+
+POS+WWKL is primary
+
+##### Results #####
+
 RT2 -> RT22 "by definition"
 SRT2 -> SRT22 "by definition"
 D2 -> D22 "by definition"
