@@ -6,6 +6,8 @@ The present version of the RM Zoo is a complete rewrite of the original, and fea
 
 The program is divided into two parts: a database updater/compiler, which derives all inferences from the provided results file, and a database query system, which can answer specific questions about reverse-mathematical relations or produce diagrams on request.
 
+Under the reverse-mathematical interface, the Zoo is actually a specialized inference engine, designed to reason with facts of the form "a implies b in context Q" (implication facts), "if a implies p, and p has form F, then b implies p" (conservation facts), or the negations thereof.
+
 ## Installation
 
 To run the RM Zoo, you will need to install a distribution of Python, version 2.7 or later. (The Zoo will perform best if run in either [PyPy2.7](http://pypy.org/index.html) or [Python 3.4+](https://www.python.org/).)
@@ -95,21 +97,25 @@ will produce a diagram of all implications between principles that hold in ω-mo
 
 It would probably be of very limited use to select *all* the options, for instance.
 
+## Credits
+
+The RM Zoo was originally developed by Damir Dzhafarov, inspired by Joseph S. Miller's command-line version of the Computability Menagerie. Recently, the Zoo has been largely rewritten by Eric Astor to improve performance, expand the library of available inference rules, and move to a more maintainable/upgradeable architecture.
+
+Many people have helped with the RM Zoo, by commenting on the code, contributing facts, suggesting new features, or just expressing their interest. Thanks in particular to David Belanger, Peter Cholak, Stephen Flood, Denis Hirschfeldt, Steffen Lempp, Joe Miller, Antonio Montalbán, Carl Mummert, Ludovic Patey, Sam Sanders, and Ted Slaman.
+
 ## Contributing
 
-1. Fork it!
+Contributions and/or feedback are, of course, welcome! If you are comfortable working with GitHub, the best way to contribute is as follows:
+
+1. Fork the code.
 2. Create your feature branch: `git checkout -b my-new-feature`
 3. Commit your changes: `git commit -am 'Add some feature'`
 4. Push to the branch: `git push origin my-new-feature`
 5. Submit a pull request.
 
+Otherwise, don't hesitate to send an e-mail or other message.
+
 If contributing to the results file, please try to stick to the format used therein, including detailed citations for each result and (if possible) an authoritative URL for the published version of the referenced paper.
-
-## Credits
-
-The RM Zoo was originally developed by Damir Dzhafarov, inspired by Joseph S. Miller's command-line version of the Computability Menagerie. The corresponding results file received various contributions, in particular by Damir and by Ludovic Patey.
-
-Recently, the Zoo has been largely rewritten by Eric Astor to improve performance, expand the library of available inference rules, and move to a more maintainable/upgradeable architecture.
 
 ## License
 
