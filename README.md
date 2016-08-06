@@ -27,6 +27,8 @@ To view/render the diagrams produced by the Zoo, you will need to install [Graph
 
 The RM Zoo consists of two Python scripts, `rmupdater.py` and `rmzoo.py`.
 
+### rmupdater
+
 `rmupdater.py` compiles results files into databases of known facts, and is typically run as follows:
 
 - `python rmupdater.py [results file]`,
@@ -43,9 +45,17 @@ If maintaining an alternate results file in `test.txt`, one might separately run
 
 - `python rmupdater.py test.txt testDatabase`.
 
+### rmzoo
 
+`rmzoo.py` then takes the database built by `rmupdater.py`, and carries out various tasks as controlled by its options. The basic command is
 
-`rmzoo.py` then takes the database built by `rmupdater.py`, and carries out various tasks.
+- `python rmzoo.py [options]`;
+
+however, if you need to specify a database title, add it to the command as follows:
+
+- `python rmzoo.py [database title] [options]`
+
+---
 
 To query the database for a fact (which will determine whether it is known or contradicted, and give the justification in either case), run the command
 
@@ -56,6 +66,8 @@ For example,
 - `python rmzoo.py -q "RT22 -> CRT22"`
 
 will print a justification of the fact that `RT22` implies `CRT22` over `RCA`<sub>0</sub>.
+
+---
 
 To generate a diagram from the database, instead run
 
