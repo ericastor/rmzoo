@@ -18,6 +18,7 @@ STS2 is primary
 
 EM is primary
 
+AMT is primary
 AMT+ISig2 is primary
 
 CAC is primary
@@ -37,6 +38,7 @@ StCOH is primary
 GEN1+WKL is primary
 COH+WKL is primary
 RT22+WKL is primary
+SRT22+WKL is primary
 
 POS+WWKL is primary
 
@@ -455,6 +457,7 @@ PT2 -> PT22 "by definition"
 PT3 -> PT32 "by definition"
 IPT2 -> IPT22 "by definition"
 IPT3 -> IPT32 "by definition"
+IPT -> IPT3 "by definition"
 
 RT22 -> PT22 "Dzhafarov and Hirst (2009) [Proposition 3.1]"
 RT32 -> PT32 "Dzhafarov and Hirst (2009) [Proposition 3.1]"
@@ -964,6 +967,7 @@ EM -> DNR0 "Patey (preprint) [Theorem 3.10]"
 SEM -> DNR "Patey (preprint) [Theorem 3.13]"
 SRT22 -> SFS2 "Patey (preprint) [Lemma 4.3]"
 RRT32 -> TS2 "Patey (preprint) [Theorem 4.5]"
+RRT w-> FS "Patey (preprint) [Corollary 4.7]"
 TS2 -> DNR0 "Patey (preprint) [Theorem 4.8]"
 IPT22 -> DNR0 "Patey (preprint) [Theorem 4.12]"
 RT22 w-|> TS3 "Patey (preprint) [Corollary 4.15]"
@@ -980,8 +984,12 @@ BSig2+SFS2 -> WSRRT22 "Patey (preprint) [Theorem 6.14]"
 
 RRT22 <-> DNR0 "J. Miller (personal communication)"
 
+SFS3 -> SFS2 "Cholak, Giusto, Hirst, and Jockusch (2005) [follows from proof of Theorem 2.3]"
+
 SFS3 -> STS3 "Cholak, Giusto, Hirst, and Jockusch (2005) [follows from proof of Theorem 3.2]"
 SFS2 -> STS2 "Cholak, Giusto, Hirst, and Jockusch (2005) [follows from proof of Theorem 3.2]"
+
+STS3 -> TS2 "Cholak, Giusto, Hirst, and Jockusch (2005) [follows from proof of Theorem 3.4]"
 
 DNR <=_c SRT22 "Hirschfeldt, Jockusch, Kjos-Hanssen, Lempp, and Slaman (2008) [follows from proof of Theorem 2.3]"
 
