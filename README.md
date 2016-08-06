@@ -28,26 +28,41 @@ To view/render the diagrams produced by the Zoo, you will need to install [Graph
 The RM Zoo consists of two Python scripts, `rmupdater.py` and `rmzoo.py`.
 
 `rmupdater.py` compiles results files into databases of known facts, and is typically run as follows:
+
 - `python rmupdater.py [results file]`,
+
 where `[results file]` is a text file containing facts; the results file included in this distribution is `byPaper.txt`. If using multiple results files (for testing purposes), you may keep them in separate databases by adding a database title:
+
 - `python rmupdater.py [results file] [database title]`
 
 For example, one would typically run
+
 - `python rmupdater.py byPaper.txt`;
+
 If maintaining an alternate results file in `test.txt`, one might separately run the command
+
 - `python rmupdater.py test.txt testDatabase`.
+
+
 
 `rmzoo.py` then takes the database built by `rmupdater.py`, and carries out various tasks.
 
 To query the database for a fact (which will determine whether it is known or contradicted, and give the justification in either case), run the command
+
 - `python rmzoo.py -q "[fact]"`.
+
 For example,
+
 - `python rmzoo.py -q "RT22 -> CRT22"`
+
 will print a justification of the fact that `RT22` implies `CRT22` over `RCA`<sub>0</sub>.
 
 To generate a diagram from the database, instead run
+
 - `python rmzoo.py [diagram options] > [destination]`,
+
 where `[destination]` is a DOT file. The `[diagram options]` **must** include one or more of the following:
+
 - `-i`: show implications as black arrows;
 - `-n`: show non-implications as red arrows;
 - `-f`: color-codes principles by their syntactic form; currently, this uses a pink box for Π<sup>1</sup><sub>1</sub> principles, and a cyan box for restricted Π<sup>1</sup><sub>2</sub> principles. Other forms do not yet have a color code.
@@ -61,7 +76,9 @@ In addition, the options may include any of the following:
 - `-r "[CLASS]"`: restrict the diagram to just the principles contained between the quotation marks (and any sub-principles of conjunctions in the list). For example, the option `-r "RT22 COH+WKL SRT22 RCA"` will show only relations between the principles `RT22`, `COH+WKL`, `SRT22`, `RCA`, `COH`, and `WKL`.
 
 For instance,
+
 - `python rmzoo.py -i -o -w > diagram.dot`
+
 will produce a diagram of all implications between principles that hold in ω-models, along with the weakest open implications (in ω-models). Generally speaking, the more options that are selected, the more information is shown on the diagram; this tends to make it harder to read.
 
 It would probably be of very limited use to select *all* the options, for instance.
