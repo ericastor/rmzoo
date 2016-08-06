@@ -65,7 +65,7 @@ For example,
 
 - `python rmzoo.py -q "RT22 -> CRT22"`
 
-will print a justification of the fact that RT22 implies CRT22 over RCA<sub>0</sub>.
+will print a justification of the fact that **RT<sup>2</sup><sub>2</sub>** implies **CRT<sup>2</sup><sub>2</sub>** over **RCA<sub>0</sub>**.
 
 ---
 
@@ -85,7 +85,7 @@ In addition, the options may include any of the following:
 - `-o`: show facts that hold in ω-models;
 - `-t [REDUCIBILITY]`: show facts relative to implications over the given REDUCIBILITY (options include sW, W, gW, sc, c, w, and RCA);
 - `-p`: show only one primary principle from each group of equivalent principles;
-- `-r "[CLASS]"`: restrict the diagram to just the principles contained between the quotation marks (and any sub-principles of conjunctions in the list). For example, the option `-r "RT22 COH+WKL SRT22 RCA"` will show only relations between the principles RT22, COH+WKL, SRT22, RCA, COH, and WKL.
+- `-r "[CLASS]"`: restrict the diagram to just the principles contained between the quotation marks (and any sub-principles of conjunctions in the list). For example, the option `-r "RT22 COH+WKL SRT22 RCA"` will show only relations between the principles **RT22**, **COH+WKL**, **SRT22**, **RCA<sub>0</sub>**, **COH**, and **WKL**.
 
 For instance,
 
