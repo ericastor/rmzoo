@@ -453,11 +453,18 @@ RRT22 form rPi12
 #    http://link.springer.com/article/10.1007/s00153-008-0108-0
 #    Arch. Math. Logic 48(2), doi:10.1007/s00153-008-0108-0
 
+PT -> PT2 "by definition"
+PT -> PT3 "by definition"
 PT2 -> PT22 "by definition"
 PT3 -> PT32 "by definition"
+IPT -> IPT2 "by definition"
+IPT -> IPT3 "by definition"
 IPT2 -> IPT22 "by definition"
 IPT3 -> IPT32 "by definition"
-IPT -> IPT3 "by definition"
+
+PT -> IPT "by definition"
+PT2 -> IPT2 "by definition"
+PT3 -> IPT3 "by definition"
 
 RT22 -> PT22 "Dzhafarov and Hirst (2009) [Proposition 3.1]"
 RT32 -> PT32 "Dzhafarov and Hirst (2009) [Proposition 3.1]"
@@ -959,6 +966,8 @@ RT22 -|> ISig2 "Chong, Slaman, and Yang (preprint) [Corollary 4.2]"
 
 RRT22 -> WSRRT22 "by definition"
 WSRRT22 -> SRRT22 "by definition"
+
+RRT32 -> SRRT32 "by definition"
 
 SRT22 -|> RRT22 "Patey (preprint) [Corollary 2.12]"
 DNR <=_c SEM "Patey (preprint) [Corollary 3.6]"
