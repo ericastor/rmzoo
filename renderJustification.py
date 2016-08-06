@@ -1,5 +1,7 @@
 from __future__ import print_function, unicode_literals
 
+from rmBitmasks import Form, Reduction
+
 from version_guard import lru_cache, isString
 
 _justLineMarker = u'*'
