@@ -60,8 +60,10 @@ class Reduction(BitmaskEnum):
     
     @classmethod
     def fromString(cls,s):
-        if s == '':
-            return cls.RCA
+        alias = {u'': cls.RCA,
+                 u'gc': cls.w}
+        if s in alias:
+            return alias[s]
         else:
             try:
                 return getattr(cls, s)
