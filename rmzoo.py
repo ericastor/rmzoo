@@ -381,7 +381,6 @@ if Query:
             rmupdater.deriveInferences(quiet=False)
             setDatabase(rmupdater.getDatabase())
     
-#    try:
     jst = queryDatabase(a, op, b)
     if jst:
         print(u'Justification for the fact "{0}":\n{1}'.format(printFact(a, op, b), jst))
@@ -410,8 +409,6 @@ if Query:
                 jst = queryDatabase(b, opp, a)
                 if jst:
                     print(u'CONTRADICTING fact known! Justification for the fact "{0}":\n{1}'.format(printFact(b, opp, a), jst))
-#    except Exception as e:
-#        print(e)
 
 if QueryFile:
     parenth = Literal('"')
