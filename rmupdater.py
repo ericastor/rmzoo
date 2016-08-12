@@ -817,6 +817,25 @@ def setDatabase(shelf):
     
     global justify
     justify = shelf['justify']
+    
+    global justComplexity
+    justComplexity = {}
+    def rebuildComplexity(fact):
+        try:
+            return justComplexity[fact]
+        except KeyError:
+            r = 1
+            
+            a,op,b = fact
+            if op != u'form':
+                jst = justify[fact]
+                if not isString(jst):
+                    r += sum(rebuildComplexity(f) for f in jst)
+            
+            justComplexity[fact] = r
+            return r
+    for fact in justify:
+        rebuildComplexity(fact)
 
 def dumpDatabase(shelfTitle, quiet=False):
     if not quiet: eprint(u'Facts known: {0:,d}\n'.format(len(justify)))
