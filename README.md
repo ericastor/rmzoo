@@ -115,7 +115,121 @@ Contributions and/or feedback are, of course, welcome! If you are comfortable wo
 
 Otherwise, don't hesitate to send an e-mail or other message.
 
-If contributing to the results file, please try to stick to the format used therein, including detailed citations for each result and (if possible) an authoritative URL for the published version of the referenced paper.
+### Results
+
+The results file is a simple text file containing relations between reverse-mathematical principles. This is then compiled by the Zoo's updater to create its database, which is then used by the Zoo to generate its various outputs (whether DOT files or text responses).
+
+#### Names
+
+Principles should be named by **simple plaintext alphanumeric strings** that resemble their normal acronyms in the literature; for example, we use `RT22` for Ramsey's theorem for pairs (and 2 colors). Do not use TeX in the names of principles (as in `RT^2_2` or `\mathsf{RT}^2_2`); this will make the diagrams harder to read, as DOT files have no TeX support, and can sometimes cause errors.
+
+#### Relations
+
+Relations between principles are given by using various operators. For instance:
+
+- `RT22 -> COH`
+
+indicates an **implication** provable in **RCA<sub>0</sub>**. By itself, however, this would generate an error; all facts must include a **justification**. To justify this fact, one would instead write:
+
+- `RT22 -> COH "Mileti (2004) [Claim A.1.3], and independently Jockusch and Lempp"`
+
+These justifications are used by the Zoo to keep track of why the facts it derives are true, and as such are important for maintaining a usable database. For simplicity, justifications should also be plaintext; if a principle needs to be mentioned, the same acronyms as for relations should be used. To keep the results file clean, please use the justification format: "Author 1, Author 2, and Author 3 (year) \[result citation\]". If possible, citations should be to the authoritative published version of the paper, falling back to an arXiv citation only when the authoritative version is not yet available.
+
+**Non-implications** (i.e., implications known *not* to be provable in **RCA<sub>0</sub>**), can be entered similarly, using the operator `-|>`; for example,
+
+- `RT22+WKL -|> ACA "Seetapun and Slaman (1995) [Theorem 3.1]"`
+
+However, this result said more than this; Seetapun and Slaman specifically constructed an omega-model of **RT22+WKL** in which **ACA** failed. In general, one can represent implications and non-implications over omega-models by prepending `w` before an operator. Thus, one can more accurately write the previous result as
+
+- `RT22+WKL w-|> ACA "Seetapun and Slaman (1995) [Theorem 3.1]"`
+
+and might also write
+
+- `COH w-> StCOH "Hirschfeldt and Shore (2007) [Proposition 4.4]"`
+
+to represent this implication which, while not necessarily true in all models of **RCA<sub>0</sub>**, holds over all omega models. The Zoo is programmed to understand that `->` is stronger than `w->`, and thus that `w-|>` is stronger than `-|>`.
+
+Furthermore, the Zoo now supports results from the study of computable and Weihrauch reducibilities, using the operators `<=` and `</=`, and appending an abbreviation of the relevant reducibility. For example, the following facts could be included in the results file:
+
+- `DNR <=_c SRT22 "Hirschfeldt, Jockusch, Kjos-Hanssen, Lempp, and Slaman (2008) [follows from proof of Theorem 2.3]"`
+- `COH </=_W SRT22 "Dzhafarov (to appear) [Corollary 4.5]"`
+
+The supported reducibilities are:
+
+- strong Weihrauch reducibility (`sW`)
+- Weihrauch/uniform reducibility (`W`)
+- generalized Weihrauch reducibility (`gW`)
+- strong computable reducibility (`sc`)
+- computable reducibility (`c`)
+- generalized computable reducibility (`gc`) \[also known as reducibility over omega-models (`w`)\]
+
+The Zoo understands the relations between these reducibilities, and between them and the above notions of implication. Thus, it can conclude from the above examples that `SRT22 w-> DNR` and that `COH </=_sW SRT22`.
+
+##### Equivalences and Primary Principles
+
+The Zoo can handle cycles without difficulty. For example, it will know that the facts
+
+- `StCOH -> StCADS`
+- `StCADS -> StCOH`
+
+together indicate that the principles **StCOH** and **StCADS** are **equivalent** over **RCA<sub>0</sub>**, and will act accordingly. For instance, if rendering a diagram, the Zoo will pick one of the two principles to treat as 'primary', in the sense that implications and non-implications will only be shown going to and from the primary principle; this reduces the mess, and keeps the diagram more readable. Of course, the Zoo may occasionally pick the "wrong" primary principle; for instance, we probably want **StCOH** to be considered primary over **StCADS**. Since the Zoo has no way of knowing that on its own, we can include the fact
+
+- `StCOH is primary`
+
+in our results file, and ensure that the Zoo considers **StCOH** to be the primary principle. (Note that our choice of primary principles is given no justification; in fact, by the standards of the results file, it *cannot* be justified.) The order in which this is done matters. For example, if we switch to thinking about omega models, **StCOH** will be equivalent to **COH**, but we probably want **COH** to be considered primary in this case. Entering
+
+- `COH is primary`
+
+**earlier** (i.e., "higher up") in the results file will achieve the desired result.
+
+Principles can also be declared equivalent by use of dedicated operators, included for convenience. Writing
+
+- `StCOH <-> StCADS`
+
+will produce the same result as including both of the two separate implications. (**Warning:** prepending a `w` to `<->` does work, but does not merely indicate an equivalence that holds over omega models; it in fact asserts that both halves of the implication hold in omega models. One can use the operator `<=>` in a similar way, subject to the same caveat.)
+
+#### Syntactic Forms and Conservation Facts
+
+The Zoo also understands **syntactic forms** and **conservations facts** relating reverse-mathematical principles. Specifically, it understands the syntactic forms 
+
+- `Sig02`, `Pi02`, `Sig03`, `Pi03`, `Sig04`, and `Pi04`: three levels of the arithmetic hierarchy
+- `Pi11`, `Pi12`, and `Pi13`: the first three universal levels of the analytic hierarchy
+- `uPi03`: Pi03 with a single universally-quantified set paramater; defined as "twiddle-Pi<sup>0</sup><sub>3</sub>" in Patey and Yokoyama (preprint)
+- `rPi12`: restricted Pi12 statements, as defined in Hirschfeldt and Shore (2007) \[Corollary 2.21\]
+
+We can thus enter
+
+- `RT22 form rPi12`
+- `BSig2 form Pi11`
+
+to indicate that the given principles have the given forms. (Note that these statements are **unjustified**.)
+
+To indicate that one principle is conservative over another for consequences of a given form (that is to say, the first proves no more consequences of that form than the second), we can add results such as:
+
+- `AMT+BSig2 Pi11c BSig2 "Hirschfeldt, Shore, and Slaman (2009) [Corollary 4.5]"`
+- `AMT rPi12c RCA "Hirschfeldt, Shore, and Slaman (2009) [Corollary 3.15]"`
+
+To indicate that one principle is **not** conservative over another, prepend an `n` before the conservation operator. For instance, we might add the result
+
+- `RT22 nPi04c RCA "Seetapun and Slaman (1995) [Theorem 3.6]"`
+
+Conservation and non-conservation facts must, again, be justified. The Zoo understands the connections between conservation facts and implications, and will use them to extract more relations between the known principles.
+
+#### Compound Principles (i.e., Conjunctions)
+
+As the reader may have noted above, the Zoo also understands compound principles; that is, principles that are conjunctions of other principles. For instance, if we add
+
+- `SRT22+COH <-> RT22`
+
+as a fact in the results file, the Zoo will know that `COH+SRT22` is a compound principle, denoting the conjunction of `COH` and `SRT22`. It will add any component principles to its internal list, and automatically understands the relations between the compound principle and its components. 
+
+#### Organization and Formatting
+
+Please note that any line in the results file starting with a `#` symbol is ignored, and considered to be a comment for human readers.
+
+If contributing to the results file, please take note of the organization formatting used therein; we have organized the results by publication, arranged by publication year when possible (with the noted exception of Simpson's "Subsystems of Second-Order Arithmetic" \[also known as SOSOA\], which is listed first). Each publication's results should be preceded by a comment containing a full authoritative citation, including (if at all possible) a URL and DOI for the authoritative published version.
+
+Contributions to the results file are extremely welcome. For example, if anyone wants to transcribe the relevant results of Simpson's SOSOA into our format, the maintainers would be eternally grateful! (For context, please note that this textbook is over 450 pages long.)
 
 ## License
 
