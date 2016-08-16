@@ -60,15 +60,16 @@ class Reduction(BitmaskEnum):
     
     @classmethod
     def fromString(cls,s):
-        alias = {u'': cls.RCA,
-                 u'gc': cls.w}
-        if s in alias:
-            return alias[s]
-        else:
+        try:
+            return cls.alias[s]
+        except KeyError:
             try:
                 return getattr(cls, s)
             except AttributeError:
                 raise NotImplementedError("The reduction `{}` is not implemented.".format(s))
+
+Reduction.alias = {u'': Reduction.RCA,
+                   u'gc': Reduction.w}
 
 def noReduction():
     return Reduction.none

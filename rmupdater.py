@@ -277,6 +277,9 @@ def parseDatabase(databaseString, quiet=False):
     for r in Reduction:
         if r != Reduction.none:
             _reductionName |= Literal(r.name)
+    for r in Reduction.alias:
+        if r != u'':
+            _reductionName |= Literal(r)
     _reductionType = _reductionName.setParseAction(lambda s,l,t: [Reduction.fromString(t[0])])
     reductionType = Optional(_reductionType, default=Reduction.RCA)
     postfixReductionType = Optional(Suppress(Literal("_")) + _reductionType, default=Reduction.RCA)
