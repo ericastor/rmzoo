@@ -726,7 +726,7 @@ def liftNonConservation():
                                      (aImpC, cNonConsB), refCplxAC + justComplexity[cNonConsB])
     return r
 
-def deriveInferences(quiet=False):
+def deriveInferences(quiet=False, verbose=False):
     start = time.clock()
     if not quiet: eprint(u'Adding reflexivity facts..')
     addReflexivities()
@@ -767,6 +767,13 @@ def deriveInferences(quiet=False):
             if not quiet: eprint(u'\tLifting conservation facts over implications...')
             cChanged |= liftConservation() # Uses 'c' and '->', affects 'c'
         
+        if verbose:
+            eprint(u'\t\tDuring iteration {0}:'.format(n))
+            if eChanged: eprint(u'\t\t\tEquivalences updated.')
+            if iChanged: eprint(u'\t\t\tImplications updated.')
+            if cChanged: eprint(u'\t\t\tConservation facts updated.')
+            if not eChanged and not iChanged and not cChanged: eprint(u'\t\t\tNothing updated.')
+        
         eUpdated = eChanged
         iUpdated = iChanged
         cUpdated = cChanged
@@ -799,6 +806,12 @@ def deriveInferences(quiet=False):
         if ncUpdated or ncChanged:
             if not quiet: eprint(u'\tLifting non-conservation facts over implications...')
             ncChanged |= liftNonConservation() # Uses 'nc' and '->', affects 'nc'
+        
+        if verbose:
+            eprint(u'\t\tDuring iteration {0}:'.format(n))
+            if niChanged: eprint(u'\t\t\tNon-implications updated.')
+            if ncChanged: eprint(u'\t\t\tNon-conservation facts updated.')
+            if not niChanged and not ncChanged: eprint(u'\t\t\tNothing updated.')
         
         niUpdated = niChanged
         ncUpdated = ncChanged
@@ -912,17 +925,18 @@ def main():
     
     with open(resultsFile, encoding='utf-8') as f:
         parseDatabase(f.read(), options.quiet)
-    deriveInferences(options.quiet)
+    deriveInferences(quiet=options.quiet, verbose=options.verbose)
     dumpDatabase(shelfTitle, options.quiet)
     if not options.quiet: eprint(u'Total elapsed time: {0:.6f} s'.format(time.clock() - absoluteStart))
     
     if options.verbose:
-        eprint(u'\nCache report: ')
-        eprint(u'\tReduction.strongest: {0}'.format(Reduction.strongest.cache_info()))
-        eprint(u'\tReduction.list: {0}'.format(Reduction.list.cache_info()))
-        eprint(u'\tForm.strongest: {0}'.format(Form.strongest.cache_info()))
-        eprint(u'\tForm.list: {0}'.format(Form.list.cache_info()))
-        eprint(u'\tprintOp: {0}'.format(printOp.cache_info()))
-
+        try:
+            report = []
+            report.append(u'\tReduction.list: {0}'.format(Reduction.list.cache_info()))
+            report.append(u'\tForm.list: {0}'.format(Form.list.cache_info()))
+            eprint(u'\nCache report: ')
+            eprint('\n'.join(report))
+        except AttributeError:
+            pass
 if __name__ == '__main__':
     main()
