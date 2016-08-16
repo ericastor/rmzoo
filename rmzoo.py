@@ -136,19 +136,19 @@ AddPrinciples = options.add_principles
 # Give errors if bad options chosen
 
 if not Implications and not NonImplications and not OnlyPrimary and not Restrict and not Weak and not Strong and not ShowForm and not Conservation and not Query and not QueryFile:
-    parser.error(u'Error: No options selected.')
+    parser.error(u'No options selected.')
 if OnlyPrimary:
     if not Implications and not NonImplications and not Weak and not Strong and not ShowForm and not Conservation:
-        parser.error(u'Error: Option -p only works if one of -i, -n, -w, -s, -f, or -c is selected.')
+        parser.error(u'Option -p only works if one of -i, -n, -w, -s, -f, or -c is selected.')
 if Restrict:
     if not Implications and not NonImplications and not Weak and not Strong and not ShowForm and not Conservation:
-        parser.error(u'Error: Option -r only works if one of -i, -n, -w, -s, -f, or -c is selected.')
+        parser.error(u'Option -r only works if one of -i, -n, -w, -s, -f, or -c is selected.')
 if Query:
     if Implications or NonImplications or Weak or Strong or ShowForm or Conservation or Restrict or OnlyPrimary or QueryFile:
-        parser.error(u'Error: Option -q does not work with any other option (except --force).')
+        parser.error(u'Option -q does not work with any other option (except --force).')
 if QueryFile:
     if Implications or NonImplications or Weak or Strong or ShowForm or Conservation or Restrict or OnlyPrimary or Query:
-        parser.error(u'Error: Option -F does not work with any other option (except --force).')
+        parser.error(u'Option -F does not work with any other option (except --force).')
 
 if len(args) > 1:
     parser.error(u'Too many arguments.')
@@ -281,11 +281,11 @@ def queryDatabase(a, op, b, justification=True):
     
     s = u''
     if not aKnown and not bKnown:
-        s += u'Error: {0} and {1} are unknown principles.'.format(a, b)
+        s += u'{0} and {1} are unknown principles.'.format(a, b)
     elif not aKnown:
-        s += u'Error: {0} is an unknown principle.'.format(a)
+        s += u'{0} is an unknown principle.'.format(a)
     elif not bKnown:
-        s += u'Error: {0} is an unknown principle.'.format(b)
+        s += u'{0} is an unknown principle.'.format(b)
     if aConjunct and bConjunct:
         s += u'\n\tHOWEVER: {0} and {1} are conjunctions of known principles; try running with --force.'.format(a, b)
     elif aConjunct and bKnown:
@@ -325,7 +325,7 @@ if Restrict:
     
     for a in Restrict:  # Give warnings if CLASS is not a subset of principles
         if a not in principles:
-            error(u'Error: '+a+u' is not in the database.')
+            error(+a+u' is not in the database.')
 
 ##################################################################################
 #
