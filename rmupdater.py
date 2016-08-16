@@ -27,7 +27,7 @@ import time
 from io import open
 from collections import defaultdict
 
-from version_guard import lru_cache
+from version_guard import isString, lru_cache
 
 import zlib
 try:
