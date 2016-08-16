@@ -14,19 +14,26 @@
 #   - Version 4.3 - changed internal representations, started 21 July 2016
 #   - Version 4.4 - moved to a shelf database, started 25 July 2016
 #   - Version 5.0 - clean implementation of inference rules, started 1 August 2016
+#   - Version 5.1 - reverted from shelf database for cross-platform compatibility, started 16 August 2016
 #   Documentation and support: http://rmzoo.uconn.edu
 #
 ##################################################################################
 
 from __future__ import print_function
 
-import sys
+import os, sys
 
 import itertools
 from io import open
 from collections import defaultdict
 
-from version_guard import isString, closingWrapper
+from version_guard import isString
+
+import zlib
+try:
+    import cPickle as pickle
+except:
+    import pickle
 
 from rmupdater import standardizeFact
 
@@ -42,9 +49,9 @@ def warning(s):
 def error(s):    # Throw exception
     raise Exception(s)
 
-Date = u'1 August 2016'
-Version = u'5.0'
-DatabaseVersion = u'5.0'
+Date = u'16 August 2016'
+Version = u'5.1'
+DatabaseVersion = u'5.1'
 
 from rmBitmasks import *
 from renderJustification import *
@@ -146,10 +153,16 @@ if QueryFile:
 if len(args) > 1:
     parser.error(u'Too many arguments.')
 if len(args) > 0:
-    shelfTitle = args[0]
+    databaseTitle = args[0]
 else:
     eprint(u'No database title specified; defaulting to "database".')
-    shelfTitle = 'database'
+    databaseTitle = 'database.dat'
+
+if os.path.splitext(databaseTitle)[1] == '':
+    databaseName = databaseTitle + os.extsep + 'dat'
+else:
+    databaseName = databaseTitle
+
     
 ##################################################################################
 #
@@ -162,8 +175,6 @@ eprint(u'Importing and organizing data...')
 class VersionError(Exception):
     def __init__(self, targetVersion, actualVersion):
         super(VersionError, self).__init__(u'Version mismatch: found v{0}, targeting v{1}'.format(actualVersion, targetVersion))
-
-import shelve
 
 principles = {}
 implies, notImplies = {}, {}
@@ -209,10 +220,12 @@ def setDatabase(database):
     global justify
     justify = database['justify']
 
-def loadDatabase(shelfTitle):
-    with closingWrapper(shelve.open(shelfTitle, flag='r', protocol=2)) as shelf:
-        setDatabase(shelf)
-loadDatabase(shelfTitle)
+def loadDatabase(databaseName, quiet=False):
+    with open(databaseName, mode='rb') as databaseFile:
+        compressedDatabase = databaseFile.read()
+        pickledDatabase = zlib.decompress(compressedDatabase)
+        setDatabase(pickle.loads(pickledDatabase))
+loadDatabase(databaseName)
 
 def knownEquivalent(a, reduction, justification=True):
     if a in principles:

@@ -14,6 +14,7 @@
 #   - Version 4.3 - changed internal representations, started 21 July 2016
 #   - Version 4.4 - moved to a shelf database, started 25 July 2016
 #   - Version 5.0 - clean implementation of inference rules, started 1 August 2016
+#   - Version 5.1 - reverted from shelf database for cross-platform compatibility, started 16 August 2016
 #   Documentation and support: http://rmzoo.uconn.edu
 #
 ##################################################################################
@@ -26,16 +27,20 @@ import time
 from io import open
 from collections import defaultdict
 
-from version_guard import lru_cache, closingWrapper
+from version_guard import lru_cache
 
-import shelve
+import zlib
+try:
+    import cPickle as pickle
+except:
+    import pickle
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
-Date = u'1 August 2016'
-Version = u'5.0'
-DatabaseVersion = u'5.0'
+Date = u'16 August 2016'
+Version = u'5.1'
+DatabaseVersion = u'5.1'
 
 from rmBitmasks import *
 from renderJustification import *
@@ -264,7 +269,7 @@ def standardizeFact(a, op, b):
     return a, op, b
 
 from pyparsing import *
-def parseDatabase(databaseString, quiet=False):
+def parseResults(resultsString, quiet=False):
     start = time.clock()
     if not quiet: eprint(u'Parsing results...')
     # Name parsed strings
@@ -302,7 +307,7 @@ def parseDatabase(databaseString, quiet=False):
     
     operator = implication | nonImplication | reduction | nonReduction | equivalence | conservation | nonConservation
     
-    # Database lines
+    # Results file lines
     unjustified = (name + Group(operator) + name + ~justification).setParseAction(lambda s,l,t: addUnjustified(*standardizeFact(t[0], tuple(t[1]), t[2])))
     
     factsToAdd = []
@@ -316,11 +321,11 @@ def parseDatabase(databaseString, quiet=False):
     
     comments = Suppress(Literal( "#" ) + SkipTo(LineEnd()))
     
-    # Represent and parse database file
+    # Represent and parse results file
     entry = fact | formDef | primary | unjustified | comments
-    database = ZeroOrMore( entry ) + StringEnd()
+    results = ZeroOrMore( entry ) + StringEnd()
     
-    database.parseString(databaseString)
+    results.parseString(resultsString)
     
     global principlesList
     principlesList = sorted(principles)
@@ -828,28 +833,28 @@ def getDatabase():
             'primary': (primary, primaryIndex),
             'justify': justify}
 
-def setDatabase(shelf):
-    if shelf['version'] != DatabaseVersion:
-        raise VersionError(shelf['version'], DatabaseVersion)
+def setDatabase(database):
+    if database['version'] != DatabaseVersion:
+        raise VersionError(database['version'], DatabaseVersion)
     
     global principles, principlesList
-    principles = shelf['principles']
+    principles = database['principles']
     principlesList = sorted(principles)
     
     global implies, notImplies
-    implies, notImplies = shelf['implication']
+    implies, notImplies = database['implication']
     
     global conservative, nonConservative
-    conservative, nonConservative = shelf['conservation']
+    conservative, nonConservative = database['conservation']
     
     global form
-    form = shelf['form']
+    form = database['form']
     
     global primary, primaryIndex
-    primary, primaryIndex = shelf['primary']
+    primary, primaryIndex = database['primary']
     
     global justify
-    justify = shelf['justify']
+    justify = database['justify']
     
     global justComplexity
     justComplexity = {}
@@ -870,24 +875,23 @@ def setDatabase(shelf):
     for fact in justify:
         rebuildComplexity(fact)
 
-def dumpDatabase(shelfTitle, quiet=False):
+def dumpDatabase(databaseName, quiet=False):
     if not quiet: eprint(u'Facts known: {0:,d}\n'.format(len(justify)))
     
     start = time.clock()
     if not quiet: eprint(u'Dumping updated database to binary file...')
-    with closingWrapper(shelve.open(shelfTitle, flag='n', protocol=2)) as shelf:
-        shelf['version'] = DatabaseVersion
-        shelf['principles'] = principles
-        shelf['primary'] = (primary, primaryIndex)
-        shelf['form'] = form
-        shelf['implication'] = (implies, notImplies)
-        shelf['conservation'] = (conservative, nonConservative)
-        shelf['justify'] = justify
+    with open(databaseName, mode='wb') as databaseFile:
+        pickledDatabase = pickle.dumps(getDatabase(), protocol=2)
+        compressedDatabase = zlib.compress(pickledDatabase)
+        databaseFile.write(compressedDatabase)
+    
     if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
 
-def loadDatabase(shelfFile, quiet=False):
-    with closingWrapper(shelve.open(shelfFile, flag='r', protocol=2)) as shelf:
-        setDatabase(shelf)
+def loadDatabase(databaseName, quiet=False):
+    with open(databaseName, mode='rb') as databaseFile:
+        compressedDatabase = databaseFile.read()
+        pickledDatabase = zlib.decompress(compressedDatabase)
+        setDatabase(pickle.loads(pickledDatabase))
 
 from optparse import OptionParser, OptionGroup
 def main():
@@ -915,18 +919,23 @@ def main():
     import os
     resultsFile = args[0]
     if len(args) > 1:
-        shelfTitle = args[1]
+        databaseTitle = args[1]
     else:
         eprint(u'No database title specified; defaulting to "database".')
-        shelfTitle = 'database'
+        databaseTitle = 'database.dat'
+    
+    if os.path.splitext(databaseTitle)[1] == '':
+        databaseName = databaseTitle + os.extsep + 'dat'
+    else:
+        databaseName = databaseTitle
     
     if not os.path.exists(resultsFile):
         parser.error(u'Results file "{0}" does not exist.'.format(resultsFile))
     
     with open(resultsFile, encoding='utf-8') as f:
-        parseDatabase(f.read(), options.quiet)
+        parseResults(f.read(), options.quiet)
     deriveInferences(quiet=options.quiet, verbose=options.verbose)
-    dumpDatabase(shelfTitle, options.quiet)
+    dumpDatabase(databaseName, options.quiet)
     if not options.quiet: eprint(u'Total elapsed time: {0:.6f} s'.format(time.clock() - absoluteStart))
     
     if options.verbose:
