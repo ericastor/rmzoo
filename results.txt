@@ -70,6 +70,10 @@ ISig3 -> ISig2 "by definition"
 BSig3 -> BSig2 "by definition"
 
 RCA w-> PA "Full induction holds in any omega-model."
+RCA w-> ISig3 "Full induction holds in any omega-model."
+RCA w-> BSig3 "Full induction holds in any omega-model."
+RCA w-> ISig2 "Full induction holds in any omega-model."
+RCA w-> BSig2 "Full induction holds in any omega-model."
 
 ### Results by source
 

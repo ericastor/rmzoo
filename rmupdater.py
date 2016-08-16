@@ -679,7 +679,7 @@ def definitionOfNonConservation():
     return r
 
 #REDUNDANT
-# Uses 'nc' and '->'
+# Uses 'nc' and '->', affects 'nc'
 def liftNonConservation():
     imp = (Reduction.RCA, u'->')
     
@@ -739,27 +739,37 @@ def deriveInferences(quiet=False):
     start = time.clock()
     if not quiet: eprint(u'Deriving positive facts:')
     n = 0
-    updated = True
-    while updated:
+    eUpdated, iUpdated, cUpdated = True, True, True
+    while eUpdated or iUpdated or cUpdated:
         n += 1
-        updated = False
+        eChanged, iChanged, cChanged = False, False, False
         
-        if not quiet: eprint(u'\tExtracting equivalences...')
-        updated |= definitionOfEquivalence()
-        if not quiet: eprint(u'\tTaking the transitive closure of equivalence...')
-        updated |= transitiveClosure(equivalent, u'<->', Reduction)
+        if iUpdated or iChanged:
+            if not quiet: eprint(u'\tExtracting equivalences...')
+            eChanged |= definitionOfEquivalence() # Uses '->', affects '<->'
+        if eUpdated or eChanged:
+            if not quiet: eprint(u'\tTaking the transitive closure of equivalence...')
+            eChanged |= transitiveClosure(equivalent, u'<->', Reduction) # Uses '<->', affects '<->'
         
-        if not quiet: eprint(u'\tTaking the transitive closure of implication...')
-        updated |= transitiveClosure(implies, u'->', Reduction)
-        if not quiet: eprint(u'\tReverse-engineering implications of conjunctions...')
-        updated |= unifyOverConjunctions()
-        if not quiet: eprint(u'\tImplementing conservativity for implication...')
-        updated |= definitionOfConservation()
+        if iUpdated or iChanged:
+            if not quiet: eprint(u'\tTaking the transitive closure of implication...')
+            iChanged |= transitiveClosure(implies, u'->', Reduction) # Uses '->', affects '->'
+            if not quiet: eprint(u'\tReverse-engineering implications of conjunctions...')
+            iChanged |= unifyOverConjunctions() # Uses '->', affects '->'
+        if (cUpdated or cChanged) or (iUpdated or iChanged):
+            if not quiet: eprint(u'\tImplementing conservativity for implication...')
+            iChanged |= definitionOfConservation() # Uses 'c' and '->', affects '->'
         
-        if not quiet: eprint(u'\tTaking the transitive closure of conservation facts...')
-        updated |= transitiveClosure(conservative, u'c', Form)
-        if not quiet: eprint(u'\tLifting conservation facts over implications...')
-        updated |= liftConservation()
+        if cUpdated or cChanged:
+            if not quiet: eprint(u'\tTaking the transitive closure of conservation facts...')
+            cChanged |= transitiveClosure(conservative, u'c', Form) # Uses 'c', affects 'c'
+        if (cUpdated or cChanged) or (iUpdated or iChanged):
+            if not quiet: eprint(u'\tLifting conservation facts over implications...')
+            cChanged |= liftConservation() # Uses 'c' and '->', affects 'c'
+        
+        eUpdated = eChanged
+        iUpdated = iChanged
+        cUpdated = cChanged
     if not quiet:
         eprint(u'Finished with positive facts.')
         eprint(u'Elapsed: {0:.6f} s (with {1} repeats)\n'.format(time.clock() - start, n))
@@ -767,24 +777,31 @@ def deriveInferences(quiet=False):
     start = time.clock()
     if not quiet: eprint(u'Deriving negative facts:')
     n = 0
-    updated = True
-    while updated:
+    niUpdated, ncUpdated = True, True
+    while niUpdated or ncUpdated:
         n += 1
-        updated = False
+        niChanged, ncChanged = False, False
         
-        if not quiet: eprint(u'\tApplying transivitity to non-implications...')
-        updated |= contrapositiveTransitivity(implies, u'->', notImplies, u'-|>', Reduction)
-        if not quiet: eprint(u'\tSplitting non-implications over conjunctions...')
-        updated |= contrapositiveConjunction()
-        if not quiet: eprint(u'\tImplementing conservativity for non-implication...')
-        updated |= contrapositiveConservation()
+        if niUpdated or niChanged:
+            if not quiet: eprint(u'\tApplying transivitity to non-implications...')
+            niChanged |= contrapositiveTransitivity(implies, u'->', notImplies, u'-|>', Reduction) # Uses '->' and '-|>', affects '-|>'
+            if not quiet: eprint(u'\tSplitting non-implications over conjunctions...')
+            niChanged |= contrapositiveConjunction() # Uses '->' and '-|>', affects '-|>'
+            if not quiet: eprint(u'\tImplementing conservativity for non-implication...')
+            niChanged |= contrapositiveConservation() # Uses 'c' and '-|>', affects '-|>'
         
-        if not quiet: eprint(u'\tApplying transivitity to non-conservation facts...')
-        updated |= contrapositiveTransitivity(conservative, u'c', nonConservative, u'nc', Form)
-        if not quiet: eprint(u'\tExtracting non-conservation facts from non-implications...')
-        updated |= definitionOfNonConservation()
-        if not quiet: eprint(u'\tLifting non-conservation facts over implications...')
-        updated |= liftNonConservation()
+        if ncUpdated or ncChanged:
+            if not quiet: eprint(u'\tApplying transivitity to non-conservation facts...')
+            ncChanged |= contrapositiveTransitivity(conservative, u'c', nonConservative, u'nc', Form) # Uses 'c' and 'nc', affects 'nc'
+        if niUpdated or niChanged:
+            if not quiet: eprint(u'\tExtracting non-conservation facts from non-implications...')
+            ncChanged |= definitionOfNonConservation() # Uses '->' and '-|>', affects 'nc'
+        if ncUpdated or ncChanged:
+            if not quiet: eprint(u'\tLifting non-conservation facts over implications...')
+            ncChanged |= liftNonConservation() # Uses 'nc' and '->', affects 'nc'
+        
+        niUpdated = niChanged
+        ncUpdated = ncChanged
     if not quiet:
         eprint(u'Finished with negative facts.')
         eprint(u'Elapsed: {0:.6f} s (with {1} repeats)\n'.format(time.clock() - start, n))
