@@ -11,6 +11,7 @@
 *.png
 *.ps
 *.svg
+*.pdf
 
 # Temp files
 temp/
@@ -44,6 +45,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+*.zip
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -81,6 +83,3 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
-
-*.db
-*.pdf
