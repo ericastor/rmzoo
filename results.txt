@@ -436,6 +436,22 @@ AMT w-> Pi01G "Conidis (2008) [Corollary 3.11]"
 #Cited:
 #    AMT+BSig2 -|> ISig2 "Hirschfeldt, Soare, and Slaman (2009)"
 
+#Chubb, Hirst, and McNicholl (2009) - "Reverse mathematics, computability, and partitions of trees"
+#    https://www.cambridge.org/core/journals/journal-of-symbolic-logic/article/reverse-mathematics-computability-and-partitions-of-trees/896FD1F7A3EF72C9F16EAC479C61FD1C
+#    J. Symbolic Logic 74(1), doi:10.2178/jsl/1231082309
+
+TT2 -> TT22 "by definition"
+TT1 -> TT12 "by definition"
+
+RCA -> TT12 "Chubb, Hirst, and McNicholl (2009) [Lemma 1.1]"
+ISig2 -> TT1 "Chubb, Hirst, and McNicholl (2009) [Theorem 1.2]"
+TT1 -> BPi1 "Chubb, Hirst, and McNicholl (2009) [remark following Theorem 1.2]"
+ACA -> TT2 "Chubb, Hirst, and McNicholl (2009) [Theorem 1.3]"
+ACA <-> TT32 "Chubb, Hirst, and McNicholl (2009) [Theorem 1.5]"
+TT32 -> RT32 "Chubb, Hirst, and McNicholl (2009) [proof of Theorem 1.5]"
+TT22 -> RT22 "Chubb, Hirst, and McNicholl (2009) [proof of Theorem 1.5]"
+TT2 -> RT2 "Chubb, Hirst, and McNicholl (2009) [remark following Theorem 1.5]"
+
 #Csima and Mileti (2009) - "The strength of the rainbow Ramsey theorem"
 #    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9061548&fileId=S0022481200003170
 #    J. Symbolic Logic 74(4), doi:10.2178/jsl/1254748693
@@ -576,6 +592,38 @@ IPT22 -> SPT22 "Chong, Lempp, and Yang (2010) [Theorem 1.7]"
 #    PT22 -> BSig2 "Dzhafarov and Hirst (2009)"
 #    SIPT22 -> D22 "Dzhafarov and Hirst (2009)"
 #    BSig2+IPT22 -> SPT22 "Dzhafarov and Hirst (2009)"
+
+#Dzhafarov, Hirst, and Lakins (2010) - "Ramsey’s theorem for trees: the polarized tree theorem and notions of stability"
+#    http://link.springer.com/article/10.1007/s00153-010-0179-6
+#    Arch. Math. Logic 49(3), doi:10.1007/s00153-010-0179-6
+
+PTT3 -> PTT32 "by definition"
+PTT2 -> PTT22 "by definition"
+IPTT3 -> IPTT32 "by definition"
+IPTT2 -> IPTT22 "by definition"
+
+STT2 -> STT22 "by definition"
+SPTT2 -> SPTT22 "by definition"
+SIPTT2 -> SIPTT22 "by definition"
+
+PTT32 -> IPTT32 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 1.6]"
+PTT22 -> IPTT22 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 1.6]"
+TT32 -> PTT32 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 2.1]"
+TT22 -> PTT22 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 2.1]"
+PTT22 -> SPTT22 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 3.10]"
+IPTT22 -> SIPTT22 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 3.10]"
+STT22 -> SPTT22 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 3.10]"
+SPTT22 -> SIPTT22 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 3.10]"
+SPTT22 -> SPT22 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 3.11]"
+SIPTT22 -> SIPT22 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 3.11]"
+STT22 <-> SPTT22 "Dzhafarov, Hirst, and Lakins (2010) [Theorem 3.14]"
+SPTT22 <-> SIPTT22 "Dzhafarov, Hirst, and Lakins (2010) [Theorem 3.14]"
+STT2 <-> SPTT2 "Dzhafarov, Hirst, and Lakins (2010) [Theorem 3.14]"
+SPTT2 <-> SIPTT2 "Dzhafarov, Hirst, and Lakins (2010) [Theorem 3.14]"
+TT22 <-> CTT22+STT22 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 3.18]"
+#TADS -> C4TT22 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 3.21]"
+#PTT22 -> TADS "Dzhafarov, Hirst, and Lakins (2010) [Proposition 3.22]"
+#PTT22 <-> C4TT22+S4PTT22 "Dzhafarov, Hirst, and Lakins (2010) [Corollary 3.23]"
 
 #Dzhafarov (2011) - "Stable Ramsey's Theorem and Measure"
 #    http://projecteuclid.org/euclid.ndjfl/1292249613
@@ -904,26 +952,52 @@ nD2IP+ISig2 -> GEN1 "Cholak, Downey, and Igusa (to appear) [Proposition 5.7]"
 
 HYP w-|> GEN1 "W. Miller and Martin (1968) [Every non-trivial $\Delta^0_2$ degree is hyperimmune], Sacks (1963) [There is a $\Delta^0_2$ minimal degree], and sets that join to a 1-generic are Turing-incomparable."
 
+#Frittaion and Patey (to appear) - "Coloring the rationals in reverse mathematics"
+#    http://arxiv.org/abs/1508.00752v2
+
+ER22 -> RT22 "Frittaion and Patey (to appear) [Lemma 2.1]"
+ACA -> RT22 "Frittaion and Patey (to appear) [Theorem 2.4]"
+ER22+ISig2 -> ER1 "Frittaion and Patey (to appear) [Lemma 3.1]"
+ER1 -> RT1 "Frittaion and Patey (to appear) [Lemma 3.1]"
+BSig2 -|> ER1 "Frittaion and Patey (to appear) [Theorem 3.5]"
+ER22 </=_c RT2 "Frittaion and Patey (to appear) [Theorem 4.2]"
+
+#Unsupported:
+#    if (P form Pi11), then P -> ER1 iff P -> ISig2 [Theorem 3.5]
+
 #Patey (to appear) - "Iterative forcing and hyperimmunity in reverse mathematics"
 #    http://www.ludovicpatey.com/media/research/iterative-forcing-extended.pdf
 #    to appear in Computability
 
 #Unsupported:
-#    SADS does not admit hyperimmunity preservation "Patey (to appear) [Theorem 6]"
-#    SADS does not admit preservation of 2 hyperimmunities "Patey (to appear) [Theorem 6]"
-#    STS2 does not admit hyperimmunity preservation "Patey (to appear) [Theorem 9]"
-#    AMT admits hyperimmunity preservation "Patey (to appear) [remark following Theorem 11]"
-#    Pi01G admits hyperimmunity preservation "Patey (to appear) [remark following Theorem 11]"
-#    RRT22 admits hyperimmunity preservation "Patey (to appear) [remark following Theorem 11]"
-#    COH admits hyperimmunity preservation "Patey (to appear) [Theorem 12]"
-#    WKL admits hyperimmunity preservation "Patey (to appear) [Theorem 14]"
-#    EM admits hyperimmunity preservation "Patey (to appear) [Theorem 17]"
-#    STS2 admits preservation of k hyperimmunities "Patey (to appear) [Theorem 23]"
-#    STS2 does not admit hyperimmunity preservation "Patey (to appear) [Theorem 23]"
+#    SADS does not admit hyperimmunity preservation "Patey (to appear, iterative forcing) [Theorem 6]"
+#    SADS does not admit preservation of 2 hyperimmunities "Patey (to appear, iterative forcing) [Theorem 6]"
+#    STS2 does not admit hyperimmunity preservation "Patey (to appear, iterative forcing) [Theorem 9]"
+#    AMT admits hyperimmunity preservation "Patey (to appear, iterative forcing) [remark following Theorem 11]"
+#    Pi01G admits hyperimmunity preservation "Patey (to appear, iterative forcing) [remark following Theorem 11]"
+#    RRT22 admits hyperimmunity preservation "Patey (to appear, iterative forcing) [remark following Theorem 11]"
+#    COH admits hyperimmunity preservation "Patey (to appear, iterative forcing) [Theorem 12]"
+#    WKL admits hyperimmunity preservation "Patey (to appear, iterative forcing) [Theorem 14]"
+#    EM admits hyperimmunity preservation "Patey (to appear, iterative forcing) [Theorem 17]"
+#    STS2 admits preservation of k hyperimmunities "Patey (to appear, iterative forcing) [Theorem 23]"
+#    STS2 does not admit hyperimmunity preservation "Patey (to appear, iterative forcing) [Theorem 23]"
 
 #Cited:
 #    COH+WKL+RRT22+Pi01G+EM+TS2(k+1) -|> SADS "Patey (submitted) - The weakness of being cohesive, thin or free in reverse mathematics"
 #    COH+WKL+RRT22+Pi01G+EM+TS2(k+1) -|> STS2(k) "Patey (submitted) - The weakness of being cohesive, thin or free in reverse mathematics"
+
+#Patey (to appear) - "The strength of the tree theorem for pairs in reverse mathematics"
+#    http://arxiv.org/abs/1505.01057v2
+
+TT12 </=_sc RT12 "Patey (to appear, tree theorem) [consequence of Theorem 2.2]"
+RT22+WKL w-|> TT22 "Patey (to appear, tree theorem) [Corollary 4.12]"
+
+#Unsupported:
+#    TT22 does not admit fairness preservation [Theorem 3.9]
+#    WKL admits n-fairness preservation [Theorem 4.2]
+#    COH admits n-fairness preservation [Theorem 4.5]
+#    RT12 admits strong fairness preservation [Theorem 4.8]
+#    RT22 admits fairness preservation [Theorem 4.11]
 
 #Wang (to appear) - "The Definability Strength of Combinatorial Principles"
 #    http://arxiv.org/abs/1408.1465
@@ -966,7 +1040,7 @@ DNR -> RWWKL "Flood and Towsner (submitted) [Theorem 5.3]"
 RT22 -|> ISig2 "Chong, Slaman, and Yang (preprint) [Corollary 4.2]"
 
 #Patey (preprint) - "Somewhere over the rainbow Ramsey theorem for pairs"
-#    http://arxiv.org/abs/1501.07424
+#    http://arxiv.org/abs/1501.07424v2
 
 RRT22 -> WSRRT22 "by definition"
 WSRRT22 -> SRRT22 "by definition"
@@ -1070,7 +1144,7 @@ CSig2 form Pi11
     #SRT22+WKL -|> ISig2 "Chong, Slaman, and Yang (2014)"
 
 #Patey (preprint) - "Partial orders and immunity in reverse mathematics"
-#    http://arxiv.org/abs/1607.04506
+#    http://arxiv.org/abs/1607.04506v1
 
 CAC -> WSCAC "by definition"
 WSCAC -> SCAC "by definition"
@@ -1091,3 +1165,31 @@ WSCAC </=_c SCAC "Patey (preprint, Partial orders) [Corollary 40]"
 #    SCAC does not admit dependent hyperimmunity preservation "Patey (preprint, Partial orders) [Corollary 24]"
 #    psRT2k admits dependent hyperimmunity preservation "Patey (preprint, Partial orders) [Theorem 25]"
 #    WWKL admits dependent hyperimmunity preservation "Patey (preprint, Partial orders) [Corollary 30]"
+
+#Dzhafarov and Patey (preprint) - "Coloring trees in reverse mathematics"
+#    http://arxiv.org/abs/1609.02627v1
+
+TT22 -> TT12 "easy to see"
+
+STT22 w-|> ACA "Dzhafarov and Patey (preprint) [Corollary 3.10]"
+TT22 w-|> ACA "Dzhafarov and Patey (preprint) [Theorem 4.1]"
+CTT22 w-|> ACA "Dzhafarov and Patey (preprint) [follows from Theorem 4.6]"
+RT22+WKL w-|> SER22 "Dzhafarov and Patey (preprint) [Theorem 5.5]"
+STT22 -> SER22 "Dzhafarov and Patey (preprint) [proof of Corollary 5.6]"
+
+#Unsupported:
+#    TT12 admits strong cone avoidance "Dzhafarov and Patey (preprint) [Theorem 3.7]"
+#    STT22 admits cone avoidance "Dzhafarov and Patey (preprint) [Corollary 3.10]"
+#    TT22 admits cone avoidance "Dzhafarov and Patey (preprint) [Theorem 4.1]"
+#    CTT22 admits cone avoidance "Dzhafarov and Patey (preprint) [Theorem 4.6]"
+#    ER22 does not admit ER-fairness preservation "Dzhafarov and Patey (preprint) [Theorem 5.17]"
+#    WKL admits n-ER-fairness preservation for every n "Dzhafarov and Patey (preprint) [Theorem 5.18]"
+#    COH admits n-ER-fairness preservation for every n "Dzhafarov and Patey (preprint) [Theorem 5.20]"
+#    RT12 admits strong ER-fairness preservation "Dzhafarov and Patey (preprint) [Theorem 5.23]"
+#    RT22 admits ER-fairness preservation "Dzhafarov and Patey (preprint) [Theorem 5.26]"
+
+#Cited:
+    #ACA -> TT22 "Chubb, Hirst, and McNicholl (2009) [Theorem 1.3]"
+    #RT22 -|> TT22 "Patey (to appear, tree theorem) [Corollary 4.12]"
+    #COH+SRT22 <-> RT22 "Cholak, Jockusch, and Slaman (2001) [Lemma 7.11] and Mileti (27) [Claim A.1.3]"
+    #BSig2+COH <-> BSig2+CRT22 "Hirschfeldt and Shore (2007) [Propositions 4.4 and 4.8]"
