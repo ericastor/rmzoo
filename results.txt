@@ -60,6 +60,8 @@ RT2 -> RT22 "by definition"
 SRT2 -> SRT22 "by definition"
 D2 -> D22 "by definition"
 
+RT1 -> RT12 "by definition"
+
 RT2 -> SRT2 "by definition"
 RT22 -> SRT22 "by definition"
 EM -> SEM "by definition"
@@ -144,9 +146,8 @@ RT32 <-> ACA "follows from Jockusch (1972) [Theorem 5.7]"
 #Hirst (1987) - "Combinatorics in Subsystems of Second Order Arithmetic" (Ph.D. thesis, Pennsylvania State University)
 #    http://search.proquest.com/docview/303611646
 
-RT2 -> RT22 "by definition"
-
 BPi2 <-> BSig3 "Hirst (1987) [Theorem 5.1]"
+RCA -> RT12 "Hirst (1987) [Theorem 6.3]"
 RT1 <-> BPi1 "Hirst (1987) [Theorem 6.4]"
 WKL -|> RT1 "Hirst (1987) [Corollary 6.5]"
 RT1 -|> WKL "Hirst (1987) [remark after Corollary 6.5]"
@@ -606,6 +607,9 @@ STT2 -> STT22 "by definition"
 SPTT2 -> SPTT22 "by definition"
 SIPTT2 -> SIPTT22 "by definition"
 
+TT2 -> STT2 "by definition"
+TT22 -> STT22 "by definition"
+
 PTT32 -> IPTT32 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 1.6]"
 PTT22 -> IPTT22 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 1.6]"
 TT32 -> PTT32 "Dzhafarov, Hirst, and Lakins (2010) [Proposition 2.1]"
@@ -773,9 +777,13 @@ RT22 w-|> WKL "Liu (2012) [Corollary 1.6]"
 #    http://journals.cambridge.org/action/displayAbstract?fromPage=online&aid=9058478&fileId=S0022481200000359
 #    J. Symbolic Logic 78(1), doi:10.2178/jsl.7801130
 
+CSig -> CSig2 "by definition"
+
 ISig2 form Pi11
 
 RAN2 -> RRT22 "Conidis and Slaman (2013) [Theorem 2.1]"
+CSig -|> BSig2 "Conidis and Slaman (2013) [Theorem 3.2]"
+ISig2+CSig -|> BSig3 "Conidis and Slaman (2013) [Theorem 3.2]"
 RRT22 -> CSig2 "Conidis and Slaman (2013) [Theorem 3.3]"
 RAN2+BSig2 Pi11c BSig2 "Conidis and Slaman (2013) [Corollary 4.2]"
 
@@ -956,8 +964,9 @@ HYP w-|> GEN1 "W. Miller and Martin (1968) [Every non-trivial $\Delta^0_2$ degre
 #    http://arxiv.org/abs/1508.00752v2
 
 ER22 -> RT22 "Frittaion and Patey (to appear) [Lemma 2.1]"
-ACA -> RT22 "Frittaion and Patey (to appear) [Theorem 2.4]"
-ER22+ISig2 -> ER1 "Frittaion and Patey (to appear) [Lemma 3.1]"
+ACA -> ER22 "Frittaion and Patey (to appear) [Theorem 2.4]"
+ER22 -> ER1 "Frittaion and Patey (to appear) [Lemma 3.1]"
+ISig2 -> ER1 "Frittaion and Patey (to appear) [Lemma 3.1]"
 ER1 -> RT1 "Frittaion and Patey (to appear) [Lemma 3.1]"
 BSig2 -|> ER1 "Frittaion and Patey (to appear) [Theorem 3.5]"
 ER22 </=_c RT2 "Frittaion and Patey (to appear) [Theorem 4.2]"
@@ -1193,3 +1202,15 @@ STT22 -> SER22 "Dzhafarov and Patey (preprint) [proof of Corollary 5.6]"
     #RT22 -|> TT22 "Patey (to appear, tree theorem) [Corollary 4.12]"
     #COH+SRT22 <-> RT22 "Cholak, Jockusch, and Slaman (2001) [Lemma 7.11] and Mileti (27) [Claim A.1.3]"
     #BSig2+COH <-> BSig2+CRT22 "Hirschfeldt and Shore (2007) [Propositions 4.4 and 4.8]"
+
+#Towsner (preprint) - "Constructing sequences one step at a time"
+#    http://arxiv.org/abs/1609.05509v1
+
+ProdWQO -> ADS "Towsner (preprint) [Lemma 1.15]"
+CAC+WKL w-|> STS2 "Towsner (preprint) [Theorem 2.1]"
+ADS+WKL w-|> ProdWQO "Towsner (preprint) [Theorem 3.7]"
+ProdWQO+WKL w-|> SCAC "Towsner (preprint) [Theorem 4.6]"
+#ADS+WKL w-|> SCAC "Towsner (preprint) [follows from Theorem 4.6]"
+
+#Cited:
+    CAC -> ProdWQO "Cholak, Marcone, and Solomon (2004) [follows from Corollaries 3.4 and 4.6]"
