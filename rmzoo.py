@@ -98,7 +98,9 @@ parser.add_option('-c', action='store_true', dest='conservation',
     help=u'Display known conservation results.')
     
 parser.add_option('-r', dest='restrict_string', metavar='CLASS',
-    help=u'Resrict to only the principles in CLASS.')
+    help=u'Restrict to only the principles in CLASS.')
+parser.add_option('--omit', dest='omit_string', metavar='CLASS',
+    help=u'Omit all principles in CLASS.')
 
 parser.add_option('-q', dest='query_string', metavar='FACT',
     help=u'Show whether FACT is known, and if so, its justification.')
@@ -119,6 +121,7 @@ OnlyPrimary = options.onlyprimary
 ShowForm = options.showform
 Conservation = options.conservation
 Restrict = options.restrict_string
+Omissions = options.omit_string
 if Restrict:
     rSet = set()
     for p in Restrict.split():
@@ -129,6 +132,8 @@ if Restrict:
         rSet.add(p)
         rSet.update(splitP)
     Restrict = rSet
+if Omissions:
+    Omissions = set(Omissions.split())
 Query = options.query_string
 QueryFile = options.query_file
 AddPrinciples = options.add_principles
@@ -140,9 +145,11 @@ if not Implications and not NonImplications and not OnlyPrimary and not Restrict
 if OnlyPrimary:
     if not Implications and not NonImplications and not Weak and not Strong and not ShowForm and not Conservation:
         parser.error(u'Option -p only works if one of -i, -n, -w, -s, -f, or -c is selected.')
-if Restrict:
+if Restrict or Omissions:
+    if Restrict and Omissions:
+        parser.error(u'Options -r and --omit are incompatible.')
     if not Implications and not NonImplications and not Weak and not Strong and not ShowForm and not Conservation:
-        parser.error(u'Option -r only works if one of -i, -n, -w, -s, -f, or -c is selected.')
+        parser.error(u'Options -r and --omit only work if one of -i, -n, -w, -s, -f, or -c is selected.')
 if Query:
     if Implications or NonImplications or Weak or Strong or ShowForm or Conservation or Restrict or OnlyPrimary or QueryFile:
         parser.error(u'Option -q does not work with any other option (except --force).')
@@ -156,7 +163,7 @@ if len(args) > 0:
     databaseTitle = args[0]
 else:
     eprint(u'No database title specified; defaulting to "database".')
-    databaseTitle = 'database.dat'
+    databaseTitle = 'database'
 
 if os.path.splitext(databaseTitle)[1] == '':
     databaseName = databaseTitle + os.extsep + 'dat'
@@ -326,6 +333,9 @@ if Restrict:
     for a in Restrict:  # Give warnings if CLASS is not a subset of principles
         if a not in principles:
             error(+a+u' is not in the database.')
+
+if Omissions:
+    Restrict = principles - Omissions
 
 ##################################################################################
 #
@@ -684,7 +694,7 @@ node [shape=none,color=white];
                     style = []
                     if printNotImplies[(b,a)] and not NonImplications:
                         style.append(u'color = "black:white:black"')
-                    if len(equivSet[a]) > 0:
+                    if len(equivSet[a]) > 0 and not OnlyPrimary:
                         style.append(u'minlen = 2')
                     s = u''
                     if len(style) > 0:
