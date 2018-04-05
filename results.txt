@@ -66,6 +66,8 @@ RT2 -> SRT2 "by definition"
 RT22 -> SRT22 "by definition"
 EM -> SEM "by definition"
 
+RT1 -> RT12 "by definition"
+
 KL -> WKL "by definition"
 
 ISig3 -> ISig2 "by definition"
