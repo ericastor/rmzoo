@@ -186,9 +186,20 @@ if __name__ == '__main__':
              'tags': [],
              'edgeKinds': [],
              'colorings': [],
-             'about': {'description': 'The <a href="https://rmzoo.math.uconn.edu/">RM Zoo</a> is a program to help organize reverse-mathematical relations between mathematical principles, particularly those that fail to be equivalent to any of the big five subsystems of second-order arithmetic. Its primary goal is to make it easier to see known results and open questions, and thus hopefully to serve as a useful tool to researchers in the field. As a secondary goal, the Zoo provides an interactive annotated bibliography of the field, collecting results in a standard machine-readable format.'},
+             'about': {'description': 'The <a href="https://rmzoo.math.uconn.edu/">RM Zoo</a> is a program to '
+                                      'help organize reverse-mathematical relations between mathematical '
+                                      'principles, particularly those that fail to be equivalent to any of the '
+                                      'big five subsystems of second-order arithmetic. Its primary goal is to '
+                                      'make it easier to see known results and open questions, and thus '
+                                      'hopefully to serve as a useful tool to researchers in the field. As a '
+                                      'secondary goal, the Zoo provides an interactive annotated bibliography '
+                                      'of the field, collecting results in a standard machine-readable format.'},
              'graphviz': {}
            }
+
+    translationFunction = "if('{0}' in edge.properties) return 1; " \
+                          "if('{1}' in edge.properties) return 0; " \
+                          "return 2;"
     for red in Reduction:
         if red == Reduction.none: continue
         
@@ -199,9 +210,7 @@ if __name__ == '__main__':
                     'key': posName,
                     'edges': [r.name + u'i' for r in Reduction.list(Reduction.weaker(red) & ~red)]}
         kind = {'label': '$\rightarrow_{\rm ' + red.name + '}$',
-                'functionBody': """if({0} in edge.properties) return 1;
-                                   else if({1} in edge.properties) return 0;
-                                   else return 2;""".format(posName, negName),
+                'functionBody': translationFunction.format(posName, negName),
                 'node': kindNode}
         meta['edgeKinds'].append(kind)
     for f in Form:
@@ -215,9 +224,7 @@ if __name__ == '__main__':
                     'key': posName,
                     'edges': [r.name + u'i' for r in Reduction.list(Reduction.weaker(red) & ~red)]}
         kind = {'label': posName,
-                'functionBody': """if({0} in edge.properties) return 1;
-                                   else if({1} in edge.properties) return 0;
-                                   else return 2;""".format(posName, negName),
+                'functionBody': translationFunction.format(posName, negName),
                 'node': kindNode}
         
     nodes = {}
@@ -286,4 +293,4 @@ if __name__ == '__main__':
                 nodes[a]['edges'][b]['properties'][opName] = prop
     
     with open('rmzoo.json', 'w') as f:
-        json.dump({'nodes': nodes, 'meta': meta}, f)
+        json.dump({'nodes': nodes, 'meta': meta}, f, sort_keys=True, indent=4)
