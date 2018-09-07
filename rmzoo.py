@@ -562,19 +562,26 @@ if Implications or NonImplications or Weak or Strong:
     
     for a in sorted(principles):
         currentPrimary = a
-        currentIndex = len(primaryIndex)
-        for b in principles:
-            if equivalent[(a,b)] and b in primary:
-                if primaryIndex.index(b) < currentIndex:
-                    if currentPrimary in primary:
-                        primary.remove(currentPrimary)
-                    currentPrimary = b
-                    currentIndex = primaryIndex.index(b)
+        found = False
+        toRemove = set()
+        for b in primaryIndex:
+            if currentPrimary == b:
+                found = True
+                continue
+            if equivalent[(currentPrimary,b)]:
+                if found:
+                    toRemove.add(b)
                 else:
-                    primary.remove(b)
+                    if currentPrimary in primary:
+                        toRemove.add(currentPrimary)
+                    currentPrimary = b
+                    found = True
         if currentPrimary not in primary:
             primary.add(currentPrimary)
             primaryIndex.append(currentPrimary)
+        for x in toRemove:
+            primaryIndex.remove(x)
+        primary.difference_update(toRemove)
     
     for a in principles: # Remove facts involving non-primary principles
         if a not in primary:
@@ -664,6 +671,7 @@ if Implications or NonImplications or Weak or Strong:
 if Implications or NonImplications or Weak or Strong or ShowForm or Conservation:
 
     eprint(u'Printing DOT file...')
+    eprint("\tDiagram contains {0} non-equivalent principles.".format(len(primary)))
 
     print("""//
 // RM Zoo (v""" + Version + """)

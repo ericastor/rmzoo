@@ -33,6 +33,7 @@ WWKL2 is primary
 FIP is primary
 RWKL is primary
 
+COH is primary
 StCOH is primary
 
 GEN1+WKL is primary
