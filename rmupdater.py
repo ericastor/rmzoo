@@ -270,7 +270,7 @@ def standardizeFact(a, op, b):
 
 from pyparsing import *
 def parseResults(resultsString, quiet=False):
-    start = time.clock()
+    start = time.perf_counter()
     if not quiet: eprint(u'Parsing results...')
     # Name parsed strings
     name = Word( alphas+"_+^{}\\$", alphanums+"_+^{}$\\").setParseAction(lambda s,l,t: addPrinciple(t[0]))
@@ -334,7 +334,7 @@ def parseResults(resultsString, quiet=False):
         addFact(a, op, b, jst, 1)
     
     if not quiet: eprint(u'Principles found: {0:,d}'.format(len(principlesList)))
-    if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
+    if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.perf_counter() - start))
 
 # General fact; uses nothing, affects '<->', '->', and 'c'
 def addReflexivities():
@@ -732,16 +732,16 @@ def liftNonConservation():
     return r
 
 def deriveInferences(quiet=False, verbose=False):
-    start = time.clock()
+    start = time.perf_counter()
     if not quiet: eprint(u'Adding reflexivity facts..')
     addReflexivities()
     if not quiet: eprint(u'Making RCA trivial..')
     addRCABottom()
     if not quiet: eprint(u'Recording conjunctions...')
     definitionOfConjunction()
-    if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
+    if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.perf_counter() - start))
     
-    start = time.clock()
+    start = time.perf_counter()
     if not quiet: eprint(u'Deriving positive facts:')
     n = 0
     eUpdated, iUpdated, cUpdated = True, True, True
@@ -784,9 +784,9 @@ def deriveInferences(quiet=False, verbose=False):
         cUpdated = cChanged
     if not quiet:
         eprint(u'Finished with positive facts.')
-        eprint(u'Elapsed: {0:.6f} s (with {1} repeats)\n'.format(time.clock() - start, n))
+        eprint(u'Elapsed: {0:.6f} s (with {1} repeats)\n'.format(time.perf_counter() - start, n))
     
-    start = time.clock()
+    start = time.perf_counter()
     if not quiet: eprint(u'Deriving negative facts:')
     n = 0
     niUpdated, ncUpdated = True, True
@@ -822,7 +822,7 @@ def deriveInferences(quiet=False, verbose=False):
         ncUpdated = ncChanged
     if not quiet:
         eprint(u'Finished with negative facts.')
-        eprint(u'Elapsed: {0:.6f} s (with {1} repeats)\n'.format(time.clock() - start, n))
+        eprint(u'Elapsed: {0:.6f} s (with {1} repeats)\n'.format(time.perf_counter() - start, n))
 
 def getDatabase():
     return {'version': DatabaseVersion,
@@ -878,14 +878,14 @@ def setDatabase(database):
 def dumpDatabase(databaseName, quiet=False):
     if not quiet: eprint(u'Facts known: {0:,d}\n'.format(len(justify)))
     
-    start = time.clock()
+    start = time.perf_counter()
     if not quiet: eprint(u'Dumping updated database to binary file...')
     with open(databaseName, mode='wb') as databaseFile:
         pickledDatabase = pickle.dumps(getDatabase(), protocol=2)
         compressedDatabase = zlib.compress(pickledDatabase)
         databaseFile.write(compressedDatabase)
     
-    if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.clock() - start))
+    if not quiet: eprint(u'Elapsed: {0:.6f} s\n'.format(time.perf_counter() - start))
 
 def loadDatabase(databaseName, quiet=False):
     with open(databaseName, mode='rb') as databaseFile:
@@ -895,7 +895,7 @@ def loadDatabase(databaseName, quiet=False):
 
 from optparse import OptionParser, OptionGroup
 def main():
-    absoluteStart = time.clock()
+    absoluteStart = time.perf_counter()
     eprint(u'\nRM Zoo (v{0})\n'.format(Version))
     
     parser = OptionParser(u'Usage: %prog [options] results [database_title]', version=u'%prog {0} ({1})'.format(Version, Date))
@@ -936,7 +936,7 @@ def main():
         parseResults(f.read(), options.quiet)
     deriveInferences(quiet=options.quiet, verbose=options.verbose)
     dumpDatabase(databaseName, options.quiet)
-    if not options.quiet: eprint(u'Total elapsed time: {0:.6f} s'.format(time.clock() - absoluteStart))
+    if not options.quiet: eprint(u'Total elapsed time: {0:.6f} s'.format(time.perf_counter() - absoluteStart))
     
     if options.verbose:
         try:
