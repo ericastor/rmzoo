@@ -903,8 +903,8 @@ STS2 -> DNR "Rice (2015) [Main Theorem]"
 #    WKL -|> FIP "Dzhafarov and Mummert (2013)"
 #    FIP -|> WKL "Dzhafarov and Mummert (2013)"
 
-#Bienvenu, Patey, and Shafer (to appear) - "On the logical strengths of partial solutions to mathematical problems"
-#    http://arxiv.org/abs/1411.5874
+#Bienvenu, Patey, and Shafer (2017) - "On the logical strengths of partial solutions to mathematical problems" (Transactions of the London Mathematical Society vol. 4, iss. 1, 2017)
+#    https://londmathsoc.onlinelibrary.wiley.com/doi/10.1112/tlm3.12001
 
 WKL -> RWKL "by definition"
 WWKL -> RWWKL "by definition"
@@ -916,25 +916,25 @@ RWWKL2 -> RWWKL "by definition"
 
 RCOLOR3 -> RCOLOR2 "by definition"
 
-RT22 -> EM "easy to see, remarked in Bienvenu, Patey, and Shafer (to appear)"
-SRT22 -> SEM "easy to see, remarked in Bienvenu, Patey, and Shafer (to appear)"
+RT22 -> EM "easy to see, remarked in Bienvenu, Patey, and Shafer (2017)"
+SRT22 -> SEM "easy to see, remarked in Bienvenu, Patey, and Shafer (2017)"
 
 RCOLOR2 form rPi12
 
-RAN2 -> DNR0 "Bienvenu, Patey, and Shafer (to appear) [Theorem 2.8]"
-SEM -> RWKL "Bienvenu, Patey, and Shafer (to appear) [Theorem 2.11]"
-DNR <-> RWWKL "Bienvenu, Patey, and Shafer (to appear) [Theorem 3.4]"
-BSig2+RWWKL2 -> DNR0 "Bienvenu, Patey, and Shafer (to appear) [Lemma 3.6]"
-DNR0+ISig2 -> RWWKL2 "Bienvenu, Patey, and Shafer (to appear) [Lemma 3.7]"
-SRT22 -|> RWKL2 "Bienvenu, Patey, and Shafer (to appear) [Theorem 3.10]"
-BSig2+SRT22 -|> DNR0 "Bienvenu, Patey, and Shafer (to appear) [proof of Theorem 3.10]"
-RSAT <-> RWKL "Bienvenu, Patey, and Shafer (to appear) [Theorem 4.7]"
-RWKL -> RCOLOR3 "Bienvenu, Patey, and Shafer (to appear) [Lemma 5.3]"
-RCOLOR3 -> RWKL "Bienvenu, Patey, and Shafer (to appear) [Theorem 5.13]"
-#RCA w-|> RCOLOR2 "Bienvenu, Patey, and Shafer (to appear) [Proposition 6.3]"
-RCOLOR2 -> AST "Bienvenu, Patey, and Shafer (to appear) [Proposition 6.3]"
-CAC w-|> RCOLOR2 "Bienvenu, Patey, and Shafer (to appear) [Theorem 6.9]"
-WWKL w-|> RCOLOR2 "Bienvenu, Patey, and Shafer (to appear) [Theorem 6.11]"
+RAN2 -> DNR0 "Bienvenu, Patey, and Shafer (2017) [Theorem 2.8]"
+SEM -> RWKL "Bienvenu, Patey, and Shafer (2017) [Theorem 2.11]"
+DNR <-> RWWKL "Bienvenu, Patey, and Shafer (2017) [Theorem 3.4]"
+BSig2+RWWKL2 -> DNR0 "Bienvenu, Patey, and Shafer (2017) [Lemma 3.6]"
+DNR0+ISig2 -> RWWKL2 "Bienvenu, Patey, and Shafer (2017) [Lemma 3.7]"
+SRT22 -|> RWKL2 "Bienvenu, Patey, and Shafer (2017) [Theorem 3.10]"
+BSig2+SRT22 -|> DNR0 "Bienvenu, Patey, and Shafer (2017) [proof of Theorem 3.10]"
+RSAT <-> RWKL "Bienvenu, Patey, and Shafer (2017) [Theorem 4.7]"
+RWKL -> RCOLOR3 "Bienvenu, Patey, and Shafer (2017) [Lemma 5.3]"
+RCOLOR3 -> RWKL "Bienvenu, Patey, and Shafer (2017) [Theorem 5.13]"
+#RCA w-|> RCOLOR2 "Bienvenu, Patey, and Shafer (2017) [Proposition 6.3]"
+RCOLOR2 -> AST "Bienvenu, Patey, and Shafer (2017) [Proposition 6.3]"
+CAC w-|> RCOLOR2 "Bienvenu, Patey, and Shafer (2017) [Theorem 6.9]"
+WWKL w-|> RCOLOR2 "Bienvenu, Patey, and Shafer (2017) [Theorem 6.11]"
 
 RAN1 -> DNR "relativization and formalization of Kučera (1985)"
 
