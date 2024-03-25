@@ -350,10 +350,10 @@ def addReflexivities():
             if x == Reduction.none: continue
             
             # (a X-> a)
-            addFact(a, (x, u'<->'), a, u'reflexivity', 1)
+            addFact(a, (x, u'->'), a, u'reflexivity', 1)
             
             # (a X<-> a)
-            addFact(a, (x, u'->'), a, u'reflexivity', 1)
+            addFact(a, (x, u'<->'), a, u'reflexivity', 1)
         
         for f in Form:
             if f == Form.none: continue
